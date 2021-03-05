@@ -47,5 +47,6 @@ int main()
 
 	printConfig(config);
 
+
 	return (0);
 }
