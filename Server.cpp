@@ -49,3 +49,4 @@ void Server::addLocation(Location location)
 std::vector<Location> Server::getLocations(){return this->locations;}
 
 // void Server::setLocations(std::list<Location> locations){this->locations = locations;}
+
