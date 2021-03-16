@@ -46,7 +46,6 @@ int main()
 	config.createConfig();
 
 	printConfig(config);
-
-
+	config.startServers();
 	return (0);
 }

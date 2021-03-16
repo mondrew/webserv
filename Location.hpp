@@ -44,6 +44,7 @@ class Location
 		void setLocationPath(std::string loctionPath);
 
 
+
 };
 
 #endif
