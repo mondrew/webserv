@@ -22,7 +22,7 @@ Server::~Server()
 
 }
 
-Server &Server::operator=(Server const &cp){return *this;}
+Server &Server::operator=(Server const &cp){return *this;} // WRONG
 
 std::string Server::getServer_name(){return this->server_name;}
 
