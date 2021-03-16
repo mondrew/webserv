@@ -1,7 +1,7 @@
 #ifndef CONFIG_HPP
 #define CONFIG_HPP
 #include <vector>
-#include "Server.hpp"
+#include "ServerConf.hpp"
 #include <sys/socket.h>
 #include "Logger.hpp"
 #include <unistd.h>
@@ -14,17 +14,17 @@
 class Config
 {
 	private:
-		std::vector<Server> servers;
+		std::vector<ServerConf> servers;
 	public:
 		Config();
 		virtual ~Config();
 		Config(Config const &cp);
 		Config & operator=(Config const &op);
 
-		std::vector<Server> getServers();
-		void addServer(Server server);
+		std::vector<ServerConf> getServers();
+		void addServer(ServerConf server);
 		void createConfig();
-		int startServers();
+
 };
 
 #endif

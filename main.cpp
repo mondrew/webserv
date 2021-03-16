@@ -1,13 +1,14 @@
 #include "Config.hpp"
+#include "Servers.hpp"
 
 void printConfig(Config config)
 {
 	//Get servers
-	std::vector<Server> servers = config.getServers();
+	std::vector<ServerConf> servers = config.getServers();
 
 	//Get specific server
-	std::vector<Server>::iterator it_beg = servers.begin();
-	std::vector<Server>::iterator it_end = servers.end();
+	std::vector<ServerConf>::iterator it_beg = servers.begin();
+	std::vector<ServerConf>::iterator it_end = servers.end();
 	std::cout << "\n\n";
 	while (it_beg != it_end)
 	{
@@ -44,8 +45,9 @@ int main()
 	Config config;
 	//Autogenerate config. See "Config -> createConfig()"
 	config.createConfig();
-
 	printConfig(config);
-	config.startServers();
+
+	Servers servers = Servers(config);
+	servers.startServers();
 	return (0);
 }
