@@ -15,7 +15,7 @@ class Logger
 
 	public:
 		Logger();
-		virtual ~Logger();
+		~Logger();
 		Logger(Logger const &cp);
 		Logger & operator=(Logger const &op);
 

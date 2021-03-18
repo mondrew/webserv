@@ -14,16 +14,17 @@
 class Config
 {
 	private:
-		std::vector<ServerConf> servers;
+		std::vector<ServerConf>	servers;
+
 	public:
 		Config();
-		virtual ~Config();
+		~Config();
 		Config(Config const &cp);
 		Config & operator=(Config const &op);
 
-		std::vector<ServerConf> getServers();
-		void addServer(ServerConf server);
-		void createConfig();
+		std::vector<ServerConf>	getServers();
+		void					addServer(ServerConf server);
+		void					createConfig();
 
 };
 

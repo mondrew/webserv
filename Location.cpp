@@ -14,14 +14,7 @@ Location::Location() {
 Location::~Location() {}
 
 Location::Location(Location const &cp){
-	this->root = cp.root;
-	this->index = cp.index;
-	this->limitExcept = cp.limitExcept;
-	this->autoindex = cp.autoindex;
-	this->maxBody = cp.maxBody;
-	this->locationPath = cp.locationPath;
-	this->cgi = cp.cgi;
-	this->cgi_index = cp.cgi_index;
+	*this = cp;
 }
 
 Location & Location::operator=(Location const &op){

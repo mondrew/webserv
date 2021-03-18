@@ -12,7 +12,7 @@ Config::~Config()
 
 Config::Config(Config const &cp)
 {
-	this->servers = cp.servers;
+	*this = cp;
 }
 
 Config & Config::operator=(Config const &op)
@@ -21,13 +21,18 @@ Config & Config::operator=(Config const &op)
 	return (*this);
 }
 
-std::vector<ServerConf> Config::getServers(){return this->servers;}
+std::vector<ServerConf> Config::getServers()
+{
+	return this->servers;
+}
 
-void Config::addServer(ServerConf server){
-	this->servers.push_back(server);}
+void Config::addServer(ServerConf server)
+{
+	this->servers.push_back(server);
+}
 
 Location createLocation(std::string locationPath, std::string root,
-						std::string index)
+															std::string index)
 {
 	/*
 		---------Default---------
@@ -58,7 +63,6 @@ ServerConf parseServer(std::string localhost, std::string port)
 	server.addLocation(createLocation("test", "./www","")); // locationPath | root | index
 	return server;
 }
-
 
 void Config::createConfig()
 {

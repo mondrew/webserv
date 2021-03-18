@@ -5,18 +5,22 @@ Servers::Servers(Config config)
 	this->config = config;
 }
 
-Servers::~Servers(){}
-
-Servers::Servers(Servers const & cp){
-	this->config = cp.config;
+Servers::~Servers()
+{
+	return ;
 }
 
-Servers &Servers::operator=(Servers const & op){
+Servers::Servers(Servers const & cp) {
+	*this = src;
+}
+
+Servers &Servers::operator=(Servers const & op) {
 	this->config = op.config;
 	return (*this);
 }
 
-int Servers::startServers(){
+int Servers::startServers() {
+
 	//Get servers
 	std::vector<ServerConf> serversConf = this->config.getServers();
 
@@ -24,6 +28,7 @@ int Servers::startServers(){
 	std::vector<ServerConf>::iterator it_beg = serversConf.begin();
 	std::vector<ServerConf>::iterator it_end = serversConf.end();
 	std::cout << "\n\n";
+
 	while (it_beg != it_end)
 	{
 		/*
@@ -47,8 +52,8 @@ int Servers::startServers(){
 		*	To manipulate options at the socket level, level is specified as SOL_SOCKET.
 		*
 		*/
-		int option_value;
-		if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &option_value, sizeof(int)) == -1)
+		int	opt = 1;
+		if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &option_value, sizeof(opt)) == -1)
 		{
 			Logger::e(ERROR_SETSOCKOPT);
 			close(sock);
@@ -58,7 +63,6 @@ int Servers::startServers(){
 
 		/*
 		*	in_addr_t inet_addr(const char *cp);
-		*
 		*/
 		struct sockaddr_in address_in;
 		address_in.sin_family = AF_INET;

@@ -6,35 +6,79 @@
 /*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/16 07:58:05 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/16 09:17:57 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/03/18 11:11:29 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef SERVER_HPP
 # define SERVER_HPP
 
-class Server {
+#include "SocketOwner.hpp"
+#include "EventSelector.hpp"
+#include <vector>
+#include <list>
+#include <string>
+#include <unistd.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <stdlib.h>
+#include <arpa/inet.h>
+#include <sys/wait.h>
+
+class Server : public SocketOwner {
 
 	private:
 
-		int		_port;
-		int		_sockfd;
+		EventSelector				*_the_selector;
+		std::vector<std::string>	_serverNames;
+		std::string					_host;
+		int							_port;
+		std::string					_defaultErrorPage402;
+		std::string					_defaultErrorPage404;
+		std::vector<Location *>		_locationSet;
+		std::list<Session *>		_sessionSet;
+
+		// Клиентов будет много и не факт, что, получив HTTP-запрос от клиента мы
+		// 1) Сможем его сразу (за один раз) прочитать
+		// 2) Сможем отправить ответ за 1 вызов write
+		// Поэтому мы должны хранить клиентов (по сути - сессии) в списке до тех пор
+		// пока мы не закончим отвечать клиенту (пока не отправим весь запрос).
 
 		Server(void);
 
 	public:
 
-		Server(int a_ip_addr, int a_port, int a_sock) : 
-							_ip_addr(a_ip_addr), _port(a_port), _sock(a_sock) {
-		}
+		Server(int a_socket);
 		Server(Server const &src);
-		~Server(void);
+		virtual ~Server(void);
 
 		Server	&operator=(Server const &rhs);
 
-		void	init(void);
-		void	run(void);
+		// Getters
+		std::vector<std::string> const	&getServerNames(void) const;
+		std::string const				&getHost(void) const;
+		int								getPort(void) const;
+		int								getListenSocket(void) const;
+		std::string const				&getDefaultErrorPage402(void) const;
+		std::string const				&getDefaultErrorPage404(void) const;
+		std::vector<Location *> const	&getLocationSet(void) const;
+		std::vector<Session *> const	&getSessionSet(void) const;
 
+		// Setters
+		void	addServerName(std::string const &server_name);
+		void	setHost(std::string const &host);
+		void	setPort(int port);
+		void	setListenSocket(int socket);
+		void	setDefaultErrorPage402(std::string const &path);
+		void	setDefaultErrorPage404(std::string const &path);
+		void	addLocation(Location *location);
+		void	addSession(Session *session);
+
+		// Start server
+		void			start(void);
+		virtual void	handle(void);
+
+		void			removeSession(Session *session);
 };
 
 #endif
