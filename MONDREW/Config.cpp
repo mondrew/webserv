@@ -6,7 +6,7 @@
 /*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/18 10:27:07 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/19 10:49:52 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/03/19 12:06:14 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,6 +69,8 @@ Server		*parseServer(std::string const &serverName, int port)
 {
 	Server	*server = new Server(-1);
 
+	//server->setSelector(getSelector());
+	server->setHost("127.0.0.1");
 	server->addServerName(serverName);
 	server->setPort(port);
 	server->setDefaultErrorPage402("./www/error.html");

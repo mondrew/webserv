@@ -6,11 +6,12 @@
 /*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/17 23:10:08 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/19 10:21:09 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/03/19 11:56:55 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Session.hpp"
+#include "Server.hpp"
 
 Session::Session(int a_sockfd, Server *master) : ASocketOwner(a_sockfd),
 														_the_master(master),
@@ -59,5 +60,6 @@ void		Session::handle(void) {
 	// After that we
 	// 	1) remove that fd from rds set
 	// 	2) add that fd to the wrs set
-	// 	3) here we go - we are ready to write the http-response
+	// 	3) change readyToResponseFlag to true
+	// 	4) here we go - we are ready to write the http-response
 }

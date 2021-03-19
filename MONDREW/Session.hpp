@@ -6,7 +6,7 @@
 /*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/17 23:06:28 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/19 08:32:22 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/03/19 11:48:40 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,7 @@ class Session : public ASocketOwner {
 
 		Session		&operator=(Session const &rhs);
 
-		bool			isReadyToResponse(void) const;
+		virtual bool	isReadyToResponse(void) const;
 		void			setReadyToResponseFlag(bool val);
 		virtual void	handle(void);
 };

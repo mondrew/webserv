@@ -6,7 +6,7 @@
 /*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/18 00:50:52 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/19 08:54:57 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/03/19 11:56:40 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,7 +88,7 @@ void			EventSelector::run() {
 		FD_ZERO(&rds);
 		FD_ZERO(&wrs);
 		// timeout 30.5 sec
-		timeout.tv_sec = 30;
+		timeout.tv_sec = 10;
 		timeout.tv_usec = 500000;
 
 		// Loop for adding in sets fds which want to read or write
@@ -97,7 +97,8 @@ void			EventSelector::run() {
 												it != _socketOwnerSet.end(); it++)
 		{
 			FD_SET((*it)->getSocket(), &rds);
-			FD_SET((*it)->getSocket(), &wrs);
+			if ((*it)->isReadyToResponse())
+				FD_SET((*it)->getSocket(), &wrs);
 		}
 
 		// 'select' system call

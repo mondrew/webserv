@@ -6,7 +6,7 @@
 /*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/18 00:05:41 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/19 10:22:18 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/03/19 11:49:39 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,7 @@ class ASocketOwner {
 
 		// Pure virtual method (implementations will be in derived classes)
 		virtual void	handle(void) = 0;
+		virtual bool	isReadyToResponse(void) const = 0;
 };
 
 #endif

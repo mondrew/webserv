@@ -6,7 +6,7 @@
 /*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/18 09:20:58 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/19 10:49:51 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/03/19 11:40:23 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,12 +20,12 @@ int		main(int argc, char **argv)
 	if (argc < 2)
 	{
 		std::cout << "Error: configuration file missing." << std::endl;
-		return (-1);
+		return (1);
 	}
 	else if (argc > 2)
 	{
 		std::cout << "Error: too many arguments." << std::endl;
-		return (-1);
+		return (1);
 	}
 
 	EventSelector	*selector = new EventSelector();
@@ -37,7 +37,10 @@ int		main(int argc, char **argv)
 
 	// Check if the config file if valid or not
 	if (!config.isValid())
+	{
 		std::cout << "Error: invalid configuration file." << std::endl;
+		return (1);
+	}
 
 	config.runServers();
 
