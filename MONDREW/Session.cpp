@@ -6,12 +6,13 @@
 /*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/17 23:10:08 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/19 11:56:55 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/03/19 19:32:25 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Session.hpp"
 #include "Server.hpp"
+#include <iostream>
 
 Session::Session(int a_sockfd, Server *master) : ASocketOwner(a_sockfd),
 														_the_master(master),

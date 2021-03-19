@@ -6,7 +6,7 @@
 /*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/18 10:27:07 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/19 12:06:14 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/03/19 19:31:39 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,7 +69,6 @@ Server		*parseServer(std::string const &serverName, int port)
 {
 	Server	*server = new Server(-1);
 
-	//server->setSelector(getSelector());
 	server->setHost("127.0.0.1");
 	server->addServerName(serverName);
 	server->setPort(port);
@@ -82,8 +81,15 @@ Server		*parseServer(std::string const &serverName, int port)
 
 void		Config::createConfig()
 {
-	addServer(parseServer("localhost", 8000));
-	addServer(parseServer("localhost", 8001));
+	Server	*server;
+
+	server = parseServer("localhost", 8000);
+	server->setSelector(this->getSelector()); // IMPORTANT!!!
+	addServer(server);
+
+	server = parseServer("localhost", 8001);
+	server->setSelector(this->getSelector()); // IMPORTANT!!!
+	addServer(server);
 	//You can add more servers. All values is default, except serverName and port.
 }
 
@@ -98,7 +104,10 @@ void		Config::runServers(void) {
 	// Start servers
 	for (std::list<Server *>::iterator it = _serverSet.begin();
 													it != _serverSet.end(); it++)
+	{
 		(*it)->start();
+		_the_selector->add(*it);
+	}
 
 	// Run Main Loop
 	_the_selector->run();

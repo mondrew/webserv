@@ -6,7 +6,7 @@
 /*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/18 00:50:52 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/19 11:56:40 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/03/19 19:40:41 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,8 @@
 
 EventSelector::EventSelector(void) :
 								_socketOwnerSet(std::list<ASocketOwner *>()),
-								_quitFlag(false) {
+								_quitFlag(false),
+								_max_fd(-1) {
 }
 
 EventSelector::EventSelector(EventSelector const &src) {
@@ -88,7 +89,7 @@ void			EventSelector::run() {
 		FD_ZERO(&rds);
 		FD_ZERO(&wrs);
 		// timeout 30.5 sec
-		timeout.tv_sec = 10;
+		timeout.tv_sec = 3;
 		timeout.tv_usec = 500000;
 
 		// Loop for adding in sets fds which want to read or write
@@ -100,6 +101,19 @@ void			EventSelector::run() {
 			if ((*it)->isReadyToResponse())
 				FD_SET((*it)->getSocket(), &wrs);
 		}
+
+		// start debug
+		std::cout << "-----------------------" << std::endl;
+		std::cout << "Sockets in EventSelector" << std::endl;
+		for (std::list<ASocketOwner *>::iterator it = _socketOwnerSet.begin();
+												it != _socketOwnerSet.end(); it++)
+		{
+			std::cout << (*it)->getSocket() << " ";
+		}
+		std::cout << std::endl;
+		std::cout << "-----------------------" << std::endl;
+		select(0, 0, 0, 0, &timeout);
+		// end debug
 
 		// 'select' system call
 		int		res = select(_max_fd + 1, &rds, &wrs, 0, &timeout);

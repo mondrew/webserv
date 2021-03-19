@@ -6,7 +6,7 @@
 /*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/16 09:02:17 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/19 11:53:00 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/03/19 19:50:03 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 #define MAX_USERS 128
 
 Server::Server(int a_socket) : ASocketOwner(a_socket),
+					_the_selector(0),
 					_serverNames(std::vector<std::string>()),
 					_host("localhost"),
 					_port(80),
@@ -218,8 +219,11 @@ void		Server::handle(void) {
 		return ;
 	}
 
+	std::cout << "SERVER ACCEPT: " << sockfd << std::endl; // debug
+
 	// Add new client to the Session list and to the EventSelector objects
 	Session	*session = new Session(sockfd, this);
+
 	addSession(session);
 	_the_selector->add(session);
 }
