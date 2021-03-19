@@ -6,13 +6,14 @@
 /*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/18 10:27:07 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/18 10:27:14 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/03/19 10:49:52 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Config.hpp"
+#include "Location.hpp"
 
-Config::Config(std::string const &path, EventSelector *a_selector) :
+Config::Config(std::string const &a_path, EventSelector *a_selector) :
 													_path(a_path),
 													_the_selector(a_selector) {
 	return ;
@@ -41,7 +42,7 @@ void		Config::addServer(Server *server)
 	this->_serverSet.push_back(server);
 }
 
-Location	createLocation(std::string const &locationPath, std::string const &root,
+Location	*createLocation(std::string const &locationPath, std::string const &root,
 													std::string const &index)
 {
 	/*
@@ -54,17 +55,19 @@ Location	createLocation(std::string const &locationPath, std::string const &root
 		cgi				not config
 		cgi_index		not config
 	*/
-	Location location;
-	location.setLocationPath(locationPath);
-	if (!root.empty()) {location.setRoot(root);}
-	if (!index.empty()) {location.setIndex(index);}
+	Location	*location = new Location();
+	location->setLocationPath(locationPath);
+	if (!root.empty())
+		location->setRoot(root);
+	if (!index.empty())
+		location->setIndex(index);
 
 	return location;
 }
 
 Server		*parseServer(std::string const &serverName, int port)
 {
-	Server	server = new Server(-1);
+	Server	*server = new Server(-1);
 
 	server->addServerName(serverName);
 	server->setPort(port);
@@ -92,17 +95,17 @@ void		Config::runServers(void) {
 
 	// Start servers
 	for (std::list<Server *>::iterator it = _serverSet.begin();
-													it < _serverSet.end(); it++)
+													it != _serverSet.end(); it++)
 		(*it)->start();
 
 	// Run Main Loop
-	the_selector->run();
+	_the_selector->run();
 }
 
 // Getters
-std::vector<Server> const	&Config::getServers() const {
+std::list<Server *> const	&Config::getServerSet() const {
 
-	return this->_serverSet;
+	return (this->_serverSet);
 }
 
 std::string const			&Config::getPath(void) const {

@@ -6,7 +6,7 @@
 /*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/18 11:16:18 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/18 11:16:20 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/03/19 08:54:31 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,8 @@ Logger::Logger(Logger const &cp) {
 Logger::~Logger() {
 }
 
-Logger & Logger::operator=(Logger const &op) {
+Logger &Logger::operator=(Logger const &op) {
 
+	static_cast<void>(op);
 	return (*this);
 }

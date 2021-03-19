@@ -6,7 +6,7 @@
 /*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/18 10:27:18 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/18 10:28:11 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/03/19 10:27:57 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@
 # include <arpa/inet.h>
 # include <fcntl.h>
 
-# define MAX_USERS 1000
+# define MAX_USERS 128
 
 class Config
 {
@@ -38,20 +38,20 @@ class Config
 
 	public:
 
-		Config(std::string a_path, EventSelector *a_selector);
+		Config(std::string const &a_path, EventSelector *a_selector);
 		~Config();
 		Config(Config const &cp);
 		Config & operator=(Config const &op);
 
-		std::list<ServerConf>	const	&getServers() const;
-		std::string const				&getPath(void) const;
-		EventSelector					*getSelector(void) const;
+		std::list<Server *> const	&getServerSet() const;
+		std::string const			&getPath(void) const;
+		EventSelector				*getSelector(void) const;
 
-		void							addServer(Server server);
-		void							createConfig();
-		bool							isValid(void);
+		void						addServer(Server *server);
+		void						createConfig();
+		bool						isValid(void);
 
-		void							runServers(void);
+		void						runServers(void);
 };
 
 #endif

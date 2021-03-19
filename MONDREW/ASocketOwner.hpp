@@ -6,7 +6,7 @@
 /*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/18 00:05:41 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/18 10:28:41 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/03/19 10:22:18 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,15 +19,14 @@ class ASocketOwner {
 
 		int		_socket;
 
+	public:
+
 		ASocketOwner(void);
-
-	private:
-
 		ASocketOwner(int socket);
 		ASocketOwner(ASocketOwner const &src);
 		virtual ~ASocketOwner(void);
 
-		ASocketOwner	operator=(ASocketOwner const &rhs);
+		ASocketOwner	&operator=(ASocketOwner const &rhs);
 
 		int				getSocket(void) const;
 		void			setSocket(int socket);

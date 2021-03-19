@@ -6,7 +6,7 @@
 /*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/17 20:42:54 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/18 10:28:25 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/03/19 08:47:00 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 # define EVENT_SELECTOR_HPP
 
 # include <vector>
+# include <list>
 # include "ASocketOwner.hpp"
 
 class EventSelector {

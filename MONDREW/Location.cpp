@@ -6,7 +6,7 @@
 /*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/18 10:28:50 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/18 11:06:30 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/03/19 08:52:16 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,7 @@ std::string const		&Location::getCgi() const { return this->cgi; }
 std::string const 		&Location::getCgi_index() const { return this->cgi_index; }
 std::string const		&Location::getLocationPath() const { return this->locationPath; }
 std::vector<int> const	&Location::getLimitExcept() const { return this->limitExcept; }
-bool					Location::isAutoindex() { return this->autoindex; }
+bool					Location::isAutoindex() const { return this->autoindex; }
 
 // Setters
 void	Location::setRoot(std::string root) {this->root = root;}

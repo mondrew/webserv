@@ -6,14 +6,15 @@
 /*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/16 09:02:17 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/18 09:13:32 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/03/19 10:37:34 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
 #include <iostream>
 #include <sys/socket.h>
-#include <netinet.h>
+
+#define MAX_USERS 128
 
 Server::Server(int a_socket) : ASocketOwner(a_socket),
 					_serverNames(std::vector<std::string>()),
@@ -21,13 +22,13 @@ Server::Server(int a_socket) : ASocketOwner(a_socket),
 					_port(80),
 					_defaultErrorPage402(""),
 					_defaultErrorPage404(""),
-					_locationSet(std::vector<Location *>())
-					_sessionSet(std::list<Session *>() {
+					_locationSet(std::vector<Location *>()),
+					_sessionSet(std::list<Session *>()) {
 
 	return ;
 }
 
-Server::Server(Server const &src) {
+Server::Server(Server const &src) : ASocketOwner(src) {
 
 	*this = src;
 	return ;
@@ -37,7 +38,8 @@ Server::~Server(void) {
 
 	// delete sessionSet ?
 	// delete locationSet ?
-	for (std::list<Session *>::iterator it = _sessionSet.begin(); it < _sessionSet.end(); it++)
+	for (std::list<Session *>::iterator it = _sessionSet.begin();
+												it != _sessionSet.end(); it++)
 	{
 		_the_selector->remove(*it);
 	}
@@ -45,8 +47,9 @@ Server::~Server(void) {
 	return ;
 }
 
-Server	&Server::operator=(Server const &rhs) : ASocketOwner(rhs) {
+Server	&Server::operator=(Server const &rhs) {
 
+	this->_socket = rhs._socket;
 	this->_serverNames = rhs._serverNames;
 	this->_host = rhs._host;
 	this->_port = rhs._port;
@@ -91,7 +94,7 @@ std::vector<Location *> const		&Server::getLocationSet(void) const {
 	return (this->_locationSet);
 }
 
-std::vector<Session *> const		&Server::getSessionSet(void) const {
+std::list<Session *> const		&Server::getSessionSet(void) const {
 
 	return (this->_sessionSet);
 }
@@ -146,7 +149,7 @@ int		Server::start(void) {
 		std::cout << "Error: cant't create server socket." << std::endl;
 		return (-1);
 	}
-	std::cout << "Server has created a socket: " << _listenSocket << std::endl;
+	std::cout << "Server has created a socket: " << _socket << std::endl;
 
 	// Prevents port sticking
 	opt = 1;
@@ -161,7 +164,7 @@ int		Server::start(void) {
 
 	addr.sin_family = AF_INET;
 	addr.sin_port = htons(_port);
-	addr.sin_addr.s_addr = inet_addr(_host);
+	addr.sin_addr.s_addr = inet_addr(_host.c_str());
 	//addr.sin_addr.s_addr = htonls(INADDR_ANY);
 
 	// Binding the socket '_listenSocket' to IP address
@@ -174,7 +177,8 @@ int		Server::start(void) {
 		return (-1);
 	}
 	std::cout << "Bind successfully" << std::endl;
-	std::cout << "Server IP address: " << addr.sin_addr.s_addr << std::endl;
+	std::cout << "Server IP address: " << inet_ntoa(addr.sin_addr);
+   	std::cout << std::endl;
 
 	// Turn socket to the listening mode
 	if (listen(_socket, MAX_USERS) == -1)
@@ -186,7 +190,8 @@ int		Server::start(void) {
 		return (-1);
 	}
 
-	std::cout << "Server " << _serverName << " has successfully started!" << std::endl;
+	std::cout << "Server '" << _serverNames[0] << "' has successfully started!";
+	std::cout << std::endl;
 
 	return (0);
 }
@@ -208,7 +213,7 @@ void		Server::handle(void) {
 	}
 
 	// Add new client to the Session list and to the EventSelector objects
-	Session session = new Session(this, sockfd);
+	Session	*session = new Session(sockfd, this);
 	addSession(session);
 	_the_selector->add(session);
 }

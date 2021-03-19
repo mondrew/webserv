@@ -6,26 +6,30 @@
 /*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/16 07:58:05 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/18 11:11:29 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/03/19 09:41:12 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef SERVER_HPP
 # define SERVER_HPP
 
-#include "SocketOwner.hpp"
-#include "EventSelector.hpp"
-#include <vector>
-#include <list>
-#include <string>
-#include <unistd.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <stdlib.h>
-#include <arpa/inet.h>
-#include <sys/wait.h>
+# include "ASocketOwner.hpp"
+# include "EventSelector.hpp"
+# include "Location.hpp"
+# include "Session.hpp"
+# include <vector>
+# include <list>
+# include <string>
+# include <unistd.h>
+# include <sys/socket.h>
+# include <netinet/in.h>
+# include <stdlib.h>
+# include <arpa/inet.h>
+# include <sys/wait.h>
 
-class Server : public SocketOwner {
+class Session;
+
+class Server : public ASocketOwner {
 
 	private:
 
@@ -62,7 +66,7 @@ class Server : public SocketOwner {
 		std::string const				&getDefaultErrorPage402(void) const;
 		std::string const				&getDefaultErrorPage404(void) const;
 		std::vector<Location *> const	&getLocationSet(void) const;
-		std::vector<Session *> const	&getSessionSet(void) const;
+		std::list<Session *> const		&getSessionSet(void) const;
 
 		// Setters
 		void	addServerName(std::string const &server_name);
@@ -75,7 +79,7 @@ class Server : public SocketOwner {
 		void	addSession(Session *session);
 
 		// Start server
-		void			start(void);
+		int				start(void);
 		virtual void	handle(void);
 
 		void			removeSession(Session *session);

@@ -6,15 +6,18 @@
 /*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/18 00:50:52 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/18 09:20:09 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/03/19 08:54:57 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "EventSelector.hpp"
+#include <sys/select.h>
 #include <cerrno>
+#include <iostream>
 
-EventSelector::EventSelector(void) : _socketOwnerSet(std::vector<ASocketOwner *>()),
-										_quit_flag(false) {
+EventSelector::EventSelector(void) :
+								_socketOwnerSet(std::list<ASocketOwner *>()),
+								_quitFlag(false) {
 }
 
 EventSelector::EventSelector(EventSelector const &src) {
@@ -38,15 +41,15 @@ EventSelector	&EventSelector::operator=(EventSelector const &rhs) {
 void			EventSelector::add(ASocketOwner *owner) {
 
 	this->_socketOwnerSet.push_back(owner);
-	if (owner->getSocket > _max_fd)
+	if (owner->getSocket() > _max_fd)
 		_max_fd = owner->getSocket();
 }
 
 int				EventSelector::findMaxSocket(void) {
 
 	int		max = -1;
-	for (std::list<ASocketOwner *>::iterator it = socketOwnerSet.begin();
-												it < socketOwnerSet.end(); it++)
+	for (std::list<ASocketOwner *>::iterator it = _socketOwnerSet.begin();
+												it != _socketOwnerSet.end(); it++)
 	{
 		if ((*it)->getSocket() > max)
 			max = (*it)->getSocket();
@@ -77,7 +80,6 @@ void			EventSelector::run() {
 
 	while (!_quitFlag)
 	{
-		int				i;
 		fd_set			rds;
 		fd_set			wrs;
 		struct timeval	timeout;
@@ -91,8 +93,8 @@ void			EventSelector::run() {
 
 		// Loop for adding in sets fds which want to read or write
 		// Now I will add here all fds, but maybe it's not right
-		for (std::list<ASocketOwner *>::iterator it = socketOwnerSet.begin();
-												it < socketOwnerSet.end(); it++)
+		for (std::list<ASocketOwner *>::iterator it = _socketOwnerSet.begin();
+												it != _socketOwnerSet.end(); it++)
 		{
 			FD_SET((*it)->getSocket(), &rds);
 			FD_SET((*it)->getSocket(), &wrs);
@@ -116,8 +118,8 @@ void			EventSelector::run() {
 		}
 		else
 		{
-			for (std::list<ASocketOwner *>::iterator it = socketOwnerSet.begin();
-												it < socketOwnerSet.end(); it++)
+			for (std::list<ASocketOwner *>::iterator it = _socketOwnerSet.begin();
+												it != _socketOwnerSet.end(); it++)
 			{
 				bool	r = FD_ISSET((*it)->getSocket(), &rds);
 				bool	w = FD_ISSET((*it)->getSocket(), &wrs);

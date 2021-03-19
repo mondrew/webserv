@@ -6,28 +6,33 @@
 /*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/17 23:06:28 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/18 00:44:44 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/03/19 08:32:22 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef SESSION_HPP
 # define SESSION_HPP
 
-#include "Client.hpp"
 #include "Server.hpp"
-#include "SocketOwner.hpp"
+#include "ASocketOwner.hpp"
 
-class Session : public SocketOwner {
+# define BUFFER_SIZE 1024
+
+class Server;
+
+class Session : public ASocketOwner {
 
 	private:
 
 		// int			_socket; // in the Base class 'SocketOwner'
-		Client		_client;
+		Server		*_the_master;
+		bool		_readyToResponseFlag; // false by default, until Server get
+										// whole HTTP-request from Client
+
 		char		_read_buffer[BUFFER_SIZE + 1];
 		int			_read_buf_used;
 		char		_write_buffer[BUFFER_SIZE];
 		int			_write_buf_sent;
-		Server		*_the_master;
 
 		Session(void);
 
@@ -39,6 +44,8 @@ class Session : public SocketOwner {
 
 		Session		&operator=(Session const &rhs);
 
+		bool			isReadyToResponse(void) const;
+		void			setReadyToResponseFlag(bool val);
 		virtual void	handle(void);
 };
 
