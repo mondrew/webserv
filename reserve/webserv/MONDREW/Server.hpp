@@ -6,7 +6,7 @@
 /*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/16 07:58:05 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/20 12:06:11 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/03/19 11:46:56 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,7 @@ class Server : public ASocketOwner {
 		std::string					_defaultErrorPage404;
 		std::vector<Location *>		_locationSet;
 		std::list<Session *>		_sessionSet;
-		//bool						_readyToResponseFlag; // false
+		bool						_readyToResponseFlag; // false
 
 		// Клиентов будет много и не факт, что, получив HTTP-запрос от клиента мы
 		// 1) Сможем его сразу (за один раз) прочитать
@@ -85,7 +85,7 @@ class Server : public ASocketOwner {
 		virtual void	handle(void);
 
 		void			removeSession(Session *session);
-		//virtual bool	isReadyToResponse(void) const;
+		virtual bool	isReadyToResponse(void) const;
 };
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/16 09:02:17 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/20 18:59:56 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/03/19 19:50:03 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,8 +24,8 @@ Server::Server(int a_socket) : ASocketOwner(a_socket),
 					_defaultErrorPage402(""),
 					_defaultErrorPage404(""),
 					_locationSet(std::vector<Location *>()),
-					_sessionSet(std::list<Session *>()) {
-					//_readyToResponseFlag(false) {
+					_sessionSet(std::list<Session *>()),
+					_readyToResponseFlag(false) {
 
 	return ;
 }
@@ -232,13 +232,12 @@ void		Server::removeSession(Session *s) {
 
 	// Remove fd from EventSelector object array
 	_the_selector->remove(s);
+
 	// Delete Client from the sessionSet linked-list in Server
 	_sessionSet.remove(s);
 }
 
-/*
 bool		Server::isReadyToResponse(void) const {
 
 	return (this->_readyToResponseFlag);
 }
-*/

@@ -6,7 +6,7 @@
 /*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/18 00:50:52 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/20 19:01:57 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/03/19 19:40:41 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,7 +88,7 @@ void			EventSelector::run() {
 		// Clear sets
 		FD_ZERO(&rds);
 		FD_ZERO(&wrs);
-		// timeout 3.5 sec
+		// timeout 30.5 sec
 		timeout.tv_sec = 3;
 		timeout.tv_usec = 500000;
 
@@ -97,9 +97,8 @@ void			EventSelector::run() {
 		for (std::list<ASocketOwner *>::iterator it = _socketOwnerSet.begin();
 												it != _socketOwnerSet.end(); it++)
 		{
-			if ((*it)->getWantToRead() == true)
-				FD_SET((*it)->getSocket(), &rds);
-			if ((*it)->getWantToWrite() == true)
+			FD_SET((*it)->getSocket(), &rds);
+			if ((*it)->isReadyToResponse())
 				FD_SET((*it)->getSocket(), &wrs);
 		}
 
