@@ -6,7 +6,7 @@
 /*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/17 23:06:28 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/22 12:00:25 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/03/22 12:49:23 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,8 @@ class Session : public ASocketOwner {
 		char			_write_buffer[BUFFER_SIZE];
 		std::string		_responseStr; // It should be 'HTTPResponse' class that owns that string
 
+		bool			_deleteMe;
+
 		Session(void);
 		Session(Session const &src);
 		Session		&operator=(Session const &rhs);
@@ -52,6 +54,8 @@ class Session : public ASocketOwner {
 		void			responseToString(void);
 		//virtual bool	isReadyToResponse(void) const;
 		//void			setReadyToResponseFlag(bool val);
+		virtual bool	getDeleteMe(void) const;
+		virtual void	remove(void);
 		virtual void	handle(void);
 };
 

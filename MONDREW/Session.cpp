@@ -6,7 +6,7 @@
 /*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/17 23:10:08 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/22 12:19:09 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/03/22 12:42:50 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,8 @@
 Session::Session(int a_sockfd, Server *master) :	ASocketOwner(a_sockfd),
 													_theMaster(master),
 													_request(0),
-													_response(0) {
+													_response(0),
+													_deleteMe(false) {
 	return ;
 }
 
@@ -31,6 +32,11 @@ Session::~Session(void) {
 	if (_response)
 		delete _response;
 	return ;
+}
+
+bool		Session::getDeleteMe(void) const {
+
+	return (this->_deleteMe);
 }
 
 void		Session::generateResponse(void) {
@@ -56,6 +62,11 @@ void		Session::responseToString(void) {
 	// just for testing
 	_responseStr = "HTTP/1.1 200 OK\nContent-Type:text/html\nContent-Length: \
 					 									16\n\n<h1>testing</h1>";
+}
+
+void		Session::remove(void) {
+
+	_theMaster->removeSession(this);
 }
 
 // MONDREW handle
@@ -99,7 +110,7 @@ void		Session::handle(void) {
 			// We have sent all HTTP Response
 			// Now we have to close the Session
 			// HTTP is connectionless protocol !
-			_theMaster->removeSession(this);
+			_deleteMe = true;
 		}
 	}
 }

@@ -6,7 +6,7 @@
 /*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/16 07:58:05 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/20 12:06:11 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/03/22 12:48:41 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,6 +58,9 @@ class Server : public ASocketOwner {
 		virtual ~Server(void);
 
 		Server	&operator=(Server const &rhs);
+
+		virtual bool	getDeleteMe(void) const { return true; }
+		virtual void	remove(void) {}
 
 		// Getters
 		std::vector<std::string> const	&getServerNames(void) const;

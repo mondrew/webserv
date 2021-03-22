@@ -6,7 +6,7 @@
 /*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/18 00:50:52 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/22 12:19:03 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/03/22 12:51:36 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -145,7 +145,11 @@ void			EventSelector::run() {
 				else if (w)
 				{
 					(*it)->handle();
-					it--;
+					if ((*it)->getDeleteMe())
+					{
+						(*it)->remove();
+						it--; // FIT IT!!!
+					}
 				}
 				// Segfault is here: if handle in Session was successfull
 				// we delete Session from everywhere (including _socketOwnerSet)
