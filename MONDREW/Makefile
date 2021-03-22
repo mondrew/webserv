@@ -6,7 +6,7 @@
 #    By: mondrew <marvin@42.fr>                     +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/12/08 23:16:50 by mondrew           #+#    #+#              #
-#    Updated: 2021/03/20 18:25:39 by mondrew          ###   ########.fr        #
+#    Updated: 2021/03/22 09:20:46 by mondrew          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -37,6 +37,7 @@ all: $(NAME)
 $(NAME): $(OBJS)
 	@echo "Compiling ... Please wait..."
 	@clang++ $(OBJS) -o $(NAME)
+	@/bin/rm -f $(OBJS)
 	@clear
 	@echo "Compilation successfully done!"
 
