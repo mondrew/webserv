@@ -1,19 +1,31 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   Logger.hpp                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/03/18 11:14:42 by mondrew           #+#    #+#             */
+/*   Updated: 2021/03/19 11:26:20 by mondrew          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef LOGGER_HPP
-#define LOGGER_HPP
+# define LOGGER_HPP
 
-#include <iostream>
+# include <iostream>
 
+# define ERROR_SOCKET 1
+# define ERROR_SETSOCKOPT 2
+# define ERROR_BIND 3
+# define ERROR_LISTEN 4
 
-#define ERROR_SOCKET 1
-#define ERROR_SETSOCKOPT 2
-#define ERROR_BIND 3
-#define ERROR_LISTEN 4
+class Logger {
 
-class Logger
-{
 	private:
 
 	public:
+
 		Logger();
 		~Logger();
 		Logger(Logger const &cp);
@@ -44,7 +56,6 @@ class Logger
 			std::cout << msg << "\n";
 			return (0);
 		}
-
 };
 
 #endif

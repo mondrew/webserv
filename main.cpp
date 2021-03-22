@@ -1,53 +1,48 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.cpp                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/03/18 09:20:58 by mondrew           #+#    #+#             */
+/*   Updated: 2021/03/19 11:40:23 by mondrew          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "Config.hpp"
-#include "Servers.hpp"
+#include "EventSelector.hpp"
 
-void printConfig(Config config)
+int		main(int argc, char **argv)
 {
-	//Get servers
-	std::vector<ServerConf> servers = config.getServers();
-
-	//Get specific server
-	std::vector<ServerConf>::iterator it_beg = servers.begin();
-	std::vector<ServerConf>::iterator it_end = servers.end();
-	std::cout << "\n\n";
-	while (it_beg != it_end)
+	// Config class contains set of Servers
+	// EventSelector class - is a Main Loop for select
+	if (argc < 2)
 	{
-		std::cout << "server {\n";
-		std::cout << "	server_name			" << (*it_beg).getServer_name() << ";\n";
-		std::cout << "	listen				" << (*it_beg).getPortListen() << ";\n";
-		std::cout << "	error page 402		" << (*it_beg).getDefault_err_page_402() << ";\n";
-		std::cout << "	error page 404		" << (*it_beg).getDefault_err_page_404() << ";\n";
-
-		// Get all locations
-		std::vector<Location> locations = (*it_beg).getLocations();
-
-		std::vector<Location>::iterator it_beg_loc = locations.begin();
-		std::vector<Location>::iterator it_end_loc = locations.end();
-		// Get specific locations
-		while (it_beg_loc != it_end_loc)
-		{
-			std::cout << "	location \\" << (*it_beg_loc).getLocationPath() << "{\n";
-			std::cout << "		index " << (*it_beg_loc).getIndex() << "\n";
-			std::cout << "		root " << (*it_beg_loc).getRoot() << "\n";
-			std::cout << "		autoindex ";
-			if ((*it_beg_loc).isAutoindex()) std::cout << "on;\n";
-			else std::cout << "off;\n";
-			std::cout << "	}\n";
-			it_beg_loc++;
-		}
-		std::cout << "}\n";
-		it_beg++;
+		std::cout << "Error: configuration file missing." << std::endl;
+		return (1);
 	}
-}
+	else if (argc > 2)
+	{
+		std::cout << "Error: too many arguments." << std::endl;
+		return (1);
+	}
 
-int main()
-{
-	Config config;
-	//Autogenerate config. See "Config -> createConfig()"
+	EventSelector	*selector = new EventSelector();
+	Config			config(argv[1], selector);
+
+	// Autogenerate config. See "Config -> createConfig()"
+	// Here we parse .conf file and add new Server instances to the list 'serverSet'
 	config.createConfig();
-	printConfig(config);
 
-	Servers servers = Servers(config);
-	servers.startServers();
+	// Check if the config file if valid or not
+	if (!config.isValid())
+	{
+		std::cout << "Error: invalid configuration file." << std::endl;
+		return (1);
+	}
+
+	config.runServers();
+
 	return (0);
 }

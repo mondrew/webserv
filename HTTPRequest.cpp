@@ -1,30 +1,31 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Logger.cpp                                         :+:      :+:    :+:   */
+/*   HTTPRequest.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/03/18 11:16:18 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/19 08:54:31 by mondrew          ###   ########.fr       */
+/*   Created: 2021/03/20 15:53:09 by mondrew           #+#    #+#             */
+/*   Updated: 2021/03/20 17:58:29 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Logger.hpp"
+#include "HTTPRequest.hpp"
 
-Logger::Logger() {
+HTTPRequest::HTTPRequest(std::string const &str) {
+
+	// Fill all attributes from the string
+	std::string		tmp = str;
+	tmp = "";
 }
 
-Logger::Logger(Logger const &cp) {
+HTTPRequest::~HTTPRequest(void) {
 
-	*this = cp;
+	return ;
 }
 
-Logger::~Logger() {
-}
+bool			HTTPRequest::isValid(void) {
 
-Logger &Logger::operator=(Logger const &op) {
-
-	static_cast<void>(op);
-	return (*this);
+	// check if request is valid
+	return (true);
 }
