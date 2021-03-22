@@ -6,7 +6,7 @@
 /*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/16 09:02:17 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/20 18:59:56 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/03/22 12:01:11 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -230,10 +230,11 @@ void		Server::handle(void) {
 
 void		Server::removeSession(Session *s) {
 
-	// Remove fd from EventSelector object array
-	_the_selector->remove(s);
 	// Delete Client from the sessionSet linked-list in Server
 	_sessionSet.remove(s);
+
+	// Remove fd from EventSelector object array
+	_the_selector->remove(s);
 }
 
 /*

@@ -6,7 +6,7 @@
 /*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/18 00:50:52 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/20 19:01:57 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/03/22 12:01:22 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -141,6 +141,13 @@ void			EventSelector::run() {
 				bool	w = FD_ISSET((*it)->getSocket(), &wrs);
 				if (r || w)
 					(*it)->handle();
+				// Fixing segfault
+				if (w)
+					it--;
+				// Segfault is here: if handle in Session was successfull
+				// we delete Session from everywhere (including _socketOwnerSet)
+				// and the last iteration of iterator leads to out of limit
+				// (access to the firbidden memory)
 			}
 		}
 	}

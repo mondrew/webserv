@@ -6,7 +6,7 @@
 /*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/17 23:10:08 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/20 18:56:42 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/03/22 12:00:58 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,14 +90,12 @@ void		Session::handle(void) {
 	{
 		if (!_responseStr.empty())
 		{
-			std::cout << "responseStr is NOT empty" << std::endl; // debug
 			ret = write(_socket, _responseStr.c_str(), \
 				std::min(BUFFER_SIZE, static_cast<int>(_responseStr.length())));
 			_responseStr.erase(0, ret);
 		}
 		else
 		{
-			std::cout << "Remove Session" << std::endl; // debug
 			// We have sent all HTTP Response
 			// Now we have to close the Session
 			// HTTP is connectionless protocol !
