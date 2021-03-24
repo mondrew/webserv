@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Config.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
+/*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/18 10:27:18 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/19 19:30:33 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/03/24 23:08:07 by gjessica         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@
 # include <unistd.h>
 # include <netinet/in.h>
 # include <arpa/inet.h>
+# include "Location.hpp"
 # include <fcntl.h>
 
 # define MAX_USERS 128
@@ -33,8 +34,11 @@ class Config
 		std::string				_path;
 		EventSelector			*_the_selector;
 		std::list<Server *>		_serverSet;
-
+		bool					_isValid;
+		std::string				_error;
 		Config();
+		Server *parseServer(std::ifstream &file, std::string &partStr);
+		Location *parseLocation(std::ifstream &file, std::string &partStr);
 
 	public:
 
@@ -46,11 +50,12 @@ class Config
 		std::list<Server *> const	&getServerSet() const;
 		std::string const			&getPath(void) const;
 		EventSelector				*getSelector(void) const;
+		std::string	const			&getError(void) const;
 
+		void						setError(std::string error);
 		void						addServer(Server *server);
-		void						createConfig();
+		int							parseConfig();
 		bool						isValid(void);
-
 		void						runServers(void);
 };
 

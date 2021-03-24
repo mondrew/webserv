@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Logger.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
+/*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/18 11:14:42 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/19 11:26:20 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/03/24 12:42:57 by gjessica         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 # define ERROR_SETSOCKOPT 2
 # define ERROR_BIND 3
 # define ERROR_LISTEN 4
+# define ERROR_CONFIG_PARSE 5
 
 class Logger {
 
@@ -41,6 +42,8 @@ class Logger {
 				e("Bind error");
 			else if (id == ERROR_LISTEN)
 				e("Listen error");
+			else if (id == ERROR_CONFIG_PARSE)
+				e("Error config parse");
 			e("error");
 			return (1);
 		}

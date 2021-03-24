@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Location.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
+/*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/18 10:27:39 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/18 11:14:35 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/03/24 19:27:46 by gjessica         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,13 @@
 # include <string>
 # include "Util.hpp"
 
+enum Options {
+  GET		= 0x01,
+  POST     	= 0x02,
+  PUT   	= 0x04,
+  HEAD 		= 0x08
+};
+
 class Location
 {
 	private:
@@ -25,11 +32,11 @@ class Location
 		std::string 		locationPath;
 		std::string 		root;
 		std::string			index;
-		std::vector<int>	limitExcept;
+		char				limitExcept;
 		bool 				autoindex;
 		long 				maxBody;
 		std::string 		cgi;
-		std::string 		cgi_index;
+		std::string 		cgiPath;
 
 	public:
 
@@ -39,24 +46,25 @@ class Location
 
 		Location			&operator=(Location const &op);
 
+		void 		 			print() const;
 		// Getters
 		std::string const		&getRoot() const;
 		std::string const		&getIndex() const;
-		std::vector<int> const	&getLimitExcept() const;
+		char const				&getLimitExcept() const;
 		bool					isAutoindex() const;
 		long					getMaxBody() const;
 		std::string const		&getCgi() const;
-		std::string const		&getCgi_index() const;
+		std::string const		&getCgiPath() const;
 		std::string const		&getLocationPath() const;
 
 		// Setters
 		void	setRoot(std::string root);
 		void	setIndex(std::string index);
-		void	setLimitExcept(std::vector<int> limitExcept);
+		void	addLimitExcept(Options limitExcept);
 		void	setAutoindex(bool autoindex);
 		void	setMaxBody(long maxBody);
 		void	setCgi(std::string cgi);
-		void	setCgi_index(std::string cgi_index);
+		void	setCgiPath(std::string cgiPath);
 		void	setLocationPath(std::string loctionPath);
 };
 

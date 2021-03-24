@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: mondrew <marvin@42.fr>                     +#+  +:+       +#+         #
+#    By: gjessica <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/12/08 23:16:50 by mondrew           #+#    #+#              #
-#    Updated: 2021/03/22 09:20:46 by mondrew          ###   ########.fr        #
+#    Updated: 2021/03/24 22:39:27 by gjessica         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -52,3 +52,9 @@ fclean: clean
 	@echo "Everything has been removed!"
 
 re: fclean all
+
+run:
+	./$(NAME) configs/server.conf
+
+restart: re run
+

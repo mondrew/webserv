@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
+/*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/18 09:20:58 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/19 11:40:23 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/03/24 23:08:49 by gjessica         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,19 +30,12 @@ int		main(int argc, char **argv)
 
 	EventSelector	*selector = new EventSelector();
 	Config			config(argv[1], selector);
-
-	// Autogenerate config. See "Config -> createConfig()"
-	// Here we parse .conf file and add new Server instances to the list 'serverSet'
-	config.createConfig();
-
-	// Check if the config file if valid or not
+	config.parseConfig();
 	if (!config.isValid())
 	{
-		std::cout << "Error: invalid configuration file." << std::endl;
+		std::cout << "Error: " << config.getError() << std::endl;
 		return (1);
 	}
-
 	config.runServers();
-
 	return (0);
 }
