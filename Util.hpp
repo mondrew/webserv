@@ -33,8 +33,9 @@ class Util
 
 		char static getLastChar(std::string str)
 		{
-			int len = str.length();
-			return (str[len-1]);
+			if (str.empty() || str.length() < 1)
+				return 0;
+			return (str[str.length()-1]);
 		}
 
 
