@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/18 10:27:07 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/25 09:53:20 by gjessica         ###   ########.fr       */
+/*   Updated: 2021/03/25 11:34:27 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,7 +95,7 @@ Location 		*Config::parseLocation(std::ifstream &file, std::string &partStr)
 			{
 				file.close();
 				this->setError("Wrong client_max_body_size: " + Util::toString(partLong));
-				return nullptr;
+				return 0;
 			}
 			location->setMaxBody(partLong);
 		}
@@ -117,7 +117,7 @@ Location 		*Config::parseLocation(std::ifstream &file, std::string &partStr)
 				else {
 					file.close();
 					this->setError("Unknown limit_except type " + partStr);
-					return (nullptr);
+					return (0);
 				}
 				file >> partStr;
 			}
@@ -136,7 +136,7 @@ Location 		*Config::parseLocation(std::ifstream &file, std::string &partStr)
 			{
 				file.close();
 				this->setError("Unknown autoindex type " + partStr);
-				return (nullptr);
+				return (0);
 			}
 			location->setAutoindex(partStr == "on");
 		}
@@ -188,7 +188,7 @@ Server 			*Config::parseServer(std::ifstream &file, std::string &partStr)
 			{
 				file.close();
 				this->setError("Wrong port " + Util::toString(partInt));
-				return nullptr;
+				return (0);
 			}
 			server->setPort(partInt);
 		}
@@ -211,7 +211,7 @@ Server 			*Config::parseServer(std::ifstream &file, std::string &partStr)
 			file >> partStr;
 			Location *location = parseLocation(file, partStr);
 			if (!location)
-				return (nullptr);
+				return (0);
 			location->print();
 			server->addLocation(location);
 		}
@@ -219,7 +219,7 @@ Server 			*Config::parseServer(std::ifstream &file, std::string &partStr)
 		{
 			file.close();
 			this->setError("Unknown config parameter \"" + partStr + "\"");
-			return nullptr;
+			return (0);
 		}
 		file >> partStr;
 	}
@@ -230,7 +230,7 @@ Server 			*Config::parseServer(std::ifstream &file, std::string &partStr)
 
 int				Config::parseConfig()
 {
-	std::ifstream	file(this->_path);
+	std::ifstream	file(this->_path.c_str());
 	std::string		partStr;
 
 	if (!file.is_open())
