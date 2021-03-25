@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/18 10:27:07 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/24 23:08:04 by gjessica         ###   ########.fr       */
+/*   Updated: 2021/03/25 09:53:20 by gjessica         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,7 +64,7 @@ Location				*createLocation(std::string const &locationPath,
 
 int						clearBreak(std::string &str)
 {
-	if (str.back() == ';')
+	if (Util::getLastChar(str) == ';')
 	{
 		str = str.substr(0, str.size() - 1);
 		return (1);
@@ -94,7 +94,7 @@ Location 		*Config::parseLocation(std::ifstream &file, std::string &partStr)
 			if (partLong <= 0)
 			{
 				file.close();
-				this->setError("Wrong client_max_body_size: " + std::to_string(partLong));
+				this->setError("Wrong client_max_body_size: " + Util::toString(partLong));
 				return nullptr;
 			}
 			location->setMaxBody(partLong);
@@ -187,7 +187,7 @@ Server 			*Config::parseServer(std::ifstream &file, std::string &partStr)
 			if (partInt <= 0 || partInt > 65535)
 			{
 				file.close();
-				this->setError("Wrong port " + std::to_string(partInt));
+				this->setError("Wrong port " + Util::toString(partInt));
 				return nullptr;
 			}
 			server->setPort(partInt);
@@ -212,6 +212,7 @@ Server 			*Config::parseServer(std::ifstream &file, std::string &partStr)
 			Location *location = parseLocation(file, partStr);
 			if (!location)
 				return (nullptr);
+			location->print();
 			server->addLocation(location);
 		}
 		else if (!file.eof() && partStr != ";")
@@ -224,6 +225,8 @@ Server 			*Config::parseServer(std::ifstream &file, std::string &partStr)
 	}
 	return server;
 }
+
+
 
 int				Config::parseConfig()
 {

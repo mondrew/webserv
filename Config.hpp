@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/18 10:27:18 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/24 23:08:07 by gjessica         ###   ########.fr       */
+/*   Updated: 2021/03/25 09:46:02 by gjessica         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@
 # include <arpa/inet.h>
 # include "Location.hpp"
 # include <fcntl.h>
+# include "Util.hpp"
 
 # define MAX_USERS 128
 
