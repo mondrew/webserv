@@ -6,7 +6,7 @@
 #    By: gjessica <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/12/08 23:16:50 by mondrew           #+#    #+#              #
-#    Updated: 2021/03/25 09:01:51 by mondrew          ###   ########.fr        #
+#    Updated: 2021/03/25 09:52:26 by gjessica         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -57,3 +57,4 @@ run:
 	./$(NAME) configs/server.conf
 
 restart: re run
+
