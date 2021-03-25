@@ -19,20 +19,16 @@ class Util
 
 		std::string static toString(int val)
 		{
-			std::string result;
 			std::ostringstream convert;
 			convert << val;
-			result = convert.str();
-			return (result);
+			return (convert.str());
 		}
 
 		std::string static toString(long val)
 		{
-			std::string result;
 			std::ostringstream convert;
 			convert << val;
-			result = convert.str();
-			return (result);
+			return (convert.str());
 		}
 
 		char static getLastChar(std::string str)
