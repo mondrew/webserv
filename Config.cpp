@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/18 10:27:07 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/25 11:34:27 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/03/25 11:46:07 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@ Config			&Config::operator=(Config const &op)
 	return (*this);
 }
 
-void			Config::setError(std::string error)
+void			Config::setError(std::string const &error)
 {
 	this->_error = error;
 	this->_isValid = false;
