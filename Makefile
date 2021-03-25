@@ -6,7 +6,7 @@
 #    By: gjessica <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/12/08 23:16:50 by mondrew           #+#    #+#              #
-#    Updated: 2021/03/25 11:31:29 by mondrew          ###   ########.fr        #
+#    Updated: 2021/03/25 22:10:16 by mondrew          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -37,11 +37,11 @@ IS_NOT_LAUNCHED_PRINT = \e[0;31m *$<\e[1;33m webserv is not launched $<\e[0m
 
 %.o: %.cpp
 	@clang++ $(FLAGS) -I $(INCLUDES) -c $< -o $@
-	@echo -n "."
+	@echo -n .
 	@sleep 0.05
-	@echo -n "."
+	@echo -n .
 	@sleep 0.05
-	@echo -n "."
+	@echo -n .
 
 all: wait $(NAME)
 
