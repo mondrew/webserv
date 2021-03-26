@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Session.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
+/*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/17 23:10:08 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/26 10:12:33 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/03/26 19:23:15 by gjessica         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,11 +47,15 @@ void		Session::generateResponse(void) {
 
 	if (!_request->isValid())
 	{
+		std::cerr << _request->getError();
 		// Here we can limit parameter names, allowed methods, etc
 		// 400 Bad Request Error -> fill the _response
 	}
 	else
 	{
+		std::cout << "START - Parser testing - HTTPRequest\n";
+		_request->print();
+		std::cout << "END - Parser testing - HTTPRequest\n\n";
 		/*
 		// fill the _response
 		if (_request->getMethod() == GET)

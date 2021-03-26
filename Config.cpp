@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/18 10:27:07 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/26 10:10:31 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/03/26 17:28:55 by gjessica         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -237,9 +237,10 @@ int				Config::parseConfig()
 	while (!file.eof())
 	{
 		file >> partStr;
-		if (partStr == "server") // mon: "server{" fails!
+		if (partStr == "server" || partStr == "server{") // mon: "server{" fails!
 		{
-			file >> partStr;
+			if (partStr == "server")
+				file >> partStr;
 			Server *server = parseServer(file, partStr);
 			if (!server)
 				return (1);

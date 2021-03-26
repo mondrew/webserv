@@ -3,17 +3,19 @@
 /*                                                        :::      ::::::::   */
 /*   HTTPRequest.hpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
+/*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/20 15:48:48 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/26 11:26:38 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/03/26 19:25:14 by gjessica         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef HTTP_REQUEST_HPP
 # define HTTP_REQUEST_HPP
-
+# include <iostream>
 # include <string>
+# include <sstream>
+# include "Util.hpp"
 
 class HTTPRequest {
 
@@ -21,12 +23,13 @@ class HTTPRequest {
 
 		// https://developer.mozilla.org/en-US/docs/Web/HTTP/Messages
 
-		std::string		_valid; // = true by default
+		bool			_valid; // = true by default
+		std::string		_error;
 		// START LINE
-		std::string		_method; // GET, PUT, POST, HEAD, OPTIONS, CONNECT
+		Options			_method; // GET, PUT, POST, HEAD, OPTIONS, CONNECT
 								// Question: is there can be several methods??? Do list?
 		std::string		_target; // URI
-		std::string		_ProtocolVersion;
+		std::string		_protocolVersion;
 
 		// HEADERS
 		// USE THIS vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
@@ -39,7 +42,7 @@ class HTTPRequest {
 		std::string		_acceptLanguage; // example: en, en-US, fr-CA, fr;q=0.9
 										// SERVER RESPONDS with 'Content-Language' or ignore
 
-		std::string		_allow; // example: GET, POST, PUT, HEAD
+		char			_allow; // example: GET, POST, PUT, HEAD
 								// can be empty (if there are no allowed methods
 
 		std::string		_authorization; // example: Basic YWxhZGRpbjpvcGVuc2VzYW1l
@@ -48,7 +51,7 @@ class HTTPRequest {
 		std::string		_contentLanguage; // example: de-DE
 										// example: en, de-DE, en-CA
 
-		std::string		_contentLength; // example: 55
+		int 			_contentLength; // example: 55
 
 		std::string		_contentLocation; // documents/foo.json
 										// in PUT and POST requests - ignore it
@@ -72,7 +75,7 @@ class HTTPRequest {
 								// http:://example.com/page?q=123
 								// http://example.com/
 
-		std::string		_userAgent; // example: 
+		std::string		_userAgent; // example:
 		// Firefox:
 		// Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0
 		// Safari:
@@ -93,7 +96,13 @@ class HTTPRequest {
 		~HTTPRequest(void);
 
 		bool			isValid(void);
+		int				setError(std::string str);
+		std::string		getError(void);
+		void			print(void);
 
+	private:
+		bool 			setStartLineParam(std::string line);
+		void			parseRequest(std::string str);
 };
 
 #endif
