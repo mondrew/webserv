@@ -6,7 +6,7 @@
 #    By: gjessica <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/12/08 23:16:50 by mondrew           #+#    #+#              #
-#    Updated: 2021/03/25 22:10:16 by mondrew          ###   ########.fr        #
+#    Updated: 2021/03/26 09:50:25 by mondrew          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -70,7 +70,7 @@ start:
 	@if pgrep -x $(NAME) > /dev/null; then\
 		echo "$(ALREADY_LAUNCHED_PRINT)";\
 	else\
-		./$(NAME) configs/server.conf > /dev/null & echo "$(START_PRINT)";\
+		./$(NAME) configs/server.conf > /dev/null & echo "$(START_PRINT)";
 	fi
 
 status:

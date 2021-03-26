@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/18 10:27:18 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/25 11:46:09 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/03/25 21:56:45 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,8 +38,8 @@ class Config
 		bool					_isValid;
 		std::string				_error;
 		Config();
-		Server		*parseServer(std::ifstream &file, std::string &partStr);
-		Location	*parseLocation(std::ifstream &file, std::string &partStr);
+		Server		*parseServer(std::ifstream &file, std::string &partStr); // maybe static in Server?
+		Location	*parseLocation(std::ifstream &file, std::string &partStr); // mb static in Location?
 
 	public:
 

@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/18 10:27:07 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/25 11:46:07 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/03/26 10:10:31 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,8 +94,9 @@ Location 		*Config::parseLocation(std::ifstream &file, std::string &partStr)
 			if (partLong <= 0)
 			{
 				file.close();
-				this->setError("Wrong client_max_body_size: " + Util::toString(partLong));
-				return 0;
+				this->setError("Wrong client_max_body_size: " + \
+													Util::toString(partLong));
+				return (0);
 			}
 			location->setMaxBody(partLong);
 		}
@@ -182,7 +183,7 @@ Server 			*Config::parseServer(std::ifstream &file, std::string &partStr)
 		}
 		else if (partStr == "listen")
 		{
-			isBreak = 0;
+			isBreak = 0; // ?
 			file >> partInt;
 			if (partInt <= 0 || partInt > 65535)
 			{
@@ -194,7 +195,7 @@ Server 			*Config::parseServer(std::ifstream &file, std::string &partStr)
 		}
 		else if (partStr == "error_page")
 		{
-			isBreak = 0;
+			isBreak = 0; // no need here
 			file >> partInt;
 			if (partInt == 402 || partInt == 404)
 			{
@@ -212,7 +213,7 @@ Server 			*Config::parseServer(std::ifstream &file, std::string &partStr)
 			Location *location = parseLocation(file, partStr);
 			if (!location)
 				return (0);
-			location->print();
+			location->print(); // debug
 			server->addLocation(location);
 		}
 		else if (!file.eof() && partStr != ";")
@@ -226,8 +227,6 @@ Server 			*Config::parseServer(std::ifstream &file, std::string &partStr)
 	return server;
 }
 
-
-
 int				Config::parseConfig()
 {
 	std::ifstream	file(this->_path.c_str());
@@ -238,7 +237,7 @@ int				Config::parseConfig()
 	while (!file.eof())
 	{
 		file >> partStr;
-		if (partStr == "server")
+		if (partStr == "server") // mon: "server{" fails!
 		{
 			file >> partStr;
 			Server *server = parseServer(file, partStr);

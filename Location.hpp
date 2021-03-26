@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/18 10:27:39 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/24 19:27:46 by gjessica         ###   ########.fr       */
+/*   Updated: 2021/03/26 10:13:13 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,13 +17,6 @@
 # include <vector>
 # include <string>
 # include "Util.hpp"
-
-enum Options {
-  GET		= 0x01,
-  POST     	= 0x02,
-  PUT   	= 0x04,
-  HEAD 		= 0x08
-};
 
 class Location
 {

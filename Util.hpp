@@ -7,6 +7,13 @@
 
 #define NOT_LIMIT -1
 
+enum Options {
+  GET		= 0x01,
+  POST     	= 0x02,
+  PUT   	= 0x04,
+  HEAD 		= 0x08
+};
+
 class Util
 {
 	private:

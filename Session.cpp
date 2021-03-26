@@ -6,12 +6,13 @@
 /*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/17 23:10:08 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/22 14:43:23 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/03/26 10:12:33 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Session.hpp"
 #include "Server.hpp"
+#include "Config.hpp"
 #include <iostream>
 #include <fcntl.h>
 #include <cstring>
@@ -46,11 +47,30 @@ void		Session::generateResponse(void) {
 
 	if (!_request->isValid())
 	{
+		// Here we can limit parameter names, allowed methods, etc
 		// 400 Bad Request Error -> fill the _response
 	}
 	else
 	{
+		/*
 		// fill the _response
+		if (_request->getMethod() == GET)
+		{
+			// return file or run script
+		}
+		else if (_request->getMethod() == POST)
+		{
+			// update some info?
+		}
+		else if (_request->getMethod() == PUT)
+		{
+			// Save file to ./www/upload
+		}
+		else if (_request->getMethod() == HEAD)
+		{
+			// do smth
+		}
+		*/
 	}
 	responseToString();
 }
