@@ -6,11 +6,12 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/20 15:53:09 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/26 19:25:37 by gjessica         ###   ########.fr       */
+/*   Updated: 2021/03/27 09:51:37 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "HTTPRequest.hpp"
+#include <cstdlib>
 
 int	HTTPRequest::setError(std::string str)
 {
