@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/20 15:48:48 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/26 19:25:14 by gjessica         ###   ########.fr       */
+/*   Updated: 2021/03/27 10:19:40 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,14 +95,20 @@ class HTTPRequest {
 		HTTPRequest(std::string const &str);
 		~HTTPRequest(void);
 
-		bool			isValid(void);
-		int				setError(std::string str);
-		std::string		getError(void);
-		void			print(void);
+		bool				isValid(void) const;
+		void				print(void) const;
+
+		// GETTERS
+		std::string const	&getError(void) const;
+
+
+		// SETTERS
+		int					setError(std::string const &str);
 
 	private:
-		bool 			setStartLineParam(std::string line);
-		void			parseRequest(std::string str);
+
+		bool 				setStartLineParam(std::string &line);
+		void				parseRequest(std::string const &str);
 };
 
 #endif

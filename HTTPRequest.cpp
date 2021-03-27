@@ -6,31 +6,41 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/20 15:53:09 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/27 09:51:37 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/03/27 10:19:36 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "HTTPRequest.hpp"
 #include <cstdlib>
 
-int	HTTPRequest::setError(std::string str)
+HTTPRequest::HTTPRequest(std::string const &str) : _valid(true), _allow(0) {
+
+	parseRequest(str);
+}
+
+HTTPRequest::~HTTPRequest(void) {
+
+	return ;
+}
+
+int				HTTPRequest::setError(std::string const &str)
 {
 	this->_error = str;
 	this->_valid = false;
 	return (1);
 }
 
-int 		isKey(std::string line, std::string key)
+int 			isKey(std::string const &line, std::string const &key)
 {
 	return (line.find(key) == 0);
 }
 
-std::string getValue(std::string line, std::string key)
+std::string		getValue(std::string const &line, std::string const &key)
 {
 	return line.substr(key.length() + 2);
 }
 
-bool HTTPRequest::setStartLineParam(std::string line)
+bool 			HTTPRequest::setStartLineParam(std::string &line)
 {
 	if (isKey(line, "GET"))
 		this->_method = GET;
@@ -50,10 +60,10 @@ bool HTTPRequest::setStartLineParam(std::string line)
 	return (true);
 }
 
-void HTTPRequest::parseRequest(std::string str)
+void			HTTPRequest::parseRequest(std::string const &str)
 {
-	std::istringstream f(str);
-	std::string line;
+	std::istringstream	f(str);
+	std::string			line;
 
 	//Check first line - METHOD PATH PROTOCOL
 	std::getline(f, line);
@@ -81,7 +91,7 @@ void HTTPRequest::parseRequest(std::string str)
 		else if (isKey(line, "Content-Language"))
 			this->_contentLanguage = getValue(line, "Content-Language");
 		else if (isKey(line, "Content-Length"))
-			this->_contentLength = atoi( getValue(line, "Content-Length").c_str());
+			this->_contentLength = atoi(getValue(line, "Content-Length").c_str());
 		else if (isKey(line, "Content-Location"))
 			this->_contentLocation = getValue(line, "Content-Location");
 		else if (isKey(line, "Content-Type"))
@@ -103,19 +113,7 @@ void HTTPRequest::parseRequest(std::string str)
     }
 }
 
-HTTPRequest::HTTPRequest(std::string const &str) :
-												_valid(true),
-												_allow(0)
-{
-	parseRequest(str);
-}
-
-HTTPRequest::~HTTPRequest(void) {
-
-	return ;
-}
-
-void			HTTPRequest::print(void)
+void			HTTPRequest::print(void) const
 {
 	std::cout << "Methods = ";
 	if (this->_method == 0)
@@ -143,13 +141,13 @@ void			HTTPRequest::print(void)
 	std::cout << "Body = " << this->_body << std::endl;
 }
 
-bool			HTTPRequest::isValid(void) {
-
+bool				HTTPRequest::isValid(void) const
+{
 	// check if request is valid
 	return (this->_valid);
 }
 
-std::string		HTTPRequest::getError(void)
+std::string const	&HTTPRequest::getError(void) const
 {
 	return (this->_error);
 }
