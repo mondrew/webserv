@@ -6,7 +6,7 @@
 /*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/20 16:49:22 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/26 11:29:44 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/03/27 16:31:59 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 # define HTTP_RESPONSE_HPP
 
 #include <string>
+#include "Util.hpp"
 
 class HTTPResponse {
 
@@ -29,14 +30,14 @@ class HTTPResponse {
 		// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers
 		// USE THIS ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 		// Subject
-		std::string		_allow; // depends on Config. For example: GET, POST, PUT, HEAD
+		Options			_allow; // depends on Config. For example: GET, POST, PUT, HEAD
 								// must be sent with '405 Method Not Allowed' status code
 								// can be empty (if there are no allowed methods
 
 		std::string		_contentLanguage; // example: de-DE
 										// example: en, de-DE, en-CA
 
-		std::string		_contentLength; // example: 55
+		int				_contentLength; // example: 55
 
 		std::string		_contentLocation; // documents/foo.json
 
@@ -88,6 +89,24 @@ class HTTPResponse {
 
 		HTTPResponse(HTTPResponse const &src);
 		HTTPResponse	&operator=(HTTPResponse const &rhs);
+
+		//SETTERS
+		void		setProtocolVersion(std::string const &version);
+		void		setStatusCode(int code);
+		void		setStatusText(std::string const &text);
+		void		setAllow(Options allow);
+		void		setContentLanguage(std::string const &language);
+		void		setContentLength(int length);
+		void		setContentLocation(std::string const &location);
+		void		setContentType(std::string const &type);
+		void		setDate(std::string const &date);
+		void		setLastModified(std::string const &date);
+		void		setLocation(std::string const &location);
+		void		setRetryAfter(std::string const &retry);
+		void		setServer(std::string const &server);
+		void		setTransferEncoding(std::string const &encoding);
+		void		setWWWAuthenticate(std::string const auth);
+		void		setBody(std::string const &body);
 
 	public:
 

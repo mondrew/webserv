@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/20 15:53:09 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/27 10:19:36 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/03/27 11:03:38 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -150,4 +150,84 @@ bool				HTTPRequest::isValid(void) const
 std::string const	&HTTPRequest::getError(void) const
 {
 	return (this->_error);
+}
+
+Options				HTTPRequest::getMethod(void) const {
+
+	return (this->_method);
+}
+
+std::string const	&HTTPRequest::getTarget(void) const {
+
+	return (this->_target);
+}
+
+std::string const	&HTTPRequest::getProtocolVersion(void) const {
+
+	return (this->_protocolVersion);
+}
+
+std::string const	&HTTPRequest::getAcceptCharset(void) const {
+
+	return (this->_acceptCharset);
+}
+
+std::string const	&HTTPRequest::getAcceptLanguage(void) const {
+
+	return (this->_acceptLanguage);
+}
+
+char 				HTTPRequest::getAllow(void) const {
+
+	return (this->_allow);
+}
+
+std::string const	&HTTPRequest::getAuthorization(void) const {
+
+	return (this->_authorization);
+}
+
+std::string const	&HTTPRequest::getContentLanguage(void) const {
+
+	return (this->_contentLanguage);
+}
+
+int					HTTPRequest::getContentLength(void) const {
+
+	return (this->_contentLength);
+}
+
+std::string const	&HTTPRequest::getContentLocation(void) const {
+
+	return (this->_contentLocation);
+}
+
+std::string const	&HTTPRequest::getcontentType(void) const {
+
+	return (this->_contentType);
+}
+
+std::string const	&HTTPRequest::getDate(void) const {
+
+	return (this->_date);
+}
+
+std::string const	&HTTPRequest::getHost(void) const {
+
+	return (this->_host);
+}
+
+std::string const	&HTTPRequest::getReferer(void) const {
+
+	return (this->_referer);
+}
+
+std::string const	&HTTPRequest::getUserAgent(void) const {
+
+	return (this->_userAgent);
+}
+
+std::string const	&HTTPRequest::getBody(void) const {
+
+	return (this->_body);
 }
