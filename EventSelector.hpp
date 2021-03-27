@@ -6,7 +6,7 @@
 /*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/17 20:42:54 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/19 18:40:21 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/03/27 20:20:05 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,12 +17,13 @@
 # include <list>
 # include "ASocketOwner.hpp"
 
+class Config;
+
 class EventSelector {
 
 	private:
 
 		std::list<ASocketOwner *>	_socketOwnerSet;
-		// Сделать Server и Session наследниками ASocketOwner (общим будет fd и метод handle)
 		bool						_quitFlag;
 		int							_max_fd;
 

@@ -6,13 +6,16 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/17 23:10:08 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/26 19:23:15 by gjessica         ###   ########.fr       */
+/*   Updated: 2021/03/27 22:48:56 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Session.hpp"
 #include "Server.hpp"
 #include "Config.hpp"
+#include "Util.hpp"
+#include <vector>
+#include <string>
 #include <iostream>
 #include <fcntl.h>
 #include <cstring>
@@ -40,41 +43,113 @@ bool		Session::getDeleteMe(void) const {
 	return (this->_deleteMe);
 }
 
+bool		Session::checkRequestTarget(void) {
+
+	bool			isValidPath = false;
+	std::string		pathFolder;
+	std::string		pathFile;
+
+	for (std::vector<Location *>::iterator it = \
+								this->_theMaster->getLocationSet().begin();
+									it < this->_theMaster->getLocationSet().end(); it++)
+	{
+		pathFolder = (*it)->getRoot() + (*it)->getLocationPath();
+		pathFile = pathFolder + (*it)->getIndex();
+
+		if (Util::getLastChar(this->_request->getTarget()) == '/' && \
+							this->_request->getTarget().compare("." + pathFolder) == 0)
+		{
+			// Here we check if the request target was the folder
+			// (for POST method for example)
+			isValidPath = true;
+			break ;
+		}
+		else if (this->_request->getTarget().compare("." + pathFile) == 0)
+		{
+			// Here we check the Path to the concrete file
+			isValidPath = true;
+			break ;
+		}
+	}
+	return (isValidPath);
+}
+
 void		Session::generateResponse(void) {
 
-	_request = new HTTPRequest(_requestStr); // create flag _valid = true by default
-	_response = new HTTPResponse();
+	this->_request = new HTTPRequest(_requestStr); // create flag _valid = true by default
+	this->_response = new HTTPResponse();
+
+	_response->setProtocolVersion("HTTP/1.1");
 
 	if (!_request->isValid())
 	{
-		std::cerr << _request->getError();
-		// Here we can limit parameter names, allowed methods, etc
-		// 400 Bad Request Error -> fill the _response
+		// std::cerr << _request->getError();
+		_response->setStatusCode(400);
+		_response->setStatusText("Bad Request Error");
+		_response->setAllow(0);
+		_response->setContentLanguage("");
+		_response->setContentLength(0);
+		_response->setContentLocation("");
+		_response->setContentType("");
+		_response->setDate("");
+		_response->setLastModified("");
+		_response->setLocation("");
+		_response->setRetryAfter("");
+		_response->setServer("Monica/1.0 (Unix)");
+		_response->setTransferEncoding("");
+		_response->setWWWAuthenticate("");
+		_response->setBody("");
+	}
+	else if (!checkRequestTarget())
+	{
+		_response->setStatusCode(404);
+		_response->setStatusText("Not Found");
+		_response->setAllow(0);
+		_response->setContentLanguage("");
+		_response->setContentLength(0);
+		_response->setContentLocation("");
+		_response->setContentType("");
+		_response->setDate("");
+		_response->setLastModified("");
+		_response->setLocation("");
+		_response->setRetryAfter("");
+		_response->setServer("Monica/1.0 (Unix)");
+		_response->setTransferEncoding("");
+		_response->setWWWAuthenticate("");
+		_response->setBody("");
 	}
 	else
 	{
-		std::cout << "START - Parser testing - HTTPRequest\n";
-		_request->print();
-		std::cout << "END - Parser testing - HTTPRequest\n\n";
-		/*
+		// std::cout << "START - Parser testing - HTTPRequest\n";
+		// _request->print();
+		// std::cout << "END - Parser testing - HTTPRequest\n\n"; 
 		// fill the _response
 		if (_request->getMethod() == GET)
 		{
 			// return file or run script
+			_response->setStatusCode(200);
+			_response->setStatusText("OK");
+	// _response->_allow = 
+
 		}
 		else if (_request->getMethod() == POST)
 		{
 			// update some info?
+			_response->setStatusCode(201);
+			_response->setStatusText("Created");
 		}
 		else if (_request->getMethod() == PUT)
 		{
 			// Save file to ./www/upload
+			_response->setStatusCode(200);
+			_response->setStatusText("OK");
 		}
 		else if (_request->getMethod() == HEAD)
 		{
 			// do smth
+			_response->setStatusCode(200);
+			_response->setStatusText("OK");
 		}
-		*/
 	}
 	responseToString();
 }

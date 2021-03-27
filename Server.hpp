@@ -6,7 +6,7 @@
 /*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/16 07:58:05 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/22 13:35:32 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/03/27 22:34:43 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,13 +41,6 @@ class Server : public ASocketOwner {
 		std::string					_defaultErrorPage404;
 		std::vector<Location *>		_locationSet;
 		std::list<Session *>		_sessionSet;
-		//bool						_readyToResponseFlag; // false
-
-		// Клиентов будет много и не факт, что, получив HTTP-запрос от клиента мы
-		// 1) Сможем его сразу (за один раз) прочитать
-		// 2) Сможем отправить ответ за 1 вызов write
-		// Поэтому мы должны хранить клиентов (по сути - сессии) в списке до тех пор
-		// пока мы не закончим отвечать клиенту (пока не отправим весь запрос).
 
 		Server(void);
 
@@ -69,7 +62,7 @@ class Server : public ASocketOwner {
 		int								getListenSocket(void) const;
 		std::string const				&getDefaultErrorPage402(void) const;
 		std::string const				&getDefaultErrorPage404(void) const;
-		std::vector<Location *> const	&getLocationSet(void) const;
+		std::vector<Location *> 		&getLocationSet(void);
 		std::list<Session *> const		&getSessionSet(void) const;
 
 		// Setters
@@ -88,7 +81,6 @@ class Server : public ASocketOwner {
 		virtual void	handle(void);
 
 		void			removeSession(Session *session);
-		//virtual bool	isReadyToResponse(void) const;
 };
 
 #endif

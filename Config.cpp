@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/18 10:27:07 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/26 17:28:55 by gjessica         ###   ########.fr       */
+/*   Updated: 2021/03/27 20:25:41 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -224,7 +224,7 @@ Server 			*Config::parseServer(std::ifstream &file, std::string &partStr)
 		}
 		file >> partStr;
 	}
-	return server;
+	return (server);
 }
 
 int				Config::parseConfig()
@@ -241,7 +241,7 @@ int				Config::parseConfig()
 		{
 			if (partStr == "server")
 				file >> partStr;
-			Server *server = parseServer(file, partStr);
+			Server	*server = parseServer(file, partStr);
 			if (!server)
 				return (1);
 			server->setSelector(this->getSelector());

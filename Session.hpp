@@ -6,7 +6,7 @@
 /*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/17 23:06:28 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/22 12:49:23 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/03/27 20:55:04 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,10 +26,7 @@ class Session : public ASocketOwner {
 
 	private:
 
-		// int			_socket; // in the Base class 'SocketOwner'
 		Server			*_theMaster;
-		//bool			_readyToResponseFlag; // false by default, until Server get
-										// whole HTTP-request from Client
 		HTTPRequest		*_request;
 		HTTPResponse	*_response;
 
@@ -52,8 +49,7 @@ class Session : public ASocketOwner {
 
 		void			generateResponse(void);
 		void			responseToString(void);
-		//virtual bool	isReadyToResponse(void) const;
-		//void			setReadyToResponseFlag(bool val);
+		bool			checkRequestTarget(void);
 		virtual bool	getDeleteMe(void) const;
 		virtual void	remove(void);
 		virtual void	handle(void);

@@ -6,7 +6,7 @@
 /*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/20 16:49:22 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/27 16:31:59 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/03/27 22:21:14 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,6 +90,11 @@ class HTTPResponse {
 		HTTPResponse(HTTPResponse const &src);
 		HTTPResponse	&operator=(HTTPResponse const &rhs);
 
+	public:
+
+		HTTPResponse(void);
+		~HTTPResponse(void);
+
 		//SETTERS
 		void		setProtocolVersion(std::string const &version);
 		void		setStatusCode(int code);
@@ -107,12 +112,6 @@ class HTTPResponse {
 		void		setTransferEncoding(std::string const &encoding);
 		void		setWWWAuthenticate(std::string const auth);
 		void		setBody(std::string const &body);
-
-	public:
-
-		HTTPResponse(void);
-		~HTTPResponse(void);
-
 };
 
 #endif

@@ -19,30 +19,31 @@ class Util
 	private:
 
 	public:
+
 		Util();
 		~Util();
 		Util(Util const &cp);
 		Util &operator=(Util const &op);
 
-		std::string static toString(int val)
+		static std::string	toString(int val)
 		{
 			std::ostringstream convert;
 			convert << val;
 			return (convert.str());
 		}
 
-		std::string static toString(long val)
+		static std::string	toString(long val)
 		{
 			std::ostringstream convert;
 			convert << val;
 			return (convert.str());
 		}
 
-		char static getLastChar(std::string str)
+		static char			getLastChar(std::string const &str)
 		{
 			if (str.empty() || str.length() < 1)
-				return 0;
-			return (str[str.length()-1]);
+				return (0);
+			return (str[str.length() - 1]);
 		}
 
 

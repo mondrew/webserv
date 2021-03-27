@@ -6,7 +6,7 @@
 /*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/16 09:02:17 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/22 12:01:11 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/03/27 22:35:03 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,7 +91,7 @@ std::string const				&Server::getDefaultErrorPage404(void) const {
 	return (this->_defaultErrorPage404);
 }
 
-std::vector<Location *> const		&Server::getLocationSet(void) const {
+std::vector<Location *> 		&Server::getLocationSet(void) {
 
 	return (this->_locationSet);
 }

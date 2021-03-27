@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/20 15:53:09 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/27 11:03:38 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/03/27 20:45:55 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ int				HTTPRequest::setError(std::string const &str)
 {
 	this->_error = str;
 	this->_valid = false;
-	return (1);
+	return (1); // Why 1 ? May be 0 ? We need to stop parsing in this case
 }
 
 int 			isKey(std::string const &line, std::string const &key)
@@ -49,14 +49,14 @@ bool 			HTTPRequest::setStartLineParam(std::string &line)
 	else if (isKey(line, "PUT"))
 		this->_method = PUT;
 	else
-		return setError("Unknown method");
+		return setError("Unknown method"); // Here we return true. Why not false?
 
 	line = line.substr(line.find("/"));
 	this->_target = line.substr(0, line.find(" "));
 	this->_protocolVersion = line.substr(line.find(" ") + 1);
 
 	if (this->_target.empty() || this->_protocolVersion.empty())
-		return false;
+		return (false);
 	return (true);
 }
 
@@ -67,7 +67,7 @@ void			HTTPRequest::parseRequest(std::string const &str)
 
 	//Check first line - METHOD PATH PROTOCOL
 	std::getline(f, line);
-	if (!setStartLineParam(line))
+	if (!setStartLineParam(line)) // why don't we turn _valid to 'false'?
 		return ;
 
     while (std::getline(f, line)) {
