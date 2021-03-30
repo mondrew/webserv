@@ -6,7 +6,7 @@
 /*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/16 09:02:17 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/27 22:35:03 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/03/30 11:03:19 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,16 +17,25 @@
 #define MAX_USERS 128
 
 Server::Server(int a_socket) : ASocketOwner(a_socket),
-					_the_selector(0),
-					_serverNames(std::vector<std::string>()),
-					_host("localhost"),
-					_port(80),
-					_defaultErrorPage402(""),
-					_defaultErrorPage404(""),
-					_locationSet(std::vector<Location *>()),
-					_sessionSet(std::list<Session *>()) {
-					//_readyToResponseFlag(false) {
+									_the_selector(0),
+									_serverNames(std::vector<std::string>()),
+									_host("localhost"),
+									_port(80),
+									_defaultErrorPage402(""),
+									_defaultErrorPage404("") {
+									//_locationSet(std::vector<Location *>()),
+									//_sessionSet(std::list<Session *>()) {
 
+	_errorMap[400] = "./www/pages/400_BadRequest.html";
+	_errorMap[401] = "./www/pages/401_Unauthorized.html";
+	_errorMap[403] = "./www/pages/403_Forbidden.html";
+	_errorMap[404] = "./www/pages/404_NotFound.html";
+	_errorMap[405] = "./www/pages/405_MethodNotAllowed.html";
+	_errorMap[408] = "./www/pages/408_RequestTimeout.html";
+	_errorMap[500] = "./www/pages/500_InternalServerError.html";
+	_errorMap[501] = "./www/pages/501_NotImplemented.html";
+	_errorMap[503] = "./www/pages/503_ServiceUnavailable.html";
+	_errorMap[505] = "./www/pages/505_HTTPVersionNotSupported.html";
 	return ;
 }
 
@@ -61,85 +70,6 @@ Server	&Server::operator=(Server const &rhs) {
 	this->_sessionSet = rhs._sessionSet;
 
 	return (*this);
-}
-
-// Getters
-
-// Getters
-std::vector<std::string> const	&Server::getServerNames(void) const {
-
-	return (this->_serverNames);
-}
-
-std::string const				&Server::getHost(void) const {
-
-	return (this->_host);
-}
-
-int								Server::getPort(void) const {
-
-	return (this->_port);
-}
-
-std::string const				&Server::getDefaultErrorPage402(void) const {
-
-	return (this->_defaultErrorPage402);
-}
-
-std::string const				&Server::getDefaultErrorPage404(void) const {
-
-	return (this->_defaultErrorPage404);
-}
-
-std::vector<Location *> 		&Server::getLocationSet(void) {
-
-	return (this->_locationSet);
-}
-
-std::list<Session *> const		&Server::getSessionSet(void) const {
-
-	return (this->_sessionSet);
-}
-
-// Setters
-void	Server::addServerName(std::string const &serverName) {
-
-	this->_serverNames.push_back(serverName);
-}
-
-void	Server::setHost(std::string const &host) {
-
-	this->_host = host;
-}
-
-void	Server::setPort(int port) {
-
-	this->_port = port;
-}
-
-void	Server::setDefaultErrorPage402(std::string const &path) {
-
-	this->_defaultErrorPage402 = path;
-}
-
-void	Server::setDefaultErrorPage404(std::string const &path) {
-
-	this->_defaultErrorPage404 = path;
-}
-
-void	Server::addLocation(Location *location) {
-
-	this->_locationSet.push_back(location);
-}
-
-void	Server::addSession(Session *session) {
-
-	this->_sessionSet.push_back(session);
-}
-
-void	Server::setSelector(EventSelector *selector) {
-
-	this->_the_selector = selector;
 }
 
 // Start server
@@ -237,9 +167,85 @@ void		Server::removeSession(Session *s) {
 	_the_selector->remove(s);
 }
 
-/*
-bool		Server::isReadyToResponse(void) const {
+// Getters
+std::vector<std::string> const	&Server::getServerNames(void) const {
 
-	return (this->_readyToResponseFlag);
+	return (this->_serverNames);
 }
-*/
+
+std::string const				&Server::getHost(void) const {
+
+	return (this->_host);
+}
+
+int								Server::getPort(void) const {
+
+	return (this->_port);
+}
+
+std::string const				&Server::getDefaultErrorPage402(void) const {
+
+	return (this->_defaultErrorPage402);
+}
+
+std::string const				&Server::getDefaultErrorPage404(void) const {
+
+	return (this->_defaultErrorPage404);
+}
+
+std::vector<Location *> 		&Server::getLocationSet(void) {
+
+	return (this->_locationSet);
+}
+
+std::list<Session *> const		&Server::getSessionSet(void) const {
+
+	return (this->_sessionSet);
+}
+
+std::map<int, std::string> 		&Server::getErrorMap(void) {
+
+	return (this->_errorMap);
+}
+
+// Setters
+void	Server::addServerName(std::string const &serverName) {
+
+	this->_serverNames.push_back(serverName);
+}
+
+void	Server::setHost(std::string const &host) {
+
+	this->_host = host;
+}
+
+void	Server::setPort(int port) {
+
+	this->_port = port;
+}
+
+void	Server::setDefaultErrorPage402(std::string const &path) {
+
+	this->_defaultErrorPage402 = path;
+}
+
+void	Server::setDefaultErrorPage404(std::string const &path) {
+
+	this->_defaultErrorPage404 = path;
+}
+
+void	Server::addLocation(Location *location) {
+
+	this->_locationSet.push_back(location);
+}
+
+void	Server::addSession(Session *session) {
+
+	this->_sessionSet.push_back(session);
+}
+
+void	Server::setSelector(EventSelector *selector) {
+
+	this->_the_selector = selector;
+}
+

@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/20 15:53:09 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/27 20:45:55 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/03/29 15:37:16 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,12 @@ HTTPRequest::~HTTPRequest(void) {
 
 	return ;
 }
+
+bool			HTTPRequest::isValid(void) const
+{
+	return (this->_valid);
+}
+
 
 int				HTTPRequest::setError(std::string const &str)
 {
@@ -48,8 +54,15 @@ bool 			HTTPRequest::setStartLineParam(std::string &line)
 		this->_method = POST;
 	else if (isKey(line, "PUT"))
 		this->_method = PUT;
+	else if (isKey(line, "HEAD"))
+		this->_method = HEAD;
 	else
-		return setError("Unknown method"); // Here we return true. Why not false?
+	{
+		setError("Unknown or empty request method");
+		// We should not set _valid to false here, 'cause we need to response '405' error
+		return (false);
+		// return setError("Unknown method"); // Here we return true. Why not false?
+	}
 
 	line = line.substr(line.find("/"));
 	this->_target = line.substr(0, line.find(" "));
@@ -67,7 +80,7 @@ void			HTTPRequest::parseRequest(std::string const &str)
 
 	//Check first line - METHOD PATH PROTOCOL
 	std::getline(f, line);
-	if (!setStartLineParam(line)) // why don't we turn _valid to 'false'?
+	if (!setStartLineParam(line))
 		return ;
 
     while (std::getline(f, line)) {
@@ -139,12 +152,6 @@ void			HTTPRequest::print(void) const
 	std::cout << "Referer = " << this->_referer << std::endl;
 	std::cout << "User-Agent = " << this->_userAgent << std::endl;
 	std::cout << "Body = " << this->_body << std::endl;
-}
-
-bool				HTTPRequest::isValid(void) const
-{
-	// check if request is valid
-	return (this->_valid);
 }
 
 std::string const	&HTTPRequest::getError(void) const

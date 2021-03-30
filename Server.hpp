@@ -6,7 +6,7 @@
 /*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/16 07:58:05 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/27 22:34:43 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/03/30 11:02:40 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 # include "Session.hpp"
 # include <vector>
 # include <list>
+# include <map>
 # include <string>
 # include <unistd.h>
 # include <sys/socket.h>
@@ -41,6 +42,7 @@ class Server : public ASocketOwner {
 		std::string					_defaultErrorPage404;
 		std::vector<Location *>		_locationSet;
 		std::list<Session *>		_sessionSet;
+		std::map<int, std::string>	_errorMap;
 
 		Server(void);
 
@@ -56,14 +58,15 @@ class Server : public ASocketOwner {
 		virtual void	remove(void) {}
 
 		// Getters
-		std::vector<std::string> const	&getServerNames(void) const;
-		std::string const				&getHost(void) const;
-		int								getPort(void) const;
-		int								getListenSocket(void) const;
-		std::string const				&getDefaultErrorPage402(void) const;
-		std::string const				&getDefaultErrorPage404(void) const;
-		std::vector<Location *> 		&getLocationSet(void);
-		std::list<Session *> const		&getSessionSet(void) const;
+		std::vector<std::string> const		&getServerNames(void) const;
+		std::string const					&getHost(void) const;
+		int									getPort(void) const;
+		int									getListenSocket(void) const;
+		std::string const					&getDefaultErrorPage402(void) const;
+		std::string const					&getDefaultErrorPage404(void) const;
+		std::vector<Location *> 			&getLocationSet(void);
+		std::list<Session *> const			&getSessionSet(void) const;
+		std::map<int, std::string> 			&getErrorMap(void);
 
 		// Setters
 		void	addServerName(std::string const &server_name);

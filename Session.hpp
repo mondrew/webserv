@@ -6,7 +6,7 @@
 /*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/17 23:06:28 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/27 20:55:04 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/03/30 12:28:31 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,14 @@
 
 # define BUFFER_SIZE 1024
 
+# define NONE 0
+# define DIR_PATH 1
+# define FILE_PATH 2
+
+//# define NONE 0
+//# define FOLDER_PATH 1
+//# define FILE_PATH 2
+
 class Server;
 
 class Session : public ASocketOwner {
@@ -30,6 +38,9 @@ class Session : public ASocketOwner {
 		HTTPRequest		*_request;
 		HTTPResponse	*_response;
 
+		Location		*_serverLocation;
+		std::string		_responseFilePath;
+
 		char			_buf[BUFFER_SIZE + 1];
 		int				_bufLeft;
 		std::string		_requestStr; // It should be 'HTTPRequest' class that owns that string
@@ -37,6 +48,9 @@ class Session : public ASocketOwner {
 		std::string		_responseStr; // It should be 'HTTPResponse' class that owns that string
 
 		bool			_deleteMe;
+
+		std::string		_login; // In some case we may need it. WWWAuthenticate Response header
+		std::string		_password; // If we need them but they are empty -> 401 Unauthorized
 
 		Session(void);
 		Session(Session const &src);
@@ -49,7 +63,11 @@ class Session : public ASocketOwner {
 
 		void			generateResponse(void);
 		void			responseToString(void);
-		bool			checkRequestTarget(void);
+		bool			isValidRequestTarget(void);
+		bool			isValidRequestAllow(void) const;
+		bool			isValidRequestHost(void) const;
+		bool			isValidPermissions(void) const;
+		bool			isCGI(void) const;
 		virtual bool	getDeleteMe(void) const;
 		virtual void	remove(void);
 		virtual void	handle(void);

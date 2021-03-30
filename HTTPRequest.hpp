@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/20 15:48:48 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/27 10:47:22 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/03/29 22:04:56 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,7 @@ class HTTPRequest {
 										// SERVER RESPONDS with 'Content-Language' or ignore
 
 		char			_allow; // example: GET, POST, PUT, HEAD
-								// can be empty (if there are no allowed methods
+								// can be empty (if there are no allowed methods)
 
 		std::string		_authorization; // example: Basic YWxhZGRpbjpvcGVuc2VzYW1l
 										// The second is: username:password encoded with base64
@@ -57,7 +57,7 @@ class HTTPRequest {
 										// in PUT and POST requests - ignore it
 
 		std::string		_contentType; // for POST or PUT requests
-									// example: text/html; charset=UTF-8; text/plain
+									// example: application/js, text/html; charset=UTF-8, text/plain
 									// example: multipart/form-data; boundary=something
 
 		std::string		_date; // example: Wed, 21 Oct 2015 07:28:00 GMT

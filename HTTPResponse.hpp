@@ -6,15 +6,15 @@
 /*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/20 16:49:22 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/27 22:21:14 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/03/30 10:36:06 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef HTTP_RESPONSE_HPP
 # define HTTP_RESPONSE_HPP
 
-#include <string>
-#include "Util.hpp"
+# include <string>
+# include "Util.hpp"
 
 class HTTPResponse {
 
@@ -30,14 +30,15 @@ class HTTPResponse {
 		// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers
 		// USE THIS ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 		// Subject
-		Options			_allow; // depends on Config. For example: GET, POST, PUT, HEAD
+		char			_allow; // depends on Config. For example: GET, POST, PUT, HEAD
 								// must be sent with '405 Method Not Allowed' status code
 								// can be empty (if there are no allowed methods
 
 		std::string		_contentLanguage; // example: de-DE
 										// example: en, de-DE, en-CA
 
-		int				_contentLength; // example: 55
+		int				_contentLength; // body length
+										// example: 55
 
 		std::string		_contentLocation; // documents/foo.json
 
@@ -95,11 +96,29 @@ class HTTPResponse {
 		HTTPResponse(void);
 		~HTTPResponse(void);
 
+		// GETTERS
+		int					getStatusCode(void) const;
+		int					getContentLength(void) const;
+		char				getAllow(void) const;
+		std::string const	&getProtocolVersion(void) const;
+		std::string const	&getStatusText(void) const;
+		std::string const	&getContentLanguage(void) const;
+		std::string const	&getContentLocation(void) const;
+		std::string const	&getContentType(void) const;
+		std::string const	&getDate(void) const;
+		std::string const	&getLastModified(void) const;
+		std::string const	&getLocation(void) const;
+		std::string const	&getRetryAfter(void) const;
+		std::string const	&getServer(void) const;
+		std::string const	&getTransferEncoding(void) const;
+		std::string const	&getWWWAuthenticate(void) const;
+		std::string const	&getBody(void) const;
+
 		//SETTERS
 		void		setProtocolVersion(std::string const &version);
 		void		setStatusCode(int code);
 		void		setStatusText(std::string const &text);
-		void		setAllow(Options allow);
+		void		setAllow(char allow);
 		void		setContentLanguage(std::string const &language);
 		void		setContentLength(int length);
 		void		setContentLocation(std::string const &location);
@@ -111,7 +130,7 @@ class HTTPResponse {
 		void		setServer(std::string const &server);
 		void		setTransferEncoding(std::string const &encoding);
 		void		setWWWAuthenticate(std::string const auth);
-		void		setBody(std::string const &body);
+		void		setBody(std::string const &path);
 };
 
 #endif
