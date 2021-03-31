@@ -6,12 +6,14 @@
 /*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/18 00:50:52 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/22 13:58:00 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/03/31 13:54:23 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "EventSelector.hpp"
+#include "Util.hpp"
 #include <sys/select.h>
+#include <unistd.h>
 #include <cerrno>
 #include <iostream>
 
@@ -89,7 +91,7 @@ void			EventSelector::run() {
 		FD_ZERO(&rds);
 		FD_ZERO(&wrs);
 		// timeout 3.5 sec
-		timeout.tv_sec = 3;
+		timeout.tv_sec = 300;
 		timeout.tv_usec = 500000;
 
 		// Loop for adding in sets fds which want to read or write
@@ -103,18 +105,21 @@ void			EventSelector::run() {
 				FD_SET((*it)->getSocket(), &wrs);
 		}
 
-		// start debug
-		std::cout << "-----------------------" << std::endl;
-		std::cout << "Sockets in EventSelector" << std::endl;
-		for (std::list<ASocketOwner *>::iterator it = _socketOwnerSet.begin();
-												it != _socketOwnerSet.end(); it++)
+		// Print Sockets
+		if (Util::printSockets)
 		{
-			std::cout << (*it)->getSocket() << " ";
+			std::cout << "-----------------------" << std::endl;
+			std::cout << "Sockets in EventSelector" << std::endl;
+			for (std::list<ASocketOwner *>::iterator it = _socketOwnerSet.begin();
+													it != _socketOwnerSet.end(); it++)
+			{
+				std::cout << (*it)->getSocket() << " ";
+			}
+			std::cout << std::endl;
+			std::cout << "-----------------------" << std::endl;
+			// sleep
+			usleep(3);
 		}
-		std::cout << std::endl;
-		std::cout << "-----------------------" << std::endl;
-		select(0, 0, 0, 0, &timeout);
-		// end debug
 
 		// 'select' system call
 		int		res = select(_max_fd + 1, &rds, &wrs, 0, &timeout);

@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/18 10:27:07 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/27 20:25:41 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/03/31 13:43:08 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -213,7 +213,11 @@ Server 			*Config::parseServer(std::ifstream &file, std::string &partStr)
 			Location *location = parseLocation(file, partStr);
 			if (!location)
 				return (0);
-			location->print(); // debug
+			// Print Location
+			if (Util::printLocations)
+			{
+				location->print();
+			}
 			server->addLocation(location);
 		}
 		else if (!file.eof() && partStr != ";")
@@ -237,7 +241,7 @@ int				Config::parseConfig()
 	while (!file.eof())
 	{
 		file >> partStr;
-		if (partStr == "server" || partStr == "server{") // mon: "server{" fails!
+		if (partStr == "server" || partStr == "server{")
 		{
 			if (partStr == "server")
 				file >> partStr;

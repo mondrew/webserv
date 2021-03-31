@@ -6,7 +6,7 @@
 /*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/17 23:06:28 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/30 12:28:31 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/03/31 22:37:22 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,6 +63,7 @@ class Session : public ASocketOwner {
 
 		void			generateResponse(void);
 		void			responseToString(void);
+		bool			isValidRequest(void);
 		bool			isValidRequestTarget(void);
 		bool			isValidRequestAllow(void) const;
 		bool			isValidRequestHost(void) const;
@@ -71,6 +72,15 @@ class Session : public ASocketOwner {
 		virtual bool	getDeleteMe(void) const;
 		virtual void	remove(void);
 		virtual void	handle(void);
+
+		void			fillDefaultResponseFields(void);
+		bool			fillErrorResponse(int code);
+
+		void			makeGETResponse(void);
+		void			makeHEADResponse(void);
+		void			makePOSTResponse(void);
+		void			makePUTResponse(void);
+		void			makeCGIResponse(void);
 };
 
 #endif

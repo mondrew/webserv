@@ -6,11 +6,12 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/20 15:53:09 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/29 15:37:16 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/03/31 22:53:31 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "HTTPRequest.hpp"
+#include "Util.hpp"
 #include <cstdlib>
 
 HTTPRequest::HTTPRequest(std::string const &str) : _valid(true), _allow(0) {
@@ -36,6 +37,11 @@ int				HTTPRequest::setError(std::string const &str)
 	return (1); // Why 1 ? May be 0 ? We need to stop parsing in this case
 }
 
+void			HTTPRequest::setBody(std::string const &str) {
+
+	this->_body = str;
+}
+
 int 			isKey(std::string const &line, std::string const &key)
 {
 	return (line.find(key) == 0);
@@ -58,7 +64,7 @@ bool 			HTTPRequest::setStartLineParam(std::string &line)
 		this->_method = HEAD;
 	else
 	{
-		setError("Unknown or empty request method");
+		this->_method = UNKNOWN;
 		// We should not set _valid to false here, 'cause we need to response '405' error
 		return (false);
 		// return setError("Unknown method"); // Here we return true. Why not false?
@@ -121,6 +127,8 @@ void			HTTPRequest::parseRequest(std::string const &str)
 		{
 			while (std::getline(f, line))
 				this->_body += line;
+			if (!this->_body.empty() && this->_contentLength == 0)
+				this->_body = Util::unchunkData(this->_body);
 			break;
 		}
     }
@@ -136,6 +144,7 @@ void			HTTPRequest::print(void) const
 		if (this->_method & GET) std::cout << "GET";
 	 	if (this->_method & POST) std::cout << " POST";
 	 	if (this->_method & PUT) std::cout << " PUT";
+	 	if (this->_method & HEAD) std::cout << " HEAD";
 		std::cout << std::endl;
 	}
 	std::cout << "Target = " << this->_target << std::endl;

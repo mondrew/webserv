@@ -6,7 +6,7 @@
 /*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/16 09:02:17 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/30 11:03:19 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/03/31 14:03:06 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,11 +20,7 @@ Server::Server(int a_socket) : ASocketOwner(a_socket),
 									_the_selector(0),
 									_serverNames(std::vector<std::string>()),
 									_host("localhost"),
-									_port(80),
-									_defaultErrorPage402(""),
-									_defaultErrorPage404("") {
-									//_locationSet(std::vector<Location *>()),
-									//_sessionSet(std::list<Session *>()) {
+									_port(80) {
 
 	_errorMap[400] = "./www/pages/400_BadRequest.html";
 	_errorMap[401] = "./www/pages/401_Unauthorized.html";
@@ -86,7 +82,6 @@ int		Server::start(void) {
 		std::cout << "Error: cant't create server socket." << std::endl;
 		return (-1);
 	}
-	std::cout << "Server has created a socket: " << _socket << std::endl;
 
 	// Prevents port sticking
 	opt = 1;
@@ -113,10 +108,6 @@ int		Server::start(void) {
 		setSocket(-1);
 		return (-1);
 	}
-	std::cout << "Bind successfully" << std::endl;
-	std::cout << "Server IP address: " << inet_ntoa(addr.sin_addr);
-   	std::cout << std::endl;
-
 	// Turn socket to the listening mode
 	if (listen(_socket, MAX_USERS) == -1)
 	{
@@ -127,8 +118,15 @@ int		Server::start(void) {
 		return (-1);
 	}
 
-	std::cout << "Server '" << _serverNames[0] << "' has successfully started!";
-	std::cout << std::endl;
+	if (Util::printConnections)
+	{
+		std::cout << "Server has created a socket: " << _socket << std::endl;
+		std::cout << "Bind successfully" << std::endl;
+		std::cout << "Server IP address: " << inet_ntoa(addr.sin_addr);
+		std::cout << std::endl;
+		std::cout << "Server '" << _serverNames[0] << "' has successfully started!";
+		std::cout << std::endl;
+	}
 
 	return (0);
 }
@@ -149,7 +147,8 @@ void		Server::handle(void) {
 		return ;
 	}
 
-	std::cout << "SERVER ACCEPT: " << sockfd << std::endl; // debug
+	if (Util::printServerAccepts)
+		std::cout << "SERVER ACCEPT: " << sockfd << std::endl; // debug
 
 	// Add new client to the Session list and to the EventSelector objects
 	Session	*session = new Session(sockfd, this);

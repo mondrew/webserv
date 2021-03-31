@@ -6,12 +6,21 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/18 09:20:58 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/25 09:30:44 by gjessica         ###   ########.fr       */
+/*   Updated: 2021/03/31 21:32:17 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Config.hpp"
 #include "EventSelector.hpp"
+#include "Util.hpp"
+
+bool	Util::printConfig = false;
+bool	Util::printRequests = false;
+bool	Util::printResponses = false;
+bool	Util::printSockets = false;
+bool	Util::printLocations = false;
+bool	Util::printServerAccepts = false;
+bool	Util::printConnections = false;
 
 int		main(int argc, char **argv)
 {

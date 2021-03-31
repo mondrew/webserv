@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/18 10:28:50 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/25 09:47:10 by gjessica         ###   ########.fr       */
+/*   Updated: 2021/03/31 13:33:09 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,6 @@ Location & Location::operator=(Location const &op) {
 	this->cgiPath = op.cgiPath;
 	return (*this);
 }
-
 
 // Getters
 long 					Location::getMaxBody() const { return this->maxBody; }

@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/20 15:48:48 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/29 22:04:56 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/03/31 22:51:54 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -119,6 +119,7 @@ class HTTPRequest {
 
 		// SETTERS
 		int					setError(std::string const &str);
+		void				setBody(std::string const &str);
 
 	private:
 

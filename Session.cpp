@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/17 23:10:08 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/31 08:49:28 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/03/31 22:54:38 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -139,12 +139,8 @@ bool		Session::isCGI(void) const {
 	return (Util::isCGI(this->_responseFilePath));
 }
 
-void		Session::generateResponse(void) {
+void		Session::fillDefaultResponseFields(void) {
 
-	this->_request = new HTTPRequest(_requestStr);
-	this->_response = new HTTPResponse();
-
-	// Set common fields (independent of response type)
 	_response->setProtocolVersion("HTTP/1.1");
 	_response->setDate(Util::getDate());
 	_response->setServer("MGINX Webserv/1.0 (Unix)");
@@ -158,158 +154,193 @@ void		Session::generateResponse(void) {
 	_response->setWWWAuthenticate("");
 	_response->setContentLocation("");
 	_response->setContentType("text/html");
+}
 
-	if (!_request->isValid() || !this->isValidRequestHost())
-	{
-		_response->setStatusCode(400);
+bool		Session::fillErrorResponse(int code) {
+
+	_response->setStatusCode(code);
+	if (code == 400)
 		_response->setStatusText("Bad Request");
-
-		_responseFilePath = (_theMaster->getErrorMap())[400];
-		_response->setBody(Util::fileToString((this->_responseFilePath)));
-		_response->setContentLength(_response->getBody().length());
-	}
-	else if (!isValidRequestTarget())
-	{
-		_response->setStatusCode(404);
-		_response->setStatusText("Not Found");
-
-		_responseFilePath = _theMaster->getErrorMap()[404];
-		_response->setBody(Util::fileToString((this->_responseFilePath)));
-		_response->setContentLength(_response->getBody().length());
-	}
-	else if (!isValidRequestAllow())
-	{
-		_response->setStatusCode(405);
-		_response->setStatusText("Method Not Allowed");
-
-		_responseFilePath = _theMaster->getErrorMap()[405];
-		_response->setBody(Util::fileToString((this->_responseFilePath)));
-		_response->setContentLength(_response->getBody().length());
-	}
-	else if (!isValidPermissions())
-	{
-		_response->setStatusCode(403);
+	else if (code == 401)
+		_response->setStatusText("Unauthorized");
+	else if (code == 403)
 		_response->setStatusText("Forbidden");
+	else if (code == 404)
+		_response->setStatusText("Not Found");
+	else if (code == 405)
+		_response->setStatusText("Method Not Allowed");
+	else if (code == 408)
+		_response->setStatusText("Request Timeout");
+	else if (code == 500)
+		_response->setStatusText("Internal Server Error");
+	else if (code == 501)
+		_response->setStatusText("Not Implemented");
+	else if (code == 503)
+		_response->setStatusText("Service Unavailable");
+	else if (code == 505)
+		_response->setStatusText("HTTP Version Not Supported");
+	_responseFilePath = (_theMaster->getErrorMap())[code];
+	_response->setBody(Util::fileToString((this->_responseFilePath)));
+	_response->setContentLength(_response->getBody().length());
+	return (false);
+}
 
-		_responseFilePath = _theMaster->getErrorMap()[403];
-		_response->setBody(Util::fileToString((this->_responseFilePath)));
-		_response->setContentLength(_response->getBody().length());
+bool		Session::isValidRequest(void) {
+
+	if (!_request->isValid() && _request->getMethod() == UNKNOWN)
+		return (fillErrorResponse(501));
+	else if (!_request->isValid() || !this->isValidRequestHost())
+		return (fillErrorResponse(400));
+	else if (!isValidRequestTarget())
+		return (fillErrorResponse(404));
+	else if (!isValidRequestAllow())
+		return (fillErrorResponse(405));
+	else if (!isValidPermissions())
+		return (fillErrorResponse(403));
+	return (true);
+}
+
+void			Session::makeCGIResponse(void) {
+
+	pid_t				pid;
+	int					pipefd[2];
+	std::ostringstream	oss;
+
+	/*
+	* SET ENVIRONMENT VARIABLES FOR CGI
+	*/
+
+	if (pipe(pipefd) == -1)
+	{
+		std::cout << "Pipe failed" << std::endl;
+		// Internal Server Error
 	}
+	if ((pid = fork()) == -1)
+	{
+		std::cout << "Fork failed" << std::endl;
+		// Internal Server Error
+	}
+	if (pid == 0)
+	{
+		// Child
+		// Close IN pipe side
+		close(pipefd[0]);
+
+		// Replace stdout with WRITE-END of the PIPE
+		dup2(STDOUT_FILENO, pipefd[1]);
+
+		// Run the CGI script
+		char	*s1 = NULL;
+		char	*s2 = NULL;
+		char *const	argv[2] = {s1, s2};
+		char *const	envp[2] = {s1, s2};
+		execve(_responseFilePath.c_str(), argv, envp);
+
+		exit(0);
+	}
+	// Parent
+	// Close OUT pipe side
+	close(pipefd[1]);
+
+	// Replace stdin with READ-END of the PIPE
+	dup2(STDIN_FILENO, pipefd[0]);
+
+	oss << std::cin;
+	oss << std::endl;
+
+	_response->setBody(oss.str());
+	_response->setContentLength(_response->getBody().length());
+
+	_response->setRetryAfter("");
+	_response->setWWWAuthenticate("");
+	_response->setContentLocation(this->_responseFilePath);
+
+	// Change it: get info from CGI
+	_response->setContentType(\
+					Util::detectContentType(this->_responseFilePath));
+	_response->setLastModified(\
+				Util::getFileLastModified(this->_responseFilePath));
+
+	// Wait for the child
+	waitpid(pid, 0, 0);
+}
+
+void		Session::makeGETResponse(void) {
+
+	// return file or run script
+	_response->setStatusCode(200);
+	_response->setStatusText("OK");
+	_response->setTransferEncoding("identity");
+
+	_response->setAllow(_serverLocation->getLimitExcept());
+	_response->setLocation(this->_responseFilePath);
+	if (isCGI())
+		makeCGIResponse();
 	else
 	{
-		//std::cout << "START - Parser testing - HTTPRequest\n";
-		//_request->print();
-		//std::cout << "END - Parser testing - HTTPRequest\n\n";
+		_response->setBody(Util::fileToString((this->_responseFilePath)));
+		_response->setContentLength(_response->getBody().length());
 
+		_response->setRetryAfter("");
+		_response->setWWWAuthenticate("");
+		_response->setContentLocation(this->_responseFilePath);
+		_response->setContentType(\
+						Util::detectContentType(this->_responseFilePath));
+		_response->setLastModified(\
+					Util::getFileLastModified(this->_responseFilePath));
+	}
+}
+
+void		Session::makeHEADResponse(void) {
+
+	// do smth
+	_response->setStatusCode(200);
+	_response->setStatusText("OK");
+}
+
+void		Session::makePOSTResponse(void) {
+	// do smth
+	// update some info?
+	_response->setStatusCode(201);
+	_response->setStatusText("OK");
+}
+
+void		Session::makePUTResponse(void) {
+
+	if (_request->getContentLength() == 0 && !_request->getBody().empty())
+		_request->setBody(Util::unchunkData(_request->getBody()));
+
+	// Save file to ./www/upload
+	_response->setStatusCode(201);
+	_response->setStatusText("Created");
+	// OR
+	// _response->setStatusCode(204);
+	// _response->setStatusText("No Content");
+}
+
+void		Session::generateResponse(void) {
+
+	this->_request = new HTTPRequest(_requestStr);
+	this->_response = new HTTPResponse();
+
+	// Set common fields (independent of response type)
+	fillDefaultResponseFields();
+	if (isValidRequest())
+	{
+		if (Util::printRequests)
+		{
+			std::cout << "================== HTTPRequest - START ===================\n";
+			_request->print();
+			std::cout << "================== HTTPRequest - END ===================\n";
+		}
 		if (_request->getMethod() == GET)
-		{
-			// return file or run script
-			_response->setStatusCode(200);
-			_response->setStatusText("OK");
-			_response->setTransferEncoding("identity");
-
-			_response->setAllow(_serverLocation->getLimitExcept());
-			_response->setLocation(this->_responseFilePath);
-			if (isCGI())
-			{
-				pid_t				pid;
-				int					pipefd[2];
-				std::ostringstream	oss;
-
-				/*
-				* SET ENVIRONMENT VARIABLES FOR CGI
-				*/
-
-				if (pipe(pipefd) == -1)
-				{
-					std::cout << "Pipe failed" << std::endl;
-					// Internal Server Error
-				}
-				if ((pid = fork()) == -1)
-				{
-					std::cout << "Fork failed" << std::endl;
-					// Internal Server Error
-				}
-				if (pid == 0)
-				{
-					// Child
-					// Close IN pipe side
-					close(pipefd[0]);
-
-					// Replace stdout with WRITE-END of the PIPE
-					dup2(STDOUT_FILENO, pipefd[1]);
-
-					// Run the CGI script
-					char	*s1 = NULL;
-					char	*s2 = NULL;
-					char *const	argv[2] = {s1, s2};
-					char *const	envp[2] = {s1, s2};
-					execve(_responseFilePath.c_str(), argv, envp);
-
-					exit(0);
-				}
-				// Parent
-				// Close OUT pipe side
-				close(pipefd[1]);
-
-				// Replace stdin with READ-END of the PIPE
-				dup2(STDIN_FILENO, pipefd[0]);
-
-				oss << std::cin;
-				oss << std::endl;
-
-				_response->setBody(oss.str());
-				_response->setContentLength(_response->getBody().length());
-
-				_response->setRetryAfter("");
-				_response->setWWWAuthenticate("");
-				_response->setContentLocation(this->_responseFilePath);
-
-				// Change it: get info from CGI
-				_response->setContentType(\
-								Util::detectContentType(this->_responseFilePath));
-				_response->setLastModified(\
-							Util::getFileLastModified(this->_responseFilePath));
-
-				// Wait for the child
-				waitpid(pid, 0, 0);
-			}
-			else
-
-			{
-				_response->setBody(Util::fileToString((this->_responseFilePath)));
-				_response->setContentLength(_response->getBody().length());
-
-				_response->setRetryAfter("");
-				_response->setWWWAuthenticate("");
-				_response->setContentLocation(this->_responseFilePath);
-				_response->setContentType(\
-								Util::detectContentType(this->_responseFilePath));
-				_response->setLastModified(\
-							Util::getFileLastModified(this->_responseFilePath));
-				}
-		}
-		else if (_request->getMethod() == POST)
-		{
-			// update some info?
-			_response->setStatusCode(200);
-			_response->setStatusText("OK");
-		}
-		else if (_request->getMethod() == PUT)
-		{
-			// Save file to ./www/upload
-			_response->setStatusCode(201);
-			_response->setStatusText("Created");
-			// OR
-			// _response->setStatusCode(204);
-			// _response->setStatusText("No Content");
-		}
+			makeGETResponse();
 		else if (_request->getMethod() == HEAD)
-		{
-			// do smth
-			_response->setStatusCode(200);
-			_response->setStatusText("OK");
-		}
+			makeHEADResponse();
+		else if (_request->getMethod() == POST)
+			makePOSTResponse();
+		else if (_request->getMethod() == PUT)
+			makePUTResponse();
 	}
 	responseToString();
 }
@@ -338,9 +369,13 @@ void		Session::responseToString(void) {
 	oss << _response->getBody() << std::endl; // Is it nessecary to add "\n" after last line?
 
 	_responseStr = oss.str();
-	// std::cout << "============Response START==============================" << std::endl;
-	// std::cout << _responseStr << std::endl;
-	// std::cout << "============Repsonse END==============================" << std::endl;
+
+	if (Util::printResponses)
+	{
+		std::cout << "=====================Response START==================" << std::endl;
+		std::cout << _responseStr << std::endl;
+		std::cout << "=====================Repsonse END====================" << std::endl;
+	}
 }
 
 void		Session::remove(void) {

@@ -6,7 +6,7 @@
 /*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/30 10:55:24 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/31 08:43:11 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/03/31 22:39:53 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@
 # include <unistd.h>
 # include <typeinfo>
 # include <map>
+# include <cmath>
 
 # define NOT_LIMIT -1
 
@@ -31,6 +32,7 @@ enum Options {
   POST     	= 0x02,
   PUT   	= 0x04,
   HEAD 		= 0x08,
+  UNKNOWN	= 0x00
 };
 
 class Util
@@ -43,6 +45,14 @@ class Util
 		~Util();
 		Util(Util const &cp);
 		Util &operator=(Util const &op);
+
+		static bool		printConfig;
+		static bool		printRequests;
+		static bool		printResponses;
+		static bool		printSockets;
+		static bool		printLocations;
+		static bool		printServerAccepts;
+		static bool		printConnections;
 
 		static std::string	toString(int val)
 		{
@@ -212,6 +222,59 @@ class Util
 			struct stat		buffer;
 
 			return (stat(path.c_str(), &buffer) == 0);
+		}
+
+		static int			hexStringToInt(std::string const &hex)
+		{
+			int		dec = 0;
+			double	power = 0;
+
+			for (int i = hex.length() - 1; i >= 0; i--)
+			{
+				if (hex[i] >= 'a' && hex[i] <= 'f') 
+					dec += (10 + (hex[i] - 'a')) * std::pow(16.0, power);
+				else if (hex[i] >= 'A' && hex[i] <= 'F')
+					dec += (10 + (hex[i] - 'A')) * std::pow(16.0, power);
+				else
+					dec += (hex[i] - '0') * std::pow(16.0, power);
+				power++;
+			}
+			return (dec);
+		}
+
+		static std::string	unchunkData(std::string const &data)
+		{
+			std::string		line;
+			int				len;
+			std::string		hex;
+			std::size_t		start;
+			std::size_t		pos = 0;
+			bool			isEOF = false;
+
+			while (!isEOF)
+			{
+				pos = data.find("\r\n", pos);
+				if (pos != std::string::npos)
+				{
+					start = data.rfind("\r\n", pos - 1);
+					if (start == std::string::npos)
+						start = 0;
+					else
+						start += 2;
+					hex = data.substr(start, pos - start);
+					len = Util::hexStringToInt(hex);
+					if (!len)
+					{
+						isEOF = true;
+						break ;
+					}
+					line += data.substr(pos + 2, len);
+					pos += len + 4;
+				}
+				else
+					break ;
+			}
+			return (line);
 		}
 
 		static std::string	detectContentType(std::string const &path)
