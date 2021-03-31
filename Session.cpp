@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/17 23:10:08 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/30 22:00:10 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/03/31 08:49:28 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,9 @@
 #include <fcntl.h>
 #include <cstring>
 #include <algorithm>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
 Session::Session(int a_sockfd, Server *master) :	ASocketOwner(a_sockfd),
 													_theMaster(master),
@@ -209,10 +212,70 @@ void		Session::generateResponse(void) {
 			_response->setLocation(this->_responseFilePath);
 			if (isCGI())
 			{
-				// CGI here
-				// _responseFilePath = ?
+				pid_t				pid;
+				int					pipefd[2];
+				std::ostringstream	oss;
+
+				/*
+				* SET ENVIRONMENT VARIABLES FOR CGI
+				*/
+
+				if (pipe(pipefd) == -1)
+				{
+					std::cout << "Pipe failed" << std::endl;
+					// Internal Server Error
+				}
+				if ((pid = fork()) == -1)
+				{
+					std::cout << "Fork failed" << std::endl;
+					// Internal Server Error
+				}
+				if (pid == 0)
+				{
+					// Child
+					// Close IN pipe side
+					close(pipefd[0]);
+
+					// Replace stdout with WRITE-END of the PIPE
+					dup2(STDOUT_FILENO, pipefd[1]);
+
+					// Run the CGI script
+					char	*s1 = NULL;
+					char	*s2 = NULL;
+					char *const	argv[2] = {s1, s2};
+					char *const	envp[2] = {s1, s2};
+					execve(_responseFilePath.c_str(), argv, envp);
+
+					exit(0);
+				}
+				// Parent
+				// Close OUT pipe side
+				close(pipefd[1]);
+
+				// Replace stdin with READ-END of the PIPE
+				dup2(STDIN_FILENO, pipefd[0]);
+
+				oss << std::cin;
+				oss << std::endl;
+
+				_response->setBody(oss.str());
+				_response->setContentLength(_response->getBody().length());
+
+				_response->setRetryAfter("");
+				_response->setWWWAuthenticate("");
+				_response->setContentLocation(this->_responseFilePath);
+
+				// Change it: get info from CGI
+				_response->setContentType(\
+								Util::detectContentType(this->_responseFilePath));
+				_response->setLastModified(\
+							Util::getFileLastModified(this->_responseFilePath));
+
+				// Wait for the child
+				waitpid(pid, 0, 0);
 			}
 			else
+
 			{
 				_response->setBody(Util::fileToString((this->_responseFilePath)));
 				_response->setContentLength(_response->getBody().length());
