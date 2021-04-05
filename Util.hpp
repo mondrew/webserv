@@ -6,7 +6,7 @@
 /*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/30 10:55:24 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/31 22:39:53 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/04/05 10:59:48 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,6 +53,7 @@ class Util
 		static bool		printLocations;
 		static bool		printServerAccepts;
 		static bool		printConnections;
+		static bool		printRequestTarget;
 
 		static std::string	toString(int val)
 		{
@@ -197,8 +198,9 @@ class Util
 			std::size_t		dot = path.find_last_of(".");
 			std::string		extension;
 
+
 			if (dot == std::string::npos)
-				return ("unknown");
+				return (false);
 			extension = path.substr(dot + 1);
 			return  (!extension.compare("php") || !extension.compare("json") || \
 					!extension.compare("py") || !extension.compare("sh") || \
@@ -309,6 +311,9 @@ class Util
 			mimeTypes["mpg"] = "video/mpeg";
 			mimeTypes["mov"] = "video/quicktime";
 			mimeTypes["avi"] = "video/msvideo";
+			mimeTypes["wmv"] = "video/x-ms-wmv";
+			mimeTypes["py"] = "application/x-python-code";
+			mimeTypes["cgi"] = "application/x-httpd-cgi";
 			mimeTypes["wmv"] = "video/x-ms-wmv";
 
 			std::size_t		dot = path.find_last_of(".");

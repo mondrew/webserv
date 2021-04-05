@@ -6,7 +6,7 @@
 /*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/16 09:02:17 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/31 14:03:06 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/04/01 15:18:29 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,7 +103,7 @@ int		Server::start(void) {
 	if ((ret = bind(_socket, (struct sockaddr *)&addr, sizeof(addr))) == -1)
 	{
 		// Can be exception
-		std::cout << "Error: can't bind IP addressto server port." << std::endl;
+		std::cout << "Error: can't bind IP address to server port." << std::endl;
 		close(_socket);
 		setSocket(-1);
 		return (-1);

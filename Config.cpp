@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/18 10:27:07 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/31 13:43:08 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/04/05 09:51:56 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,7 @@ void			Config::addServer(Server *server)
 	this->_serverSet.push_back(server);
 }
 
-Location				*createLocation(std::string const &locationPath,
+Location		*createLocation(std::string const &locationPath,
 							std::string const &root, std::string const &index)
 {
 	Location	*location = new Location();
@@ -62,7 +62,7 @@ Location				*createLocation(std::string const &locationPath,
 	return location;
 }
 
-int						clearBreak(std::string &str)
+int				clearBreak(std::string &str)
 {
 	if (Util::getLastChar(str) == ';')
 	{
@@ -120,7 +120,8 @@ Location 		*Config::parseLocation(std::ifstream &file, std::string &partStr)
 					this->setError("Unknown limit_except type " + partStr);
 					return (0);
 				}
-				file >> partStr;
+				if (!isBreak) // Fixed!
+					file >> partStr;
 			}
 		}
 		else if (partStr == "index")
@@ -159,7 +160,6 @@ Location 		*Config::parseLocation(std::ifstream &file, std::string &partStr)
 
 Server 			*Config::parseServer(std::ifstream &file, std::string &partStr)
 {
-
 	int 		partInt;
 	int 		isBreak = 0;
 	Server 		*server = new Server(-1);
@@ -243,7 +243,7 @@ int				Config::parseConfig()
 		file >> partStr;
 		if (partStr == "server" || partStr == "server{")
 		{
-			if (partStr == "server")
+			if (partStr == "server") // What about 'server{' ???
 				file >> partStr;
 			Server	*server = parseServer(file, partStr);
 			if (!server)

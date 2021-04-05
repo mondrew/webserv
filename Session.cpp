@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/17 23:10:08 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/31 22:54:38 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/04/05 11:05:57 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,15 +63,26 @@ bool		Session::isValidRequestTarget(void) {
 									it < this->_theMaster->getLocationSet().end(); it++)
 	{
 		reqPath = (*it)->getRoot() + this->_request->getTarget();
+		// std::cout << "===> reqPath: " << reqPath << std::endl; // debug
 		// If it is not folder -> delete last part of the path (it must be filename)
 		if (!Util::isDirectory(reqPath))
 		{
 			pathType = FILE_PATH;
 			reqPath = Util::removeLastPath(reqPath);
+			// std::cout << "===> reqPath (removed file): " << reqPath << std::endl; // debug
 			if (reqPath.empty())
 				return (false);
 		}
-		pathLoc = (*it)->getRoot() + (*it)->getLocationPath();
+		if (Util::getLastChar(reqPath) == '/')
+			reqPath = Util::removeLastPath(reqPath); // for removing '/' at the end
+		if (Util::isCGI(this->_request->getTarget()) && reqPath.compare((*it)->getRoot()) != 0)
+				pathLoc = (*it)->getCgiPath();
+		else
+			pathLoc = (*it)->getRoot() + (*it)->getLocationPath();
+		if (Util::getLastChar(pathLoc) == '/')
+			pathLoc = Util::removeLastPath(pathLoc); // for removing '/' at the end
+		// std::cout << "===> pathLoc: " << pathLoc << std::endl; // debug
+		// std::cout << "------------------------------" << std::endl; // debug
 		if (pathLoc.compare(reqPath) == 0)
 		{
 			// Here we check the Path to the concrete file
@@ -88,7 +99,6 @@ bool		Session::isValidRequestTarget(void) {
 			break ;
 		}
 	}
-
 	if (isValidFolder && (pathType == FILE_PATH))
 	{
 		if (Util::isCGI(this->_request->getTarget()))
@@ -112,9 +122,18 @@ bool		Session::isValidRequestTarget(void) {
 		isValidPath = true;
 		this->_responseFilePath = reqPath;
 	}
-	// std::cout << "|||||||||| is valid req target: " << isValidPath << std::endl; // debug
-	// std::cout << "|||||||||| is valid folder: " << isValidFolder << std::endl; // debug
-	// std::cout << "|||||||||| responseFilePath: " << _responseFilePath << std::endl; // debug
+	if (Util::printRequestTarget)
+	{
+		if (isValidFolder)
+			std::cout << "Folder Path is valid" << std::endl;
+		else
+			std::cout << "Folder Path is invalid" << std::endl;
+		if (isValidPath)
+			std::cout << "File Path is valid" << std::endl;
+		else
+			std::cout << "File Path is invalid" << std::endl;
+		std::cout <<  "RESPONSE FIlE PATH: " << _responseFilePath << std::endl;
+	}
 	return (isValidPath);
 }
 
@@ -187,7 +206,8 @@ bool		Session::fillErrorResponse(int code) {
 
 bool		Session::isValidRequest(void) {
 
-	if (!_request->isValid() && _request->getMethod() == UNKNOWN)
+	//if (!_request->isValid() && _request->getMethod() == UNKNOWN)
+	if (_request->getMethod() == UNKNOWN)
 		return (fillErrorResponse(501));
 	else if (!_request->isValid() || !this->isValidRequestHost())
 		return (fillErrorResponse(400));
@@ -209,6 +229,7 @@ void			Session::makeCGIResponse(void) {
 	/*
 	* SET ENVIRONMENT VARIABLES FOR CGI
 	*/
+	//Util
 
 	if (pipe(pipefd) == -1)
 	{
@@ -234,6 +255,7 @@ void			Session::makeCGIResponse(void) {
 		char	*s2 = NULL;
 		char *const	argv[2] = {s1, s2};
 		char *const	envp[2] = {s1, s2};
+		std::cout << "WHAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAT?" << std::endl;
 		execve(_responseFilePath.c_str(), argv, envp);
 
 		exit(0);
@@ -327,12 +349,6 @@ void		Session::generateResponse(void) {
 	fillDefaultResponseFields();
 	if (isValidRequest())
 	{
-		if (Util::printRequests)
-		{
-			std::cout << "================== HTTPRequest - START ===================\n";
-			_request->print();
-			std::cout << "================== HTTPRequest - END ===================\n";
-		}
 		if (_request->getMethod() == GET)
 			makeGETResponse();
 		else if (_request->getMethod() == HEAD)
@@ -353,15 +369,15 @@ void		Session::responseToString(void) {
 	oss << _response->getProtocolVersion() << " " << _response->getStatusCode();
 	oss << " " << _response->getStatusText() << std::endl;
 	// Headers
-	oss << "Allow: " << Util::allowToString(_response->getAllow()) << std::endl;
-	oss << "Content-Language: " << _response->getContentLanguage() << std::endl;
-	oss << "Content-Length: " << _response->getContentLength() << std::endl;
-	oss << "Content-Type: " << _response->getContentType() << std::endl;
+	oss << "Server: " << _response->getServer() << std::endl;
 	oss << "Date: " << _response->getDate() << std::endl;
+	oss << "Content-Type: " << _response->getContentType() << std::endl;
+	oss << "Content-Length: " << _response->getContentLength() << std::endl;
+	oss << "Content-Language: " << _response->getContentLanguage() << std::endl;
 	oss << "Last-Modified: " << _response->getLastModified() << std::endl;
+	oss << "Allow: " << Util::allowToString(_response->getAllow()) << std::endl;
 	oss << "Location: " << _response->getLocation() << std::endl;
 	oss << "Retry-After: " << _response->getRetryAfter() << std::endl;
-	oss << "Server: " << _response->getServer() << std::endl;
 	oss << "Transfer-Encoding: " << _response->getTransferEncoding() << std::endl;
 	oss << "WWW-Authenticate: " << _response->getWWWAuthenticate() << std::endl;
 	oss << std::endl;
@@ -373,7 +389,7 @@ void		Session::responseToString(void) {
 	if (Util::printResponses)
 	{
 		std::cout << "=====================Response START==================" << std::endl;
-		std::cout << _responseStr << std::endl;
+		std::cout << _responseStr;
 		std::cout << "=====================Repsonse END====================" << std::endl;
 	}
 }
@@ -400,7 +416,12 @@ void		Session::handle(void) {
 			// EOF reached
 			_buf[ret] = '\0';
 			_requestStr += _buf;
-			std::cout << _requestStr << std::endl; // debug
+			if (Util::printRequests)
+			{
+				std::cout << "================== HTTPRequest - START ===================\n";
+				_request->print();
+				std::cout << "================== HTTPRequest - END ===================\n";
+			}
 			generateResponse();
 			setWantToRead(false);
 			setWantToWrite(true);
