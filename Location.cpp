@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/18 10:28:50 by mondrew           #+#    #+#             */
-/*   Updated: 2021/04/02 08:18:59 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/04/05 23:24:34 by gjessica         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,8 @@
 Location::Location() {
 
 	this->root = "./www";
-	this->index = "index.html";
+	//Change  this->index = "index.html";
+	this->index = "";
 	this->limitExcept = 0;
 	this->autoindex = true;
 	this->maxBody = NOT_LIMIT;

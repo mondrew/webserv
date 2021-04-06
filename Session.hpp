@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Session.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
+/*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/17 23:06:28 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/31 22:37:22 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/04/06 10:44:36 by gjessica         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,6 +55,7 @@ class Session : public ASocketOwner {
 		Session(void);
 		Session(Session const &src);
 		Session		&operator=(Session const &rhs);
+		std::string		getDirListing(std::string const &path);
 
 	public:
 

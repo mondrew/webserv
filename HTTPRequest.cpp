@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/20 15:53:09 by mondrew           #+#    #+#             */
-/*   Updated: 2021/04/01 15:04:32 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/04/06 10:26:03 by gjessica         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -136,6 +136,7 @@ void			HTTPRequest::parseRequest(std::string const &str)
 
 void			HTTPRequest::print(void) const
 {
+	//SEGFAULT!!!!!
 	std::cout << "Methods = ";
 	if (this->_method == 0)
 		std::cout << "default\n";

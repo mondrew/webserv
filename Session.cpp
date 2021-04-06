@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/17 23:10:08 by mondrew           #+#    #+#             */
-/*   Updated: 2021/04/05 11:05:57 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/04/06 11:13:25 by gjessica         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <dirent.h>
 
 Session::Session(int a_sockfd, Server *master) :	ASocketOwner(a_sockfd),
 													_theMaster(master),
@@ -93,7 +94,13 @@ bool		Session::isValidRequestTarget(void) {
 				std::string		delim = "/";
 				if (Util::getLastChar(reqPath) == '/')
 					delim = "";
-				this->_responseFilePath = reqPath + delim + (*it)->getIndex();
+				if (this->_serverLocation->isAutoindex() &&
+				((*it)->getIndex().empty() || !Util::exists(reqPath + delim +(*it)->getIndex())))
+					this->_responseFilePath = reqPath + delim;
+				else
+					this->_responseFilePath = reqPath + delim + (*it)->getIndex();
+				Logger::msg("RFP = " +this->_responseFilePath);
+
 				isValidPath = true;
 			}
 			break ;
@@ -287,8 +294,36 @@ void			Session::makeCGIResponse(void) {
 	waitpid(pid, 0, 0);
 }
 
-void		Session::makeGETResponse(void) {
+std::string		Session::getDirListing(std::string const &path)
+{
+	DIR *dir;
+	struct dirent *diread;
+	std::ostringstream str;
+	//path ./www/pages/test/
+	std::cout << "!!!!!!!!path " << path << std::endl;
+	str << "<html><head><title>MGINX</title></head>";
+	str << "<body>";
+	if ((dir = opendir((  path + "/").c_str())) != nullptr) {
+        while ((diread = readdir(dir)) != nullptr) {
+			std::cout << "!!!!!!!!diread->d_name " << diread->d_name << std::endl;
+			std::cout << "!!!!!!!!this->_request->getTarget() " << this->_request->getTarget() << std::endl;
+			str << "<a href='" << this->_request->getTarget();
+			if (this->_request->getTarget() != "/")
+				str << "/";
+			str << (diread->d_name) << "'>";
+			str << (diread->d_name);
+			str <<  "</a>";
+			str << "<br />";
+        }
+        closedir (dir);
+    } else {
+		Logger::e("Error open directory " + path);
+        return "";
+    }
+	return str.str();
+}
 
+void		Session::makeGETResponse(void) {
 	// return file or run script
 	_response->setStatusCode(200);
 	_response->setStatusText("OK");
@@ -300,7 +335,14 @@ void		Session::makeGETResponse(void) {
 		makeCGIResponse();
 	else
 	{
-		_response->setBody(Util::fileToString((this->_responseFilePath)));
+		//NEW BLOCK
+		Logger::msg("ResponsePath - " + this->_responseFilePath);
+		if (!Util::isDirectory(this->_responseFilePath))
+			_response->setBody(Util::fileToString((this->_responseFilePath)));
+		else
+			_response->setBody(getDirListing(this->_responseFilePath));
+		//END NEW BLOCK
+		//_response->setBody(Util::fileToString((this->_responseFilePath)));
 		_response->setContentLength(_response->getBody().length());
 
 		_response->setRetryAfter("");
@@ -325,6 +367,7 @@ void		Session::makePOSTResponse(void) {
 	// update some info?
 	_response->setStatusCode(201);
 	_response->setStatusText("OK");
+
 }
 
 void		Session::makePUTResponse(void) {
@@ -448,4 +491,5 @@ void		Session::handle(void) {
 			_deleteMe = true;
 		}
 	}
+	Logger::msg("Target - " + _request->getTarget());
 }
