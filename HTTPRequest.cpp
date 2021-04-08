@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/20 15:53:09 by mondrew           #+#    #+#             */
-/*   Updated: 2021/04/06 10:26:03 by gjessica         ###   ########.fr       */
+/*   Updated: 2021/04/07 12:54:53 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -136,16 +136,17 @@ void			HTTPRequest::parseRequest(std::string const &str)
 
 void			HTTPRequest::print(void) const
 {
-	//SEGFAULT!!!!!
 	std::cout << "Methods = ";
-	if (this->_method == 0)
+	if (this->_method == UNKNOWN)
+	{
 		std::cout << "default\n";
+	}
 	else
 	{
 		if (this->_method & GET) std::cout << "GET";
-	 	if (this->_method & POST) std::cout << " POST";
-	 	if (this->_method & PUT) std::cout << " PUT";
-	 	if (this->_method & HEAD) std::cout << " HEAD";
+	 	if (this->_method & POST) std::cout << "POST";
+	 	if (this->_method & PUT) std::cout << "PUT";
+	 	if (this->_method & HEAD) std::cout << "HEAD";
 		std::cout << std::endl;
 	}
 	std::cout << "Target = " << this->_target << std::endl;

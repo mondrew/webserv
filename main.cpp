@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/18 09:20:58 by mondrew           #+#    #+#             */
-/*   Updated: 2021/04/06 10:26:28 by gjessica         ###   ########.fr       */
+/*   Updated: 2021/04/07 13:07:34 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ bool	Util::printSockets = false;
 bool	Util::printLocations = false;
 bool	Util::printServerAccepts = false;
 bool	Util::printConnections = false;
-bool	Util::printRequestTarget = true;
+bool	Util::printRequestTarget = false;
 
 int		main(int argc, char **argv)
 {

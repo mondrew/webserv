@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/17 23:10:08 by mondrew           #+#    #+#             */
-/*   Updated: 2021/04/06 11:13:25 by gjessica         ###   ########.fr       */
+/*   Updated: 2021/04/08 08:19:02 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,7 +99,7 @@ bool		Session::isValidRequestTarget(void) {
 					this->_responseFilePath = reqPath + delim;
 				else
 					this->_responseFilePath = reqPath + delim + (*it)->getIndex();
-				Logger::msg("RFP = " +this->_responseFilePath);
+				// Logger::msg("RFP = " +this->_responseFilePath); // debug
 
 				isValidPath = true;
 			}
@@ -258,11 +258,26 @@ void			Session::makeCGIResponse(void) {
 		dup2(STDOUT_FILENO, pipefd[1]);
 
 		// Run the CGI script
+		std::string		authType = "AUTH_TYPE=";
+		std::string		contentLength = "CONTENT_LENGTH=";
+		std::string		gatewayInterface = "GATEWAY_INTERFACE=";
+		std::string		pathInfo = "PATH_INFO=";
+		std::string		pathTranslated = "PATH_TRANSLATED";
+		std::string		queryString = "QUERY_STRING=";
+		std::string		remoteAddr = "REMOTE_ADDR=";
+		std::string		remoteIdent = "REMOTE_IDENT=";
+		std::string		remoteUser = "REMOTE_USER=";
+		std::string		requestMethod = "REQUEST_METHOD=";
+		std::string		requestURI = "REQUEST_URI=";
+		std::string		scriptName = "SCRIPT_NAME=";
+		std::string		serverName = "SERVER_NAME=";
+		std::string		serverPort = "SERVER_PORT=";
+		std::string		serverProtocol = "SERVER_PROTOCOL=";
+		std::string		serverSoftware = "SERVER_SOFTWARE=";
 		char	*s1 = NULL;
 		char	*s2 = NULL;
 		char *const	argv[2] = {s1, s2};
 		char *const	envp[2] = {s1, s2};
-		std::cout << "WHAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAT?" << std::endl;
 		execve(_responseFilePath.c_str(), argv, envp);
 
 		exit(0);
@@ -296,19 +311,22 @@ void			Session::makeCGIResponse(void) {
 
 std::string		Session::getDirListing(std::string const &path)
 {
-	DIR *dir;
-	struct dirent *diread;
-	std::ostringstream str;
+	DIR					*dir;
+	struct dirent		*diread;
+	std::ostringstream	str;
+
 	//path ./www/pages/test/
-	std::cout << "!!!!!!!!path " << path << std::endl;
+	// std::cout << "!!!!!!!!path " << path << std::endl; // debug
 	str << "<html><head><title>MGINX</title></head>";
 	str << "<body>";
-	if ((dir = opendir((  path + "/").c_str())) != nullptr) {
-        while ((diread = readdir(dir)) != nullptr) {
-			std::cout << "!!!!!!!!diread->d_name " << diread->d_name << std::endl;
-			std::cout << "!!!!!!!!this->_request->getTarget() " << this->_request->getTarget() << std::endl;
+	if ((dir = opendir((  path + "/").c_str())) != 0)
+	{
+		// Fix it - so the first will be '.' then '..' and then other directories
+        while ((diread = readdir(dir)) != 0) {
+			// std::cout << "!!!diread->d_name " << diread->d_name << std::endl; // debug
+			// std::cout << "!!!this->_request->getTarget() " << this->_request->getTarget() << "\n";
 			str << "<a href='" << this->_request->getTarget();
-			if (this->_request->getTarget() != "/")
+			if (this->_request->getTarget().compare("/") != 0)
 				str << "/";
 			str << (diread->d_name) << "'>";
 			str << (diread->d_name);
@@ -316,11 +334,14 @@ std::string		Session::getDirListing(std::string const &path)
 			str << "<br />";
         }
         closedir (dir);
-    } else {
+    }
+	else
+	{
+		// Internal Server error
 		Logger::e("Error open directory " + path);
         return "";
     }
-	return str.str();
+	return (str.str());
 }
 
 void		Session::makeGETResponse(void) {
@@ -336,7 +357,7 @@ void		Session::makeGETResponse(void) {
 	else
 	{
 		//NEW BLOCK
-		Logger::msg("ResponsePath - " + this->_responseFilePath);
+		// Logger::msg("ResponsePath - " + this->_responseFilePath); // debug
 		if (!Util::isDirectory(this->_responseFilePath))
 			_response->setBody(Util::fileToString((this->_responseFilePath)));
 		else
@@ -424,10 +445,14 @@ void		Session::responseToString(void) {
 	oss << "Transfer-Encoding: " << _response->getTransferEncoding() << std::endl;
 	oss << "WWW-Authenticate: " << _response->getWWWAuthenticate() << std::endl;
 	oss << std::endl;
-	// Body
-	oss << _response->getBody() << std::endl; // Is it nessecary to add "\n" after last line?
 
-	_responseStr = oss.str();
+	// Body
+	if (this->_request->getMethod() != GET)
+	{
+		oss << _response->getBody() << std::endl; // Is it nessecary to add "\n" after last line?
+
+		_responseStr = oss.str();
+	}
 
 	if (Util::printResponses)
 	{
@@ -462,7 +487,8 @@ void		Session::handle(void) {
 			if (Util::printRequests)
 			{
 				std::cout << "================== HTTPRequest - START ===================\n";
-				_request->print();
+				std::cout << _requestStr << std::endl;
+				// _request->print(); // wrong! we don't have instance of HTTPRequest class yet!!!
 				std::cout << "================== HTTPRequest - END ===================\n";
 			}
 			generateResponse();
@@ -491,5 +517,5 @@ void		Session::handle(void) {
 			_deleteMe = true;
 		}
 	}
-	Logger::msg("Target - " + _request->getTarget());
+	// Logger::msg("Target - " + _request->getTarget()); // debug
 }
