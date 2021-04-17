@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/20 15:53:09 by mondrew           #+#    #+#             */
-/*   Updated: 2021/04/07 12:54:53 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/04/17 08:43:21 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,10 @@
 #include "Util.hpp"
 #include <cstdlib>
 
-HTTPRequest::HTTPRequest(std::string const &str) : _valid(true), _allow(0) {
+HTTPRequest::HTTPRequest(std::string const &str, Session *session) :
+													_session(session),
+													_valid(true),
+													_allow(0) {
 
 	parseRequest(str);
 }
@@ -49,11 +52,14 @@ int 			isKey(std::string const &line, std::string const &key)
 
 std::string		getValue(std::string const &line, std::string const &key)
 {
-	return line.substr(key.length() + 2);
+	return (line.substr(key.length() + 2));
 }
 
 bool 			HTTPRequest::setStartLineParam(std::string &line)
 {
+	std::string		tmpTarget;
+	std::size_t		pos;
+
 	if (isKey(line, "GET"))
 		this->_method = GET;
 	else if (isKey(line, "POST"))
@@ -71,7 +77,36 @@ bool 			HTTPRequest::setStartLineParam(std::string &line)
 	}
 
 	line = line.substr(line.find("/"));
-	this->_target = line.substr(0, line.find(" "));
+	tmpTarget = line.substr(0, line.find(" "));
+
+	// Find query string
+	// TEST in with localhost:8002/?login=mondrew => _target = "/" | _queryString = "login=mondrew"
+	pos = tmpTarget.find("?");
+   	if (pos != std::string::npos)
+	{
+		// There is a query string in the GET or POST request
+		this->_target = tmpTarget.substr(0, pos + 1);
+		this->_queryString = tmpTarget.substr(pos + 1);
+	}
+	else
+		this->_target = tmpTarget;
+	// Find cgiPathInfo & cgiPathTranslated in _target
+	if (Util::isPathInfo(this->_target))
+	{
+		splitTargetAndCgiPathInfo();
+		setCgiPathTranslated();
+	}
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+
 	this->_protocolVersion = line.substr(line.find(" ") + 1);
 
 	if (this->_target.empty() || this->_protocolVersion.empty())
@@ -132,6 +167,8 @@ void			HTTPRequest::parseRequest(std::string const &str)
 			break;
 		}
     }
+	// setCgiPathInfo();
+	// setCgiPathTranslated();
 }
 
 void			HTTPRequest::print(void) const
@@ -180,6 +217,11 @@ std::string const	&HTTPRequest::getTarget(void) const {
 	return (this->_target);
 }
 
+std::string const	&HTTPRequest::getQueryString(void) const {
+
+	return (this->_queryString);
+}
+
 std::string const	&HTTPRequest::getProtocolVersion(void) const {
 
 	return (this->_protocolVersion);
@@ -205,6 +247,32 @@ std::string const	&HTTPRequest::getAuthorization(void) const {
 	return (this->_authorization);
 }
 
+std::string 		HTTPRequest::getAuthorizationType(void) const {
+
+	size_t	found = this->_authorization.find(" ");
+
+	if (found == std::string::npos)
+		return ("");
+	else
+	{
+		std::string		authType = this->_authentication.substr(0, found);
+		return (authType);
+	}
+}
+
+std::string			HTTPRequest::getAuthorizationData(void) const {
+
+	size_t	found = this->_authorization.find(" ");
+
+	if (found == std::string::npos)
+		return ("");
+	else
+	{
+		std::string		authData = this->_authorization.substr(found + 1);
+		return (authData);
+	}
+}
+
 std::string const	&HTTPRequest::getContentLanguage(void) const {
 
 	return (this->_contentLanguage);
@@ -213,6 +281,11 @@ std::string const	&HTTPRequest::getContentLanguage(void) const {
 int					HTTPRequest::getContentLength(void) const {
 
 	return (this->_contentLength);
+}
+
+int					HTTPRequest::getBodyLength(void) const {
+
+	return (this->_body.length());
 }
 
 std::string const	&HTTPRequest::getContentLocation(void) const {
@@ -248,4 +321,42 @@ std::string const	&HTTPRequest::getUserAgent(void) const {
 std::string const	&HTTPRequest::getBody(void) const {
 
 	return (this->_body);
+}
+
+std::string const	&HTTPRequest::getCgiPathInfo(void) const {
+
+	return (this->_cgiPathInfo);
+}
+
+std::string const	&HTTPRequest::getCgiPathTranslated(void) const {
+
+	return (this->_cgiPathTranslated);
+}
+
+Session				*HTTPRequest::getSession(void) const {
+
+	return (this->_session);
+}
+
+void				HTTPRequest::splitTargetAndCgiPathInfo(void) {
+
+	std::string		tmp;
+	std::size_t		found;
+
+	if ((found = this->_target.find("cgi-bin/")) != std::string::npos)
+	{
+		tmp = this->_target.substr(found + 8);
+		if ((found = tmp.find("/")) != std::string::npos)
+		{
+			this->_target = tmp.substr(0, found);
+			this->_cgiPathInfo = tmp.substr(found);
+		}
+	}
+}
+
+// write here getPathTranslated
+void				HTTPRequest::setCgiPathTranslated(void) {
+
+	this->_cgiPathTranslated = this->_session->_serverLocation->getRoot() + \
+															   this->_pathInfo;
 }

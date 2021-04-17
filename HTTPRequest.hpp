@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/20 15:48:48 by mondrew           #+#    #+#             */
-/*   Updated: 2021/04/07 13:06:59 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/04/17 08:41:02 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,11 +16,13 @@
 # include <string>
 # include <sstream>
 # include "Util.hpp"
+# include "Session.hpp"
 
 class HTTPRequest {
 
 	private:
 
+		Session			*_session;
 		// https://developer.mozilla.org/en-US/docs/Web/HTTP/Messages
 
 		bool			_valid; // = true by default
@@ -29,6 +31,10 @@ class HTTPRequest {
 		Options			_method; // GET, PUT, POST, HEAD, OPTIONS, CONNECT
 								// Question: is there can be several methods??? Do list?
 		std::string		_target; // URI
+		std::string		_queryString;
+		std::string		_cgiPathInfo;
+		std::string		_cgiPathTranslated;
+
 		std::string		_protocolVersion;
 
 		// HEADERS
@@ -92,7 +98,7 @@ class HTTPRequest {
 
 	public:
 
-		HTTPRequest(std::string const &str);
+		HTTPRequest(std::string const &str, Session *session);
 		~HTTPRequest(void);
 
 		bool				isValid(void) const;
@@ -103,10 +109,13 @@ class HTTPRequest {
 		char 				getAllow(void) const;
 		Options				getMethod(void) const;
 		std::string const	&getTarget(void) const;
+		std::string const	&getQueryString(void) const;
 		std::string const	&getProtocolVersion(void) const;
 		std::string const	&getAcceptCharset(void) const;
 		std::string const	&getAcceptLanguage(void) const;
 		std::string const	&getAuthorization(void) const;
+		std::string 		getAuthorizationType(void) const;
+		std::string 		getAuthorizationData(void) const;
 		std::string const	&getContentLanguage(void) const;
 		std::string const	&getContentLocation(void) const;
 		std::string const	&getcontentType(void) const;
@@ -116,6 +125,12 @@ class HTTPRequest {
 		std::string const	&getUserAgent(void) const;
 		std::string const	&getBody(void) const;
 		std::string const	&getError(void) const;
+		std::string const	&getCgiPathInfo(void) const;
+		std::string const	&getCgiPathTranslated(void) const;
+
+		int					getBodyLength(void) const;
+
+		Session				*getSession(void) const;
 
 		// SETTERS
 		int					setError(std::string const &str);
@@ -124,6 +139,8 @@ class HTTPRequest {
 	private:
 
 		bool 				setStartLineParam(std::string &line);
+		void				splitTargetAndCgiPathInfo(void);
+		void				setCgiPathTranslated(std::string const &path);
 		void				parseRequest(std::string const &str);
 };
 

@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/17 23:10:08 by mondrew           #+#    #+#             */
-/*   Updated: 2021/04/08 08:19:02 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/04/17 06:37:29 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,11 +26,15 @@
 #include <sys/wait.h>
 #include <dirent.h>
 
-Session::Session(int a_sockfd, Server *master) :	ASocketOwner(a_sockfd),
+// Query string added
+
+Session::Session(int a_sockfd, int remoteAddr, Server *master) :
+													ASocketOwner(a_sockfd),
 													_theMaster(master),
 													_request(0),
 													_response(0),
 													_serverLocation(0),
+													_remoteAddr(remoteAddr);
 													_deleteMe(false) {
 	return ;
 }
@@ -51,7 +55,8 @@ bool		Session::getDeleteMe(void) const {
 
 bool		Session::isValidRequestTarget(void) {
 
-	// Need to check here if all paths are CORRECT (maybe better to use absotute paths??)
+	// Need to check here if all paths are CORRECT
+	// (maybe better to use absotute paths??)
 	bool			isValidPath = false;
 	bool			isValidFolder = false;
 	std::string		pathLoc;
@@ -60,12 +65,12 @@ bool		Session::isValidRequestTarget(void) {
 	std::string		reqPath;
 	// Now check - is there such folder or not
 	for (std::vector<Location *>::iterator it = \
-								this->_theMaster->getLocationSet().begin();
-									it < this->_theMaster->getLocationSet().end(); it++)
+						this->_theMaster->getLocationSet().begin();
+							it < this->_theMaster->getLocationSet().end(); it++)
 	{
 		reqPath = (*it)->getRoot() + this->_request->getTarget();
 		// std::cout << "===> reqPath: " << reqPath << std::endl; // debug
-		// If it is not folder -> delete last part of the path (it must be filename)
+		// If it is not folder -> delete last part of the path (filename)
 		if (!Util::isDirectory(reqPath))
 		{
 			pathType = FILE_PATH;
@@ -76,7 +81,8 @@ bool		Session::isValidRequestTarget(void) {
 		}
 		if (Util::getLastChar(reqPath) == '/')
 			reqPath = Util::removeLastPath(reqPath); // for removing '/' at the end
-		if (Util::isCGI(this->_request->getTarget()) && reqPath.compare((*it)->getRoot()) != 0)
+		if (Util::isCGI(this->_request->getTarget()) && \
+										reqPath.compare((*it)->getRoot()) != 0)
 				pathLoc = (*it)->getCgiPath();
 		else
 			pathLoc = (*it)->getRoot() + (*it)->getLocationPath();
@@ -95,10 +101,14 @@ bool		Session::isValidRequestTarget(void) {
 				if (Util::getLastChar(reqPath) == '/')
 					delim = "";
 				if (this->_serverLocation->isAutoindex() &&
-				((*it)->getIndex().empty() || !Util::exists(reqPath + delim +(*it)->getIndex())))
+						((*it)->getIndex().empty() || \
+					 		!Util::exists(reqPath + delim + (*it)->getIndex())))
+				{
 					this->_responseFilePath = reqPath + delim;
+				}
 				else
-					this->_responseFilePath = reqPath + delim + (*it)->getIndex();
+					this->_responseFilePath = reqPath + delim + \
+										  					(*it)->getIndex();
 				// Logger::msg("RFP = " +this->_responseFilePath); // debug
 
 				isValidPath = true;
@@ -111,18 +121,21 @@ bool		Session::isValidRequestTarget(void) {
 		if (Util::isCGI(this->_request->getTarget()))
 		{
 			// First lets check www.localhost:8002/cgi-bin/script.cgi
-			reqPath = this->_serverLocation->getRoot() + this->_request->getTarget();
+			reqPath = this->_serverLocation->getRoot() + \
+					  								this->_request->getTarget();
 			if (!Util::exists(reqPath))
 			{
 				// Then lets check www.localhost:8002/script.cgi
-				reqPath = this->_serverLocation->getCgiPath() + this->_request->getTarget();
+				reqPath = this->_serverLocation->getCgiPath() + \
+				  									this->_request->getTarget();
 				if (!Util::exists(reqPath))
 					return (false);
 			}
 		}
 		else
 		{
-			reqPath = this->_serverLocation->getRoot() + this->_request->getTarget();
+			reqPath = this->_serverLocation->getRoot() + \
+					  								this->_request->getTarget();
 			if (!Util::exists(reqPath))
 				return (false);
 		}
@@ -229,6 +242,7 @@ bool		Session::isValidRequest(void) {
 
 void			Session::makeCGIResponse(void) {
 
+	CGIRequest			cgiRequest(this->_request);
 	pid_t				pid;
 	int					pipefd[2];
 	std::ostringstream	oss;
@@ -274,6 +288,7 @@ void			Session::makeCGIResponse(void) {
 		std::string		serverPort = "SERVER_PORT=";
 		std::string		serverProtocol = "SERVER_PROTOCOL=";
 		std::string		serverSoftware = "SERVER_SOFTWARE=";
+
 		char	*s1 = NULL;
 		char	*s2 = NULL;
 		char *const	argv[2] = {s1, s2};
@@ -406,13 +421,15 @@ void		Session::makePUTResponse(void) {
 
 void		Session::generateResponse(void) {
 
-	this->_request = new HTTPRequest(_requestStr);
+	this->_request = new HTTPRequest(_requestStr, this);
 	this->_response = new HTTPResponse();
 
 	// Set common fields (independent of response type)
 	fillDefaultResponseFields();
 	if (isValidRequest())
 	{
+		setRequestCgiPathTranslated();
+
 		if (_request->getMethod() == GET)
 			makeGETResponse();
 		else if (_request->getMethod() == HEAD)
@@ -460,6 +477,13 @@ void		Session::responseToString(void) {
 		std::cout << _responseStr;
 		std::cout << "=====================Repsonse END====================" << std::endl;
 	}
+}
+
+void		Session::setRequestCgiPathTranslated(void) const {
+
+	if (!this->_request->getCgiPath().empty())
+		this->_request->setCgiPathTranslated(this->_serverLocation->getRoot() +\
+											this->_request->getCgiPathInfo());
 }
 
 void		Session::remove(void) {
@@ -518,4 +542,9 @@ void		Session::handle(void) {
 		}
 	}
 	// Logger::msg("Target - " + _request->getTarget()); // debug
+}
+
+int			Session::getRemoteAddr(void) const {
+
+	return (this->_remoteAddr);
 }

@@ -6,7 +6,7 @@
 /*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/16 09:02:17 by mondrew           #+#    #+#             */
-/*   Updated: 2021/04/01 15:18:29 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/04/12 14:40:20 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -148,10 +148,12 @@ void		Server::handle(void) {
 	}
 
 	if (Util::printServerAccepts)
+	{
 		std::cout << "SERVER ACCEPT: " << sockfd << std::endl; // debug
+	}
 
 	// Add new client to the Session list and to the EventSelector objects
-	Session	*session = new Session(sockfd, this);
+	Session	*session = new Session(sockfd, ntohs(addr.sin_addr.s_addr), this);
 
 	addSession(session);
 	_the_selector->add(session);

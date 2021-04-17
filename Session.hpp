@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/17 23:06:28 by mondrew           #+#    #+#             */
-/*   Updated: 2021/04/08 08:19:05 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/04/16 18:26:13 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,7 @@ class Session : public ASocketOwner {
 		HTTPResponse	*_response;
 
 		Location		*_serverLocation;
+		int				_remoteAddr;
 		std::string		_responseFilePath;
 
 		char			_buf[BUFFER_SIZE + 1];
@@ -54,8 +55,10 @@ class Session : public ASocketOwner {
 
 		Session(void);
 		Session(Session const &src);
-		Session		&operator=(Session const &rhs);
+		Session			&operator=(Session const &rhs);
+
 		std::string		getDirListing(std::string const &path);
+		void			setRequestCgiPathTranslated(void) const;
 
 	public:
 
@@ -82,6 +85,9 @@ class Session : public ASocketOwner {
 		void			makePOSTResponse(void);
 		void			makePUTResponse(void);
 		void			makeCGIResponse(void);
+
+		// GETTERS
+		int				getRemoteAddr(void) const;
 };
 
 #endif

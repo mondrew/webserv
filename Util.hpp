@@ -6,7 +6,7 @@
 /*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/30 10:55:24 by mondrew           #+#    #+#             */
-/*   Updated: 2021/04/07 12:53:28 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/04/17 08:45:01 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@
 # include <typeinfo>
 # include <map>
 # include <cmath>
+# include <sstream>
 
 # define NOT_LIMIT -1
 
@@ -321,6 +322,25 @@ class Util
 			if (dot == std::string::npos)
 				return ("unknown");
 			return (mimeTypes[path.substr(dot + 1)]);
+		}
+
+		std::string			itoips(long ip)
+		{
+			std::ostringstream	oss;
+
+			oss << ip & 0xFF << "."
+				<< (ip >> 8) & 0xFF << "."
+				<< (ip >> 16) & 0xFF << "."
+				<< (ip >> 24) & 0xFF;
+			return (oss.str());
+		}
+
+		std::string			decodeBase64(std::string const &data) {
+
+			std::string		decode;
+
+			// WRITE HERE NORMAL DECODE FUNCTION!!!
+			return (decode);
 		}
 };
 
