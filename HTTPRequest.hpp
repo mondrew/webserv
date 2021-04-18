@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/20 15:48:48 by mondrew           #+#    #+#             */
-/*   Updated: 2021/04/17 08:41:02 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/04/18 23:10:36 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -108,6 +108,7 @@ class HTTPRequest {
 		int					getContentLength(void) const;
 		char 				getAllow(void) const;
 		Options				getMethod(void) const;
+		std::string			getMethodName(void) const;
 		std::string const	&getTarget(void) const;
 		std::string const	&getQueryString(void) const;
 		std::string const	&getProtocolVersion(void) const;

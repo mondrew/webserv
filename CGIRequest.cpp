@@ -6,7 +6,7 @@
 /*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/09 13:59:12 by mondrew           #+#    #+#             */
-/*   Updated: 2021/04/17 08:50:30 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/04/17 21:45:18 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,27 +37,24 @@ CGIRequest::CGIRequest(HTTPRequest *request) : CGIRequest(),
 												_httpRequest(request) {
 
 	// The Script-URI
-	this->_authType += "\"" + this->_httpRequest->getAuthorizationType + "\"";
+	this->_authType += " " + this->_httpRequest->getAuthorizationType;
 	if (!this->_httpRequest->getBodyLength())
 	{
-		this->_contentLength += "\"\"";
-		this->_contentType += "\"\"";
+		this->_contentLength += "";
+		this->_contentType += "";
 	}
 	else
 	{
-		this->_contentLength += "\"" + \
-									 this->_httpRequest->getBodyLength() + "\"";
-		this->_contentType += "\"" + \
-								   this->_httpRequest->getContentType() + "\"";
+		this->_contentLength += " " + this->_httpRequest->getBodyLength();
+		this->_contentType += " " + this->_httpRequest->getContentType();
 	}
-	this->_gatewayInterface += "\"CGI/1.1\"";
-	this->_pathInfo += "\"" + this->_httpRequest->getCgiPathInfo() + "\"";
-	this->_pathTranslated += "\"" + \
-							  this->_httpRequest->getCgiPathTranslated() + "\"";
-	this->_queryString += "\"" + this->_httpRequest->getQueryString() + "\"";
-	this->_remoteAddr += "\"" + \
-		Util::itoips(this->_httpRequest->getSession()->getRemoteAddr()) + "\"";
-	this->_remoteIdent += "\"\""; // RFC 931 Indentification Protocol ? Is it necessary?
+	this->_gatewayInterface += " CGI/1.1";
+	this->_pathInfo += " " + this->_httpRequest->getCgiPathInfo();
+	this->_pathTranslated += " " + this->_httpRequest->getCgiPathTranslated();
+	this->_queryString += " " + this->_httpRequest->getQueryString();
+	this->_remoteAddr += " " + \
+				Util::itoips(this->_httpRequest->getSession()->getRemoteAddr());
+	this->_remoteIdent += ""; // RFC 931 Indentification Protocol ? Is it necessary?
 	if (!this->_authType.empty())
 	{
 		std::string		user;
@@ -69,16 +66,21 @@ CGIRequest::CGIRequest(HTTPRequest *request) : CGIRequest(),
 			user = "";
 		else
 			user = data.substr(0, found);
-		this->_remoteUser += "\"" + user + "\"";
+		this->_remoteUser += " " + user;
 	}
 	else
-		this->_remoteUser += "\"\"";
+		this->_remoteUser += "";
 
-	this->_requestMethod += "\"" + this->_httpRequest->getMethod() + "\"";
+	this->_requestMethod += " " + this->_httpRequest->getMethodName(); 
+	this->_requestURI += " " + this->_httpRequest->getTarget();
+	this->_scriptName += " " + this->_httpRequest->getTarget();
 
-	setServerName(this->_httpRequest->getHost());
-	setServerPort(this->_httpRequest->getHost());
-	this->_serverProtocol += "\"" + this->_httpRequest->getProtocolVersion() + "\"";
+	this->_serverName += " " + \
+			Util::getServerNameFromHost(this->_httpRequest->getHost());
+	this->_serverPort += " " + \
+			Util::getServerPortFromHost(this->_httpRequest->getHost());
+	this->_serverProtocol += " " + this->_httpRequest->getProtocolVersion();
+	this->_serverSoftware += " MGINX Webserv/1.0 (Unix)";
 }
 
 CGIRequest::~CGIRequest(void) {
@@ -86,59 +88,82 @@ CGIRequest::~CGIRequest(void) {
 	return ;
 }
 
-/*
-std::string	CGIRequest::findPathInfo(void) {
+std::string const	&CGIRequest::getAuthType(void) const {
 
-	std::string		tmp;
-
-	if (!Util::isPathInfo(this->_httpRequest->getTarget()))
-		return ("");
-	else
-	{
-		std::size_t		found;
-
-		if ((found = this->_httpRequest->getTarget().find("cgi-bin")) != \
-															std::string::npos)
-		{
-			tmp = this->_httpRequest->getTarget().substr(found + 8);
-			if ((found = tmp.find("/")) != std::string::npos)
-				return (tmp.substr(found));
-			else
-				return ("");
-		}
-		else
-			return ("");
-	}
+	return (this->_authType);
 }
 
-std::string	CGIRequest::findPathTranslated(void) {
+std::string const	&CGIRequest::getContentLength(void) const {
 
-	if (this->_pathInfo.empty())
-		return ("");
-	else
-	{
-		return (this->_httpRequest->_session->_serverLocation->getRoot() + \
-															this->_pathInfo);
-	}
-}
-*/
-
-void		CGITRequest::setServerName(std::string const &host) {
-
-	std::size_t		found = host.find(":");
-
-	if (found == std::string::npos)
-		this->_serverName = host;
-	else
-		this->_serverName = host.substr(0, found);
+	return (this->_contentLength);
 }
 
-void		CGIRequest::setServerPort(std::string const &host) {
+std::string const	&CGIRequest::getGatewayInterface(void) const {
 
-	std::size_t		found = host.find(":");
+	return (this->_gatewayInterface);
+}
 
-	if (found == std::string::npos)
-		this->_serverPort = "80";
-	else
-		this->_serverPort = host.substr(found);
+std::string const	&CGIRequest::getPathInfo(void) const {
+
+	return (this->_pathInfo);
+}
+
+std::string const	&CGIRequest::getPathTranslated(void) const {
+
+	return (this->_pathTranslated);
+}
+
+std::string const	&CGIRequest::getQueryString(void) const {
+
+	return (this->_queryString);
+}
+
+std::string const	&CGIRequest::getRemoteAddr(void) const {
+
+	return (this->_remoteAddr);
+}
+
+std::string const	&CGIRequest::getRemoteIdent(void) const {
+
+	return (this->_remoteIdent);
+}
+
+std::string const	&CGIRequest::getRemoteUser(void) const {
+
+	return (this->_remoteUser);
+}
+
+std::string const	&CGIRequest::getRequestMethod(void) const {
+
+	return (this->_requestMethod);
+}
+
+std::string const	&CGIRequest::getRequestURI(void) const {
+
+	return (this->_requestURI);
+}
+
+std::string const	&CGIRequest::getScriptName(void) const {
+
+	return (this->_scriptName);
+}
+
+std::string const	&CGIRequest::getServerName(void) const {
+
+	return (this->_serverName);
+}
+
+std::string const	&CGIRequest::getServerPort(void) const {
+
+	return (this->_serverPort);
+}
+
+std::string const	&CGIRequest::getServerProtocol(void) const {
+
+	return (this->_serverProtocol);
+}
+
+std::string const	&CGIRequest::getServerSoftware(void) const {
+
+	return (this->_serverSoftware);
 }

@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/20 15:53:09 by mondrew           #+#    #+#             */
-/*   Updated: 2021/04/17 08:43:21 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/04/18 13:00:08 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,7 +85,7 @@ bool 			HTTPRequest::setStartLineParam(std::string &line)
    	if (pos != std::string::npos)
 	{
 		// There is a query string in the GET or POST request
-		this->_target = tmpTarget.substr(0, pos + 1);
+		this->_target = tmpTarget.substr(0, pos);
 		this->_queryString = tmpTarget.substr(pos + 1);
 	}
 	else
@@ -96,16 +96,6 @@ bool 			HTTPRequest::setStartLineParam(std::string &line)
 		splitTargetAndCgiPathInfo();
 		setCgiPathTranslated();
 	}
-	//
-	//
-	//
-	//
-	//
-	//
-	//
-	//
-	//
-	//
 
 	this->_protocolVersion = line.substr(line.find(" ") + 1);
 
@@ -211,6 +201,19 @@ Options				HTTPRequest::getMethod(void) const {
 
 	return (this->_method);
 }
+
+std::string			HTTPRequest::getMethodName(void) const {
+
+	if (this->_method == GET)
+		return ("GET");
+	else if (this->_method == HEAD)
+		return ("HEAD");
+	else if (this->_method == POST)
+		return ("POST");
+	else if (this->_method == PUT)
+		return ("PUT");
+	else
+		return ("UNKNOWN");
 
 std::string const	&HTTPRequest::getTarget(void) const {
 

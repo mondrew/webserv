@@ -6,7 +6,7 @@
 /*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/30 10:55:24 by mondrew           #+#    #+#             */
-/*   Updated: 2021/04/17 08:45:01 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/04/18 23:15:43 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -335,12 +335,194 @@ class Util
 			return (oss.str());
 		}
 
-		std::string			decodeBase64(std::string const &data) {
+		std::string			getServerNameFromHost(std::string const &host) {
 
-			std::string		decode;
+			std::size_t		found = host.find(":");
 
-			// WRITE HERE NORMAL DECODE FUNCTION!!!
+			if (found == std::string::npos)
+				return (host);
+			else
+				return (host.substr(0, found));
+		}
+
+		std::string			getServerPortFromHost(std::string const &host) {
+
+			std::size_t		found = host.find(":");
+
+			if (found == std::string::npos)
+				return ("80");
+			else
+				return (host.substr(found));
+		}
+
+		std::string			decodeUriEncoded(std::string str) {
+
+			std::size_t		pos;
+			std::string		hex;
+			char			c;
+
+			while ((pos = str.find("%")) != std::string::npos) {
+				hex = str.substr(pos + 1, 2);
+				if (hex.length() != 2)
+					return (str);
+				c = hexStringToInt(hex);
+				str.replace(pos, 3, std::string(1, c));
+			}
+			return (str);
+		}
+
+		std::string			encodeBase64(std::string data) {
+
+			std::string		keyString = \
+				"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+			std::string		encode = "";
+			int				united = 0;
+			int				first;
+			int				second;
+			int				third;
+			int				counter = 1;
+			char			c;
+
+			for (std::string::iterator it = data.begin(); it < data.end(); it++) {
+				if (counter == 1)
+				{
+					first = *it;
+					first <<= 16;
+					counter++;
+				}
+				else if (counter == 2)
+				{
+					second = *it;
+					second <<= 8;
+					counter++;
+				}
+				else if (counter == 3)
+				{
+					third = *it;
+					united = first | second | third;
+
+					// 1st 6ix
+					encode += keyString[(united & 0xFC0000) >> 18];
+					// 2nd 6ix
+					encode += keyString[(united & 0x3F000) >> 12];
+					// 3rd 6ix
+					c = (united & 0xFC0) >> 6;
+					if (!c && !second && !third)
+						encode += '=';
+					else
+						encode += keyString[c];
+					// 4th 6ix
+					c = (united & 0x3F);
+					if (!c && !third)
+						encode += '=';
+					else
+						encode += keyString[c];
+					counter = 1;
+				}
+			}
+			while (counter != 1)
+			{
+				if (counter == 2)
+				{
+					second = 0;
+					counter++;
+				}
+				else if (counter == 3)
+				{
+					third = 0;
+					united = first | second | third;
+					encode += keyString[united >> 18];
+					encode += keyString[(united << 14) >> 26];
+
+					c = (united & 0xFC0) >> 6;
+					if (!c && !second && !third)
+						encode += '=';
+					else
+						encode += keyString[c];
+
+					c = (united & 0x3F);
+					if (!c && !third)
+						encode += '=';
+					else
+						encode += keyString[c];
+					counter = 1;
+				}
+			}
+			return (encode);
+		}
+
+		std::string			decodeBase64(std::string data) {
+
+			std::string		keyString = \
+					"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+			std::string		decode = "";
+			int				united;
+			int				first = 0;
+			int				second = 0;
+			int				third = 0;
+			int				fourth = 0;
+			int				counter = 1;
+			char			c;
+
+			for (std::string::iterator	it = data.begin(); it < data.end(); it++) {
+
+				if (counter == 1)
+				{
+					if ((std::size_t)(first = keyString.find(*it)) == std::string::npos)
+						return (""); // Error
+					first <<= 18;
+					counter++;
+				}
+				else if (counter == 2)
+				{
+					if ((std::size_t)(second = keyString.find(*it)) == std::string::npos)
+						return (""); // Error
+					second <<= 12;
+					counter++;
+				}
+				else if (counter == 3)
+				{
+					if (*it == '=')
+						third = 0;
+					else
+					{
+						if ((std::size_t)(third = keyString.find(*it)) == std::string::npos)
+							return (""); // Error
+						third <<= 6;
+					}
+					counter++;
+				}
+				else if (counter == 4)
+				{
+					if (*it == '=')
+						fourth = 0;
+					else
+					{
+						if ((std::size_t)(fourth = keyString.find(*it)) == std::string::npos)
+							return (""); // Error
+					}
+					united = first | second | third | fourth;
+
+					decode += (united >> 16) & 0xFF;
+					if ((c = (united >> 8) & 0xFF) != 0)
+						decode += c;
+					if ((c = united & 0xFF) != 0)
+						decode += c;
+					counter = 1;
+				}
+			}
 			return (decode);
+		}
+
+		std::string			ltoips(long ip)
+		{
+			std::ostringstream	oss;
+
+			oss << (ip & 0xFF) << "."
+				<< ((ip >> 8) & 0xFF) << "."
+				<< ((ip >> 16) & 0xFF) << "."
+				<< ((ip >> 24) & 0xFF);
+			return (oss.str());
 		}
 };
 

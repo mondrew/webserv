@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/17 23:10:08 by mondrew           #+#    #+#             */
-/*   Updated: 2021/04/17 06:37:29 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/04/18 14:15:37 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -242,15 +242,10 @@ bool		Session::isValidRequest(void) {
 
 void			Session::makeCGIResponse(void) {
 
-	CGIRequest			cgiRequest(this->_request);
+	CGIRequest 			cgiRequest(this->_request);
 	pid_t				pid;
 	int					pipefd[2];
 	std::ostringstream	oss;
-
-	/*
-	* SET ENVIRONMENT VARIABLES FOR CGI
-	*/
-	//Util
 
 	if (pipe(pipefd) == -1)
 	{
@@ -272,27 +267,41 @@ void			Session::makeCGIResponse(void) {
 		dup2(STDOUT_FILENO, pipefd[1]);
 
 		// Run the CGI script
-		std::string		authType = "AUTH_TYPE=";
-		std::string		contentLength = "CONTENT_LENGTH=";
-		std::string		gatewayInterface = "GATEWAY_INTERFACE=";
-		std::string		pathInfo = "PATH_INFO=";
-		std::string		pathTranslated = "PATH_TRANSLATED";
-		std::string		queryString = "QUERY_STRING=";
-		std::string		remoteAddr = "REMOTE_ADDR=";
-		std::string		remoteIdent = "REMOTE_IDENT=";
-		std::string		remoteUser = "REMOTE_USER=";
-		std::string		requestMethod = "REQUEST_METHOD=";
-		std::string		requestURI = "REQUEST_URI=";
-		std::string		scriptName = "SCRIPT_NAME=";
-		std::string		serverName = "SERVER_NAME=";
-		std::string		serverPort = "SERVER_PORT=";
-		std::string		serverProtocol = "SERVER_PROTOCOL=";
-		std::string		serverSoftware = "SERVER_SOFTWARE=";
 
 		char	*s1 = NULL;
 		char	*s2 = NULL;
-		char *const	argv[2] = {s1, s2};
-		char *const	envp[2] = {s1, s2};
+		const char *argv[2] = {this->_request->getTarget(), s2};
+		const.getchar *envp[16] = { cgiRequest.getAuthType.c_str(),
+								cgiRequest.getContentLength.c_str(),
+								cgiRequest.getGatewayInterface.c_str(),
+								cgiRequest.getPathInfo.c_str(),
+								cgiRequest.getPathTranslated.c_str(),
+								cgiRequest.getQueryString.c_str(),
+								cgiRequest.getRemoteAddr.c_str(),
+								cgiRequest.getRemoteIdent.c_str(),
+								cgiRequest.getRemoteUser.c_str(),
+								cgiRequest.getRequestMethod.c_str(),
+								cgiRequest.getRequestURI.c_str(),
+								cgiRequest.getScriptName.c_str(),
+								cgiRequest.getServerName.c_str(),
+								cgiRequest.getServerPort.c_str(),
+								cgiRequest.getServerProtocol.c_str(),
+								cgiRequest.getServerSoftware.c_str()
+								};
+
+		// 1. [ GET ] method - produce the document based on: meta-variables
+		// 		- should parse the query string to the array on words (argv)
+		//		- decode queryString Util::decodeUriEncoded(
+		//
+		// 2. [ HEAD ] method - needs from script only headers, not body
+		// 		- if script returns the body - then the server MUST discard it
+		// 		- should parse the query string to the array on words (argv)
+		//		- decode queryString Util::decodeUriEncoded(
+		//
+		// 3. [ POST ] method - produce the document based on: 
+		// 		meta-variables & data in request message-body
+		// 		it MUST check CONTENT_LENGTH and CONTENT_TYPE
+		// 		- check Content-Type header: if 'application/x-www-form-urlencoded' -> decode body
 		execve(_responseFilePath.c_str(), argv, envp);
 
 		exit(0);

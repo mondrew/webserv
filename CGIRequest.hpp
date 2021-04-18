@@ -6,7 +6,7 @@
 /*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/09 13:39:10 by mondrew           #+#    #+#             */
-/*   Updated: 2021/04/12 14:42:44 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/04/17 21:40:04 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,24 @@ class CGIRequest {
 
 		CGIRequest(HTTPRequest *request);
 		~CGIRequest(void);
+
+		// GETTERS
+		std::string const	&getAuthType(void) const;
+		std::string const	&getContentLength(void) const;
+		std::string const	&getGatewayInterface(void) const;
+		std::string const	&getPathInfo(void) const;
+		std::string const	&getPathTranslated(void) const;
+		std::string const	&getQueryString(void) const;
+		std::string const	&getRemoteAddr(void) const;
+		std::string const	&getRemoteIdent(void) const;
+		std::string const	&getRemoteUser(void) const;
+		std::string const	&getRequestMethod(void) const;
+		std::string const	&getRequestURI(void) const;
+		std::string const	&getScriptName(void) const;
+		std::string const	&getServerName(void) const;
+		std::string const	&getServerPort(void) const;
+		std::string const	&getServerProtocol(void) const;
+		std::string const	&getServerSoftware(void) const;
 
 };
 
