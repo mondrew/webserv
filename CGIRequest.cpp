@@ -6,7 +6,7 @@
 /*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/09 13:59:12 by mondrew           #+#    #+#             */
-/*   Updated: 2021/04/19 07:40:18 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/04/19 07:43:48 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,11 +65,14 @@ CGIRequest::CGIRequest(HTTPRequest *request) : CGIRequest(),
 			user = "";
 		else
 			user = data.substr(0, found);
-		this->_remoteUser += user;
 		this->_remoteIdent += user;
+		this->_remoteUser += user;
 	}
 	else
+	{
+		this->_remoteIdent += "";
 		this->_remoteUser += "";
+	}
 
 	this->_requestMethod += this->_httpRequest->getMethodName(); 
 	this->_requestURI += this->_httpRequest->getTarget();
