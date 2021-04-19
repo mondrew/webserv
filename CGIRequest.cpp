@@ -6,7 +6,7 @@
 /*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/09 13:59:12 by mondrew           #+#    #+#             */
-/*   Updated: 2021/04/17 21:45:18 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/04/19 07:40:18 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ CGIRequest::CGIRequest(HTTPRequest *request) : CGIRequest(),
 												_httpRequest(request) {
 
 	// The Script-URI
-	this->_authType += " " + this->_httpRequest->getAuthorizationType;
+	this->_authType += this->_httpRequest->getAuthorizationType;
 	if (!this->_httpRequest->getBodyLength())
 	{
 		this->_contentLength += "";
@@ -45,16 +45,15 @@ CGIRequest::CGIRequest(HTTPRequest *request) : CGIRequest(),
 	}
 	else
 	{
-		this->_contentLength += " " + this->_httpRequest->getBodyLength();
-		this->_contentType += " " + this->_httpRequest->getContentType();
+		this->_contentLength += this->_httpRequest->getBodyLength();
+		this->_contentType += this->_httpRequest->getContentType();
 	}
-	this->_gatewayInterface += " CGI/1.1";
-	this->_pathInfo += " " + this->_httpRequest->getCgiPathInfo();
-	this->_pathTranslated += " " + this->_httpRequest->getCgiPathTranslated();
-	this->_queryString += " " + this->_httpRequest->getQueryString();
-	this->_remoteAddr += " " + \
+	this->_gatewayInterface += "CGI/1.1";
+	this->_pathInfo += this->_httpRequest->getCgiPathInfo();
+	this->_pathTranslated += this->_httpRequest->getCgiPathTranslated();
+	this->_queryString += this->_httpRequest->getQueryString();
+	this->_remoteAddr += \
 				Util::itoips(this->_httpRequest->getSession()->getRemoteAddr());
-	this->_remoteIdent += ""; // RFC 931 Indentification Protocol ? Is it necessary?
 	if (!this->_authType.empty())
 	{
 		std::string		user;
@@ -66,21 +65,22 @@ CGIRequest::CGIRequest(HTTPRequest *request) : CGIRequest(),
 			user = "";
 		else
 			user = data.substr(0, found);
-		this->_remoteUser += " " + user;
+		this->_remoteUser += user;
+		this->_remoteIdent += user;
 	}
 	else
 		this->_remoteUser += "";
 
-	this->_requestMethod += " " + this->_httpRequest->getMethodName(); 
-	this->_requestURI += " " + this->_httpRequest->getTarget();
-	this->_scriptName += " " + this->_httpRequest->getTarget();
+	this->_requestMethod += this->_httpRequest->getMethodName(); 
+	this->_requestURI += this->_httpRequest->getTarget();
+	this->_scriptName += this->_httpRequest->getTarget();
 
-	this->_serverName += " " + \
+	this->_serverName += \
 			Util::getServerNameFromHost(this->_httpRequest->getHost());
-	this->_serverPort += " " + \
+	this->_serverPort += \
 			Util::getServerPortFromHost(this->_httpRequest->getHost());
-	this->_serverProtocol += " " + this->_httpRequest->getProtocolVersion();
-	this->_serverSoftware += " MGINX Webserv/1.0 (Unix)";
+	this->_serverProtocol += this->_httpRequest->getProtocolVersion();
+	this->_serverSoftware += "MGINX Webserv/1.0 (Unix)";
 }
 
 CGIRequest::~CGIRequest(void) {
