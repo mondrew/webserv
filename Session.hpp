@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/17 23:06:28 by mondrew           #+#    #+#             */
-/*   Updated: 2021/04/17 21:34:30 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/04/20 08:39:38 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,8 @@
 # define SESSION_HPP
 
 #include "Server.hpp"
+#include "CGIRequest.hpp"
+#include "CGIResponse.hpp"
 #include "ASocketOwner.hpp"
 #include "HTTPRequest.hpp"
 #include "HTTPResponse.hpp"
@@ -29,6 +31,9 @@
 //# define FILE_PATH 2
 
 class Server;
+class HTTPRequest;
+class CGIRequest;
+class CGIResponse;
 
 class Session : public ASocketOwner {
 
@@ -62,7 +67,7 @@ class Session : public ASocketOwner {
 
 	public:
 
-		Session(int sockfd, Server *master);
+		Session(int sockfd, int remoteAddr, Server *master);
 		virtual ~Session(void);
 
 		void			generateResponse(void);
@@ -88,6 +93,7 @@ class Session : public ASocketOwner {
 
 		// GETTERS
 		int				getRemoteAddr(void) const;
+		Location		*getServerLocation(void) const;
 };
 
 #endif

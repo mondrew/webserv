@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/17 23:10:08 by mondrew           #+#    #+#             */
-/*   Updated: 2021/04/18 14:15:37 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/04/20 14:05:19 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,8 @@
 #include "Server.hpp"
 #include "Config.hpp"
 #include "Util.hpp"
+#include "CGIRequest.hpp"
+#include "CGIResponse.hpp"
 #include <vector>
 #include <string>
 #include <iostream>
@@ -25,6 +27,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <dirent.h>
+#include <stdlib.h>
 
 // Query string added
 
@@ -34,7 +37,7 @@ Session::Session(int a_sockfd, int remoteAddr, Server *master) :
 													_request(0),
 													_response(0),
 													_serverLocation(0),
-													_remoteAddr(remoteAddr);
+													_remoteAddr(remoteAddr),
 													_deleteMe(false) {
 	return ;
 }
@@ -268,41 +271,74 @@ void			Session::makeCGIResponse(void) {
 
 		// Run the CGI script
 
-		char	*s1 = NULL;
-		char	*s2 = NULL;
-		const char *argv[2] = {this->_request->getTarget(), s2};
-		const.getchar *envp[16] = { cgiRequest.getAuthType.c_str(),
-								cgiRequest.getContentLength.c_str(),
-								cgiRequest.getGatewayInterface.c_str(),
-								cgiRequest.getPathInfo.c_str(),
-								cgiRequest.getPathTranslated.c_str(),
-								cgiRequest.getQueryString.c_str(),
-								cgiRequest.getRemoteAddr.c_str(),
-								cgiRequest.getRemoteIdent.c_str(),
-								cgiRequest.getRemoteUser.c_str(),
-								cgiRequest.getRequestMethod.c_str(),
-								cgiRequest.getRequestURI.c_str(),
-								cgiRequest.getScriptName.c_str(),
-								cgiRequest.getServerName.c_str(),
-								cgiRequest.getServerPort.c_str(),
-								cgiRequest.getServerProtocol.c_str(),
-								cgiRequest.getServerSoftware.c_str()
+		if ((this->_request->getMethod() || this->_request->getMethod()) && \
+			(this->_request->getQueryString().find("=")) != std::string::npos)
+		{
+		}
+		const char	**argv = static_cast<const char **>(malloc(sizeof(char *) * 2));
+		const char 	*c1 = this->_request->getTarget().c_str();
+		//char	*const *argv = static_cast<char **>(malloc(sizeof(char *) * 2));
+		//char 	*const c1 = const_cast<char *const>(this->_request->getTarget().c_str());
+		argv[0] = c1;
+		argv[1] = 0;
+		//const char *argv[2] = {this->_request->getTarget().c_str()}; // добавить в CGIRequest
+		const char	**envp = static_cast<const char **>(malloc(sizeof(char *) * 17));
+		envp[0] = cgiRequest.getAuthType().c_str();
+		envp[1] = cgiRequest.getContentLength().c_str();
+		envp[2] = cgiRequest.getGatewayInterface().c_str();
+		envp[3] = cgiRequest.getPathInfo().c_str();
+		envp[4] = cgiRequest.getPathTranslated().c_str();
+		envp[5] = cgiRequest.getQueryString().c_str();
+		envp[6] = cgiRequest.getRemoteAddr().c_str();
+		envp[7] = cgiRequest.getRemoteIdent().c_str();
+		envp[8] = cgiRequest.getRemoteUser().c_str();
+		envp[9] = cgiRequest.getRequestMethod().c_str();
+		envp[10] = cgiRequest.getRequestURI().c_str();
+		envp[11] = cgiRequest.getScriptName().c_str();
+		envp[12] = cgiRequest.getServerName().c_str();
+		envp[13] = cgiRequest.getServerPort().c_str();
+		envp[14] = cgiRequest.getServerProtocol().c_str();
+		envp[15] = cgiRequest.getServerSoftware().c_str();
+		envp[16] = 0;
+		/*
+		char const *envp[16] = { cgiRequest.getAuthType().c_str(),\
+								cgiRequest.getContentLength().c_str(),\
+								cgiRequest.getGatewayInterface().c_str(),\
+								cgiRequest.getPathInfo().c_str(),\
+								cgiRequest.getPathTranslated().c_str(),\
+								cgiRequest.getQueryString().c_str(),\
+								cgiRequest.getRemoteAddr().c_str(),\
+								cgiRequest.getRemoteIdent().c_str(),\
+								cgiRequest.getRemoteUser().c_str(),\
+								cgiRequest.getRequestMethod().c_str(),\
+								cgiRequest.getRequestURI().c_str(),\
+								cgiRequest.getScriptName().c_str(),\
+								cgiRequest.getServerName().c_str(),\
+								cgiRequest.getServerPort().c_str(),\
+								cgiRequest.getServerProtocol().c_str(),\
+								cgiRequest.getServerSoftware().c_str(),\
+								0\
 								};
+		*/
 
 		// 1. [ GET ] method - produce the document based on: meta-variables
 		// 		- should parse the query string to the array on words (argv)
+		//		- if the query String doesn't contain unencoded '=' character, we should 
+		//			interpret query string as 'indexed' HTTP query:
+		//			a. Parse it (delimiter if '+')
+		//			b. Decode each string
 		//		- decode queryString Util::decodeUriEncoded(
 		//
 		// 2. [ HEAD ] method - needs from script only headers, not body
 		// 		- if script returns the body - then the server MUST discard it
-		// 		- should parse the query string to the array on words (argv)
-		//		- decode queryString Util::decodeUriEncoded(
+		//		- same as in [ GET ]
 		//
 		// 3. [ POST ] method - produce the document based on: 
 		// 		meta-variables & data in request message-body
 		// 		it MUST check CONTENT_LENGTH and CONTENT_TYPE
 		// 		- check Content-Type header: if 'application/x-www-form-urlencoded' -> decode body
-		execve(_responseFilePath.c_str(), argv, envp);
+		execve(_responseFilePath.c_str(), \
+			const_cast<char *const*>(argv), const_cast<char * const*>(envp));
 
 		exit(0);
 	}
@@ -369,6 +405,7 @@ std::string		Session::getDirListing(std::string const &path)
 }
 
 void		Session::makeGETResponse(void) {
+
 	// return file or run script
 	_response->setStatusCode(200);
 	_response->setStatusText("OK");
@@ -376,6 +413,7 @@ void		Session::makeGETResponse(void) {
 
 	_response->setAllow(_serverLocation->getLimitExcept());
 	_response->setLocation(this->_responseFilePath);
+
 	if (isCGI())
 		makeCGIResponse();
 	else
@@ -473,12 +511,10 @@ void		Session::responseToString(void) {
 	oss << std::endl;
 
 	// Body
-	if (this->_request->getMethod() != GET)
-	{
-		oss << _response->getBody() << std::endl; // Is it nessecary to add "\n" after last line?
+	// if (this->_request->getMethod() != GET && this->_request->getMethod() != HEAD)
+	oss << _response->getBody() << std::endl; // Is it nessecary to add "\n" after last line?
 
-		_responseStr = oss.str();
-	}
+	_responseStr = oss.str();
 
 	if (Util::printResponses)
 	{
@@ -490,9 +526,8 @@ void		Session::responseToString(void) {
 
 void		Session::setRequestCgiPathTranslated(void) const {
 
-	if (!this->_request->getCgiPath().empty())
-		this->_request->setCgiPathTranslated(this->_serverLocation->getRoot() +\
-											this->_request->getCgiPathInfo());
+	if (!this->_request->getCgiPathInfo().empty())
+		this->_request->setCgiPathTranslated();
 }
 
 void		Session::remove(void) {
@@ -556,4 +591,9 @@ void		Session::handle(void) {
 int			Session::getRemoteAddr(void) const {
 
 	return (this->_remoteAddr);
+}
+
+Location	*Session::getServerLocation(void) const {
+
+	return (this->_serverLocation);
 }

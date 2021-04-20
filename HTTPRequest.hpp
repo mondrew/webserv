@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/20 15:48:48 by mondrew           #+#    #+#             */
-/*   Updated: 2021/04/18 23:10:36 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/04/20 09:08:09 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,8 @@
 # include <sstream>
 # include "Util.hpp"
 # include "Session.hpp"
+
+class Session;
 
 class HTTPRequest {
 
@@ -119,7 +121,7 @@ class HTTPRequest {
 		std::string 		getAuthorizationData(void) const;
 		std::string const	&getContentLanguage(void) const;
 		std::string const	&getContentLocation(void) const;
-		std::string const	&getcontentType(void) const;
+		std::string const	&getContentType(void) const;
 		std::string const	&getDate(void) const;
 		std::string const	&getHost(void) const;
 		std::string const	&getReferer(void) const;
@@ -136,12 +138,12 @@ class HTTPRequest {
 		// SETTERS
 		int					setError(std::string const &str);
 		void				setBody(std::string const &str);
+		void				setCgiPathTranslated(void);
 
 	private:
 
 		bool 				setStartLineParam(std::string &line);
 		void				splitTargetAndCgiPathInfo(void);
-		void				setCgiPathTranslated(std::string const &path);
 		void				parseRequest(std::string const &str);
 };
 

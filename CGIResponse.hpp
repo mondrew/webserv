@@ -6,7 +6,7 @@
 /*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/09 15:16:21 by mondrew           #+#    #+#             */
-/*   Updated: 2021/04/09 15:21:16 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/04/20 08:34:04 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ class CGIResponse {
 
 	private:
 
-		CGIResponst(CGIResponse const &src);
+		CGIResponse(CGIResponse const &src);
 		CGIResponse		&operator=(CGIResponse const &rhs);
 
 	public:

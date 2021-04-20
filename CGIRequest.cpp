@@ -6,11 +6,13 @@
 /*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/09 13:59:12 by mondrew           #+#    #+#             */
-/*   Updated: 2021/04/19 07:43:48 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/04/20 09:07:52 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "CGIRequest.hpp"
+#include "HTTPRequest.hpp"
+#include "Util.hpp"
 #include <string>
 
 CGIRequest::CGIRequest(void) : _httpRequest(0) {
@@ -33,11 +35,27 @@ CGIRequest::CGIRequest(void) : _httpRequest(0) {
 		_serverSoftware = "SERVER_SOFTWARE=";
 }
 
-CGIRequest::CGIRequest(HTTPRequest *request) : CGIRequest(),
-												_httpRequest(request) {
+CGIRequest::CGIRequest(HTTPRequest *request) : _httpRequest(request) {
+
+	_authType = "AUTH_TYPE=";
+	_contentLength = "CONTENT_LENGTH=";
+	_gatewayInterface = "GATEWAY_INTERFACE=";
+	_pathInfo = "PATH_INFO=";
+	_pathTranslated = "PATH_TRANSLATED";
+	_queryString = "QUERY_STRING=";
+	_remoteAddr = "REMOTE_ADDR=";
+	_remoteIdent = "REMOTE_IDENT=";
+	_remoteUser = "REMOTE_USER=";
+	_requestMethod = "REQUEST_METHOD=";
+	_requestURI = "REQUEST_URI=";
+	_scriptName = "SCRIPT_NAME=";
+	_serverName = "SERVER_NAME=";
+	_serverPort = "SERVER_PORT=";
+	_serverProtocol = "SERVER_PROTOCOL=";
+	_serverSoftware = "SERVER_SOFTWARE=";
 
 	// The Script-URI
-	this->_authType += this->_httpRequest->getAuthorizationType;
+	this->_authType += this->_httpRequest->getAuthorizationType();
 	if (!this->_httpRequest->getBodyLength())
 	{
 		this->_contentLength += "";
@@ -99,6 +117,11 @@ std::string const	&CGIRequest::getAuthType(void) const {
 std::string const	&CGIRequest::getContentLength(void) const {
 
 	return (this->_contentLength);
+}
+
+std::string const	&CGIRequest::getContentType(void) const {
+
+	return (this->_contentType);
 }
 
 std::string const	&CGIRequest::getGatewayInterface(void) const {

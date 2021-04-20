@@ -6,7 +6,7 @@
 /*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/30 10:55:24 by mondrew           #+#    #+#             */
-/*   Updated: 2021/04/18 23:15:43 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/04/19 22:00:38 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -324,18 +324,18 @@ class Util
 			return (mimeTypes[path.substr(dot + 1)]);
 		}
 
-		std::string			itoips(long ip)
+		static std::string			itoips(long ip)
 		{
 			std::ostringstream	oss;
 
-			oss << ip & 0xFF << "."
-				<< (ip >> 8) & 0xFF << "."
-				<< (ip >> 16) & 0xFF << "."
-				<< (ip >> 24) & 0xFF;
+			oss << (ip & 0xFF) << "."
+				<< ((ip >> 8) & 0xFF) << "."
+				<< ((ip >> 16) & 0xFF) << "."
+				<< ((ip >> 24) & 0xFF);
 			return (oss.str());
 		}
 
-		std::string			getServerNameFromHost(std::string const &host) {
+		static std::string			getServerNameFromHost(std::string const &host) {
 
 			std::size_t		found = host.find(":");
 
@@ -345,7 +345,7 @@ class Util
 				return (host.substr(0, found));
 		}
 
-		std::string			getServerPortFromHost(std::string const &host) {
+		static std::string			getServerPortFromHost(std::string const &host) {
 
 			std::size_t		found = host.find(":");
 
@@ -355,7 +355,7 @@ class Util
 				return (host.substr(found));
 		}
 
-		std::string			decodeUriEncoded(std::string str) {
+		static std::string			decodeUriEncoded(std::string str) {
 
 			std::size_t		pos;
 			std::string		hex;
@@ -371,7 +371,7 @@ class Util
 			return (str);
 		}
 
-		std::string			encodeBase64(std::string data) {
+		static std::string			encodeBase64(std::string data) {
 
 			std::string		keyString = \
 				"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
@@ -451,7 +451,7 @@ class Util
 			return (encode);
 		}
 
-		std::string			decodeBase64(std::string data) {
+		static std::string			decodeBase64(std::string data) {
 
 			std::string		keyString = \
 					"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
@@ -514,7 +514,7 @@ class Util
 			return (decode);
 		}
 
-		std::string			ltoips(long ip)
+		static std::string			ltoips(long ip)
 		{
 			std::ostringstream	oss;
 
@@ -523,6 +523,20 @@ class Util
 				<< ((ip >> 16) & 0xFF) << "."
 				<< ((ip >> 24) & 0xFF);
 			return (oss.str());
+		}
+
+		static bool				isPathInfo(std::string const &str) {
+
+			std::size_t		pos;
+			std::string		tmp;
+
+			if ((pos = str.find("cgi-bin/") != std::string::npos))
+			{
+				tmp = str.substr(pos + 8);
+				if (tmp.find("/") != std::string::npos)
+					return (true);
+			}
+			return (false);
 		}
 };
 

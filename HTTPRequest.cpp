@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/20 15:53:09 by mondrew           #+#    #+#             */
-/*   Updated: 2021/04/18 13:00:08 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/04/20 09:08:18 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -214,6 +214,7 @@ std::string			HTTPRequest::getMethodName(void) const {
 		return ("PUT");
 	else
 		return ("UNKNOWN");
+}
 
 std::string const	&HTTPRequest::getTarget(void) const {
 
@@ -258,7 +259,7 @@ std::string 		HTTPRequest::getAuthorizationType(void) const {
 		return ("");
 	else
 	{
-		std::string		authType = this->_authentication.substr(0, found);
+		std::string		authType = this->_authorization.substr(0, found);
 		return (authType);
 	}
 }
@@ -296,7 +297,7 @@ std::string const	&HTTPRequest::getContentLocation(void) const {
 	return (this->_contentLocation);
 }
 
-std::string const	&HTTPRequest::getcontentType(void) const {
+std::string const	&HTTPRequest::getContentType(void) const {
 
 	return (this->_contentType);
 }
@@ -360,6 +361,6 @@ void				HTTPRequest::splitTargetAndCgiPathInfo(void) {
 // write here getPathTranslated
 void				HTTPRequest::setCgiPathTranslated(void) {
 
-	this->_cgiPathTranslated = this->_session->_serverLocation->getRoot() + \
-															   this->_pathInfo;
+	this->_cgiPathTranslated = \
+			this->_session->getServerLocation()->getRoot() + this->_cgiPathInfo;
 }

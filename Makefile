@@ -6,7 +6,7 @@
 #    By: gjessica <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/12/08 23:16:50 by mondrew           #+#    #+#              #
-#    Updated: 2021/04/06 10:17:56 by gjessica         ###   ########.fr        #
+#    Updated: 2021/04/20 09:03:59 by mondrew          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -20,7 +20,9 @@ SRCS = 	./main.cpp \
 		Location.cpp \
 		Logger.cpp \
 		Server.cpp \
-		Session.cpp
+		Session.cpp \
+		CGIRequest.cpp \
+		CGIResponse.cpp
 
 INCLUDES = ./
 FLAGS = -Wall -Wextra -Werror -std=c++98

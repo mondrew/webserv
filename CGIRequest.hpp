@@ -6,12 +6,16 @@
 /*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/09 13:39:10 by mondrew           #+#    #+#             */
-/*   Updated: 2021/04/17 21:40:04 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/04/20 09:07:04 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CGI_REQUEST_HPP
 # define CGI_REQUEST_HPP
+
+# include "HTTPRequest.hpp"
+
+class HTTPRequest;
 
 class CGIRequest {
 
@@ -19,22 +23,23 @@ class CGIRequest {
 
 		HTTPRequest		*_httpRequest;
 
-		std::string		authType = "AUTH_TYPE=";
-		std::string		contentLength = "CONTENT_LENGTH=";
-		std::string		gatewayInterface = "GATEWAY_INTERFACE=";
-		std::string		pathInfo = "PATH_INFO=";
-		std::string		pathTranslated = "PATH_TRANSLATED";
-		std::string		queryString = "QUERY_STRING=";
-		std::string		remoteAddr = "REMOTE_ADDR=";
-		std::string		remoteIdent = "REMOTE_IDENT=";
-		std::string		remoteUser = "REMOTE_USER=";
-		std::string		requestMethod = "REQUEST_METHOD=";
-		std::string		requestURI = "REQUEST_URI=";
-		std::string		scriptName = "SCRIPT_NAME=";
-		std::string		serverName = "SERVER_NAME=";
-		std::string		serverPort = "SERVER_PORT=";
-		std::string		serverProtocol = "SERVER_PROTOCOL=";
-		std::string		serverSoftware = "SERVER_SOFTWARE=";
+		std::string		_authType;
+		std::string		_contentLength;
+		std::string		_contentType;
+		std::string		_gatewayInterface;
+		std::string		_pathInfo;
+		std::string		_pathTranslated;
+		std::string		_queryString;
+		std::string		_remoteAddr;
+		std::string		_remoteIdent;
+		std::string		_remoteUser;
+		std::string		_requestMethod;
+		std::string		_requestURI;
+		std::string		_scriptName;
+		std::string		_serverName;
+		std::string		_serverPort;
+		std::string		_serverProtocol;
+		std::string		_serverSoftware;
 
 		CGIRequest(void);
 		CGIRequest(CGIRequest const &src);
@@ -48,6 +53,7 @@ class CGIRequest {
 		// GETTERS
 		std::string const	&getAuthType(void) const;
 		std::string const	&getContentLength(void) const;
+		std::string const	&getContentType(void) const;
 		std::string const	&getGatewayInterface(void) const;
 		std::string const	&getPathInfo(void) const;
 		std::string const	&getPathTranslated(void) const;
@@ -62,7 +68,6 @@ class CGIRequest {
 		std::string const	&getServerPort(void) const;
 		std::string const	&getServerProtocol(void) const;
 		std::string const	&getServerSoftware(void) const;
-
 };
 
 #endif
