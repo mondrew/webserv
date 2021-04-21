@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/20 15:53:09 by mondrew           #+#    #+#             */
-/*   Updated: 2021/04/20 09:08:18 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/04/21 10:10:00 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,7 +94,7 @@ bool 			HTTPRequest::setStartLineParam(std::string &line)
 	if (Util::isPathInfo(this->_target))
 	{
 		splitTargetAndCgiPathInfo();
-		setCgiPathTranslated();
+		// setCgiPathTranslated();
 	}
 
 	this->_protocolVersion = line.substr(line.find(" ") + 1);

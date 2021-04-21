@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/17 23:10:08 by mondrew           #+#    #+#             */
-/*   Updated: 2021/04/20 14:05:19 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/04/21 08:29:03 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -262,12 +262,15 @@ void			Session::makeCGIResponse(void) {
 	}
 	if (pid == 0)
 	{
+		std::cout << "Hello from child!" << std::endl; // debug
 		// Child
 		// Close IN pipe side
+
 		close(pipefd[0]);
 
 		// Replace stdout with WRITE-END of the PIPE
-		dup2(STDOUT_FILENO, pipefd[1]);
+		//dup2(STDOUT_FILENO, pipefd[1]);
+		dup2(pipefd[1], STDOUT_FILENO);
 
 		// Run the CGI script
 
@@ -276,10 +279,7 @@ void			Session::makeCGIResponse(void) {
 		{
 		}
 		const char	**argv = static_cast<const char **>(malloc(sizeof(char *) * 2));
-		const char 	*c1 = this->_request->getTarget().c_str();
-		//char	*const *argv = static_cast<char **>(malloc(sizeof(char *) * 2));
-		//char 	*const c1 = const_cast<char *const>(this->_request->getTarget().c_str());
-		argv[0] = c1;
+		argv[0] = this->_request->getTarget().c_str();
 		argv[1] = 0;
 		//const char *argv[2] = {this->_request->getTarget().c_str()}; // добавить в CGIRequest
 		const char	**envp = static_cast<const char **>(malloc(sizeof(char *) * 17));
@@ -300,26 +300,6 @@ void			Session::makeCGIResponse(void) {
 		envp[14] = cgiRequest.getServerProtocol().c_str();
 		envp[15] = cgiRequest.getServerSoftware().c_str();
 		envp[16] = 0;
-		/*
-		char const *envp[16] = { cgiRequest.getAuthType().c_str(),\
-								cgiRequest.getContentLength().c_str(),\
-								cgiRequest.getGatewayInterface().c_str(),\
-								cgiRequest.getPathInfo().c_str(),\
-								cgiRequest.getPathTranslated().c_str(),\
-								cgiRequest.getQueryString().c_str(),\
-								cgiRequest.getRemoteAddr().c_str(),\
-								cgiRequest.getRemoteIdent().c_str(),\
-								cgiRequest.getRemoteUser().c_str(),\
-								cgiRequest.getRequestMethod().c_str(),\
-								cgiRequest.getRequestURI().c_str(),\
-								cgiRequest.getScriptName().c_str(),\
-								cgiRequest.getServerName().c_str(),\
-								cgiRequest.getServerPort().c_str(),\
-								cgiRequest.getServerProtocol().c_str(),\
-								cgiRequest.getServerSoftware().c_str(),\
-								0\
-								};
-		*/
 
 		// 1. [ GET ] method - produce the document based on: meta-variables
 		// 		- should parse the query string to the array on words (argv)
@@ -351,6 +331,8 @@ void			Session::makeCGIResponse(void) {
 
 	oss << std::cin;
 	oss << std::endl;
+
+	std::cout << "OSS===++++>>>: " << oss.str() << std::endl; // endl
 
 	_response->setBody(oss.str());
 	_response->setContentLength(_response->getBody().length());
@@ -407,6 +389,7 @@ std::string		Session::getDirListing(std::string const &path)
 void		Session::makeGETResponse(void) {
 
 	// return file or run script
+	// std::cout << "cgi" << std::endl; // debug
 	_response->setStatusCode(200);
 	_response->setStatusText("OK");
 	_response->setTransferEncoding("identity");
@@ -415,7 +398,9 @@ void		Session::makeGETResponse(void) {
 	_response->setLocation(this->_responseFilePath);
 
 	if (isCGI())
+	{
 		makeCGIResponse();
+	}
 	else
 	{
 		//NEW BLOCK
