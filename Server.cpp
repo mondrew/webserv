@@ -6,7 +6,7 @@
 /*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/16 09:02:17 by mondrew           #+#    #+#             */
-/*   Updated: 2021/04/12 14:40:20 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/04/21 12:50:14 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -153,7 +153,7 @@ void		Server::handle(void) {
 	}
 
 	// Add new client to the Session list and to the EventSelector objects
-	Session	*session = new Session(sockfd, ntohs(addr.sin_addr.s_addr), this);
+	Session	*session = new Session(sockfd, addr.sin_addr.s_addr, this);
 
 	addSession(session);
 	_the_selector->add(session);

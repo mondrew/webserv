@@ -6,7 +6,7 @@
 /*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/30 10:55:24 by mondrew           #+#    #+#             */
-/*   Updated: 2021/04/21 08:12:59 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/04/21 12:51:43 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,6 +55,7 @@ class Util
 		static bool		printServerAccepts;
 		static bool		printConnections;
 		static bool		printRequestTarget;
+		static bool		printRequestType;
 
 		static std::string	toString(int val)
 		{
@@ -199,7 +200,6 @@ class Util
 			std::size_t		dot = path.find_last_of(".");
 			std::string		extension;
 
-			// std::cout << "isCGI path: " << path << std::endl; // debug
 			if (dot == std::string::npos)
 				return (false);
 			extension = path.substr(dot + 1);

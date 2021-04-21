@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/17 23:10:08 by mondrew           #+#    #+#             */
-/*   Updated: 2021/04/21 08:29:03 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/04/21 12:46:00 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -262,15 +262,15 @@ void			Session::makeCGIResponse(void) {
 	}
 	if (pid == 0)
 	{
-		std::cout << "Hello from child!" << std::endl; // debug
 		// Child
 		// Close IN pipe side
 
 		close(pipefd[0]);
 
+		std::cout << "Hello from child!" << std::endl; // debug
 		// Replace stdout with WRITE-END of the PIPE
-		//dup2(STDOUT_FILENO, pipefd[1]);
-		dup2(pipefd[1], STDOUT_FILENO);
+		dup2(STDOUT_FILENO, pipefd[1]);
+		// dup2(pipefd[1], STDOUT_FILENO); // testingggggggggggggggggggggggggg
 
 		// Run the CGI script
 
@@ -399,10 +399,14 @@ void		Session::makeGETResponse(void) {
 
 	if (isCGI())
 	{
+		if (Util::printRequestType)
+			std::cout << "REQUEST_TYPE: ==>==> CGI <==<==" << std::endl;
 		makeCGIResponse();
 	}
 	else
 	{
+		if (Util::printRequestType)
+			std::cout << "REQUEST_TYPE: ==>==> GET <==<==" << std::endl;
 		//NEW BLOCK
 		// Logger::msg("ResponsePath - " + this->_responseFilePath); // debug
 		if (!Util::isDirectory(this->_responseFilePath))
@@ -461,7 +465,6 @@ void		Session::generateResponse(void) {
 	if (isValidRequest())
 	{
 		setRequestCgiPathTranslated();
-
 		if (_request->getMethod() == GET)
 			makeGETResponse();
 		else if (_request->getMethod() == HEAD)

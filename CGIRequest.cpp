@@ -6,7 +6,7 @@
 /*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/09 13:59:12 by mondrew           #+#    #+#             */
-/*   Updated: 2021/04/20 09:07:52 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/04/21 12:52:42 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #include "HTTPRequest.hpp"
 #include "Util.hpp"
 #include <string>
+#include <arpa/inet.h>
 
 CGIRequest::CGIRequest(void) : _httpRequest(0) {
 
@@ -21,7 +22,7 @@ CGIRequest::CGIRequest(void) : _httpRequest(0) {
 		_contentLength = "CONTENT_LENGTH=";
 		_gatewayInterface = "GATEWAY_INTERFACE=";
 		_pathInfo = "PATH_INFO=";
-		_pathTranslated = "PATH_TRANSLATED";
+		_pathTranslated = "PATH_TRANSLATED=";
 		_queryString = "QUERY_STRING=";
 		_remoteAddr = "REMOTE_ADDR=";
 		_remoteIdent = "REMOTE_IDENT=";
@@ -71,7 +72,7 @@ CGIRequest::CGIRequest(HTTPRequest *request) : _httpRequest(request) {
 	this->_pathTranslated += this->_httpRequest->getCgiPathTranslated();
 	this->_queryString += this->_httpRequest->getQueryString();
 	this->_remoteAddr += \
-				Util::itoips(this->_httpRequest->getSession()->getRemoteAddr());
+				Util::ltoips(this->_httpRequest->getSession()->getRemoteAddr());
 	if (!this->_authType.empty())
 	{
 		std::string		user;

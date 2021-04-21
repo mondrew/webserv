@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/20 15:53:09 by mondrew           #+#    #+#             */
-/*   Updated: 2021/04/21 10:10:00 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/04/21 11:03:39 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,6 +57,7 @@ std::string		getValue(std::string const &line, std::string const &key)
 
 bool 			HTTPRequest::setStartLineParam(std::string &line)
 {
+	std::cout << "=======>>>>>>>line<<<<: " << line << std::endl; // debug // why here "/"?
 	std::string		tmpTarget;
 	std::size_t		pos;
 
@@ -78,6 +79,8 @@ bool 			HTTPRequest::setStartLineParam(std::string &line)
 
 	line = line.substr(line.find("/"));
 	tmpTarget = line.substr(0, line.find(" "));
+
+	// std::cout << "tmpTarget in setStartLineParam: " << tmpTarget << std::endl; // debug 0-0-0
 
 	// Find query string
 	// TEST in with localhost:8002/?login=mondrew => _target = "/" | _queryString = "login=mondrew"
