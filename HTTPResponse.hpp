@@ -6,7 +6,7 @@
 /*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/20 16:49:22 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/30 10:36:06 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/04/22 15:39:30 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,6 +95,8 @@ class HTTPResponse {
 
 		HTTPResponse(void);
 		~HTTPResponse(void);
+
+		void				analyzeCGIResponse(std::string const &str);
 
 		// GETTERS
 		int					getStatusCode(void) const;

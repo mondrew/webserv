@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		    <title>Star Wars Opening Crawl</title>
+			    <link rel="stylesheet" href="style.css" type="text/css">
+				    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+					    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js"></script>
+						    <script type="text/javascript">
+function startIntro(){
+	            $('#intro').fadeOut(1000);
+	            set(function (){
+					                $('body').css('background', 'url(background.png)')  // сменяем фон
+									var music = document.getElementById('music')
+										if(music.canPlayType) // проверка поддержки audio. Делается дабы Safari не останавливал JS на ошибке
+												music.play()
+					                $('#logodiv').fadeIn(500);
+					                setTimeout(startCrawl, 1000);
+					            }, 1500)
+	        }
+
+        function startCrawl(){
+			            $('#logodiv').hide("scale",{}, 15000); //без JQuery UI работать не будет			
+			            setTimeout(function(){
+											$('#text').show()
+											var now = 800;
+											var translateY = setInterval(
+																	function(){ // хотелось бы использовать стандартный animation, но с transform он не дружит.
+																								if($.browser.mozilla) var prefix = '-moz-'
+																												else  var prefix = '-webkit-'		
+																								$('#text').css( prefix + 'transform','rotateX(55deg) translateY('+now+'px) translateZ(300px)');
+																								now = now - 2;
+																								if(now == -1800){  // титры уже далеко уехали, пора бы и заканчивать 
+																																clearInterval(translateY);
+																																$('#text').fadeOut(2000)
+																																$('#theend').delay(2000).fadeIn(2000);
+																															}
+																							}, 50);					
+							            }, 9000)
+			        }
+		
+        $(function(){
+			            setTimeout(function(){
+							                $('#intro').fadeIn(1000); //появление Long time ago...
+								            }, 500)
+			            setTimeout(startIntro, 6000);
+			        })
+    </script>
+	</head>
+	<body>
+		    <h3 id="intro">A long time ago, in a galaxy far,<br /> far away...</h3>
+				<audio id="music" preload="auto" autobuffer controls>		
+						         <source src="https://archive.org/details/13BinarySunsetAlternate/02+Across+The+Stars.mp3">
+									 	</audio>
+										<img src="starwars-logo.png" width="100%"/>
+										<div id="crawl">
+											    <div id="text">
+														Тут текст титров…
+														    </div>
+										</div>
+										<div id="theend">THE END</div>
+										<div id="bg"></div>  //заранее подтянем фон, чтобы не мигал при смене
+	</body>
+</html>

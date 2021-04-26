@@ -6,7 +6,7 @@
 /*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/20 14:39:04 by mondrew           #+#    #+#             */
-/*   Updated: 2021/04/20 14:46:05 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/04/23 13:11:07 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 
 int		main(int argc, char **argv, char **envp) {
 
+	std::cout << "Content-type: text/txt\n\n";
 	std::cout << "Hello, World!" << std::endl;
 
 	std::cout << "argc: " << argc << std::endl;
