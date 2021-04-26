@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/17 23:10:08 by mondrew           #+#    #+#             */
-/*   Updated: 2021/04/26 09:59:31 by gjessica         ###   ########.fr       */
+/*   Updated: 2021/04/26 10:51:41 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,7 @@
 #include <sys/wait.h>
 #include <dirent.h>
 #include <stdlib.h>
+#include <fstream>
 
 // Query string added
 
@@ -353,6 +354,12 @@ void			Session::makeCGIResponse(void) {
 	oss << std::endl;
 
 	// std::cout << "OSS===++++>>>: " << oss.str() << std::endl; // endl
+	if (Util::printCGIResponseString) {
+		std::cout << "-----= [ Pure CGI Response String From Child ] =-----" << std::endl;
+		std::cout << "[CGI_STRING]: " << oss.str();
+		std::cout << "-----= [ END CGI Response String ] =-----" << std::endl;
+		std::cout << std::endl;
+	}
 
 	cgiResponse.parseCGIResponse(oss.str());
 	_response->setBody(cgiResponse.getBody());
@@ -471,7 +478,8 @@ std::string		createFileUpload(std::string const &exp, std::string const &body){
 
 	filename = generateFilename();
 
-	std::ofstream outfile ("./www/upload/" + filename + "." + exp);
+	std::string tmp = "./www/upload/" + filename + "." + exp;
+	std::ofstream outfile(tmp.c_str());
 
 	outfile << body;
 	outfile.close();
@@ -481,8 +489,8 @@ std::string		createFileUpload(std::string const &exp, std::string const &body){
 void		Session::makePOSTResponse(void) {
 	// do smth
 	// update some info?
-	_response->setStatusCode(201);
-	_response->setStatusText("Ok");
+	_response->setStatusCode(200);
+	_response->setStatusText("OK");
 	_response->setTransferEncoding("identity");
 	_response->setAllow(_serverLocation->getLimitExcept());
 	_response->setLocation(this->_responseFilePath);
@@ -495,6 +503,7 @@ void		Session::makePOSTResponse(void) {
 		if (conType != "unk")
 		{
 			std::string filename = createFileUpload(Util::getTypeByMime(conType), _request->getBody());
+			_response->setStatusCode(201);
 			_response->setStatusText("Created");
 			_response->setLocation("./www/upload/" + filename);
 		}

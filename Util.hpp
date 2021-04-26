@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/30 10:55:24 by mondrew           #+#    #+#             */
-/*   Updated: 2021/04/26 10:00:12 by gjessica         ###   ########.fr       */
+/*   Updated: 2021/04/26 10:52:30 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,6 +56,7 @@ class Util
 		static bool		printConnections;
 		static bool		printRequestTarget;
 		static bool		printRequestType;
+		static bool		printCGIResponseString;
 
 		static std::string	toString(int val)
 		{

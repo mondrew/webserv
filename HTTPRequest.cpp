@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/20 15:53:09 by mondrew           #+#    #+#             */
-/*   Updated: 2021/04/26 09:57:57 by gjessica         ###   ########.fr       */
+/*   Updated: 2021/04/26 10:59:37 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #include "Util.hpp"
 #include <locale>
 #include <cstdlib>
+#include <algorithm>
 
 HTTPRequest::HTTPRequest(std::string const &str, Session *session) :
 													_session(session),
@@ -76,7 +77,7 @@ std::string		getValue(std::string const &line, std::string const &key)
 	return (str.substr(key.length() + 2));
 }
 
-bool 			HTTPRequest::setStartLineParam(std::string line)
+bool 			HTTPRequest::setStartLineParam(std::string &line)
 {
 	// std::cout << "=======>>>>>>>line<<<<: " << line << std::endl; // debug // why here "/"?
 	std::string		tmpTarget;
@@ -136,6 +137,7 @@ void			HTTPRequest::parseRequest(std::string const &str)
 
 	//Check first line - METHOD PATH PROTOCOL
 	std::getline(f, line);
+	line.erase(std::remove(line.begin(), line.end(), '\r'), line.end());
 	if (!setStartLineParam(line))
 		return ;
 
