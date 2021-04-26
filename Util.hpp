@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Util.hpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
+/*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/30 10:55:24 by mondrew           #+#    #+#             */
-/*   Updated: 2021/04/21 12:51:43 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/04/23 17:11:00 by gjessica         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -234,7 +234,7 @@ class Util
 
 			for (int i = hex.length() - 1; i >= 0; i--)
 			{
-				if (hex[i] >= 'a' && hex[i] <= 'f') 
+				if (hex[i] >= 'a' && hex[i] <= 'f')
 					dec += (10 + (hex[i] - 'a')) * std::pow(16.0, power);
 				else if (hex[i] >= 'A' && hex[i] <= 'F')
 					dec += (10 + (hex[i] - 'A')) * std::pow(16.0, power);
@@ -538,6 +538,93 @@ class Util
 			}
 			return (false);
 		}
+
+		static std::string		getTypeByMime(std::string const &mime) {
+			if (!mime.compare("text/html")) return "html";
+			if (!mime.compare("text/css")) return "css";
+			if (!mime.compare("text/xml")) return "xml";
+			if (!mime.compare("image/gif")) return "gif";
+			if (!mime.compare("image/jpeg")) return "jpeg";
+			if (!mime.compare("application/javascript")) return "js";
+			if (!mime.compare("application/atom+xml")) return "atom";
+			if (!mime.compare("application/rss+xml")) return "rss";
+
+			if (!mime.compare("text/mathml")) return "mml";
+			if (!mime.compare("text/rtf")) return "rtf";
+			if (!mime.compare("text/plain")) return "txt";
+			if (!mime.compare("text/vnd.sun.j2me.app-descriptor")) return "jad";
+			if (!mime.compare("text/vnd.wap.wml")) return "wml";
+			if (!mime.compare("text/x-component")) return "htc";
+
+			if (!mime.compare("image/png")) return "png";
+			if (!mime.compare("image/tiff")) return "tiff";
+			if (!mime.compare("image/vnd.wap.wbmp")) return "wbmp";
+			if (!mime.compare("image/x-icon")) return "ico";
+			if (!mime.compare("image/x-jng")) return "jng";
+			if (!mime.compare("image/x-ms-bmp")) return "bmp";
+			if (!mime.compare("image/svg+xml")) return "svgz";
+			if (!mime.compare("image/webp")) return "webp";
+
+			if (!mime.compare("application/font-woff")) return "woff";
+			if (!mime.compare("application/java-archive")) return "jar";
+			if (!mime.compare("application/json")) return "json";
+			if (!mime.compare("application/mac-binhex40")) return "hqx";
+			if (!mime.compare("application/msword")) return "doc";
+			if (!mime.compare("application/pdf")) return "pdf";
+			if (!mime.compare("application/postscript")) return "ps";
+			if (!mime.compare("application/rtf")) return "rtf";
+			if (!mime.compare("application/vnd.apple.mpegurl")) return "m3u8";
+			if (!mime.compare("application/vnd.ms-excel")) return "xls";
+			if (!mime.compare("application/vnd.ms-fontobject")) return "eot";
+			if (!mime.compare("application/vnd.ms-powerpoint")) return "ppt";
+			if (!mime.compare("application/vnd.wap.wmlc")) return "wmlc";
+			if (!mime.compare("application/vnd.google-earth.kml+xml")) return "kml";
+			if (!mime.compare("application/vnd.google-earth.kmz")) return "kmz";
+			if (!mime.compare("application/x-7z-compressed")) return "7z";
+			if (!mime.compare("application/x-cocoa")) return "cco";
+			if (!mime.compare("application/x-java-archive-diff")) return "jardiff";
+			if (!mime.compare("application/x-java-jnlp-file")) return "jnlp";
+			if (!mime.compare("application/x-makeself")) return "run";
+			if (!mime.compare("application/x-perl")) return "pl";
+			if (!mime.compare("application/x-pilot")) return "prc";
+			if (!mime.compare("application/x-rar-compressed")) return "rar";
+			if (!mime.compare("application/x-redhat-package-manager")) return "rpm";
+			if (!mime.compare("application/x-sea")) return "sea";
+			if (!mime.compare("application/x-shockwave-flash")) return "swf";
+			if (!mime.compare("application/x-stuffit")) return "sit";
+			if (!mime.compare("application/x-tcl")) return "tcl";
+			if (!mime.compare("application/x-x509-ca-cert")) return "der";
+			if (!mime.compare("application/x-xpinstall")) return "xpi";
+			if (!mime.compare("application/xhtml+xml")) return "xhtml";
+			if (!mime.compare("application/xspf+xml")) return "xspf";
+			if (!mime.compare("application/zip")) return "zip";
+
+			if (!mime.compare("application/octet-stream")) return "bin";
+			if (!mime.compare("application/octet-stream")) return "deb";
+			if (!mime.compare("application/octet-stream")) return "dmg";
+			if (!mime.compare("application/octet-stream")) return "iso";
+			if (!mime.compare("application/octet-stream")) return "msi";
+			if (!mime.compare("audio/midi")) return "midi";
+			if (!mime.compare("audio/mpeg")) return "mp3";
+			if (!mime.compare("audio/ogg")) return "ogg";
+			if (!mime.compare("audio/x-m4a")) return "m4a";
+			if (!mime.compare("audio/x-realaudio")) return "ra";
+
+			if (!mime.compare("video/3gpp")) return "3gp";
+			if (!mime.compare("video/mp2t")) return "ts";
+			if (!mime.compare("video/mp4")) return "mp4";
+			if (!mime.compare("video/mpeg")) return "mpeg";
+			if (!mime.compare("video/quicktime")) return "mov";
+			if (!mime.compare("video/webm")) return "webm";
+			if (!mime.compare("video/x-flv")) return "flv";
+			if (!mime.compare("video/x-m4v")) return "m4v";
+			if (!mime.compare("video/x-mng")) return "mng";
+			if (!mime.compare("video/x-ms-asf")) return "asx";
+			if (!mime.compare("video/x-ms-wmv")) return "wmv";
+			if (!mime.compare("video/x-msvideo")) return "avi";
+			return "unk";
+		}
+
 };
 
 #endif

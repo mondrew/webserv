@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/20 15:48:48 by mondrew           #+#    #+#             */
-/*   Updated: 2021/04/20 09:08:09 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/04/23 17:01:15 by gjessica         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -142,7 +142,7 @@ class HTTPRequest {
 
 	private:
 
-		bool 				setStartLineParam(std::string &line);
+		bool 				setStartLineParam(std::string line);
 		void				splitTargetAndCgiPathInfo(void);
 		void				parseRequest(std::string const &str);
 };

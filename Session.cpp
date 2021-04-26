@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/17 23:10:08 by mondrew           #+#    #+#             */
-/*   Updated: 2021/04/21 12:46:00 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/04/23 18:43:58 by gjessica         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -303,7 +303,7 @@ void			Session::makeCGIResponse(void) {
 
 		// 1. [ GET ] method - produce the document based on: meta-variables
 		// 		- should parse the query string to the array on words (argv)
-		//		- if the query String doesn't contain unencoded '=' character, we should 
+		//		- if the query String doesn't contain unencoded '=' character, we should
 		//			interpret query string as 'indexed' HTTP query:
 		//			a. Parse it (delimiter if '+')
 		//			b. Decode each string
@@ -313,7 +313,7 @@ void			Session::makeCGIResponse(void) {
 		// 		- if script returns the body - then the server MUST discard it
 		//		- same as in [ GET ]
 		//
-		// 3. [ POST ] method - produce the document based on: 
+		// 3. [ POST ] method - produce the document based on:
 		// 		meta-variables & data in request message-body
 		// 		it MUST check CONTENT_LENGTH and CONTENT_TYPE
 		// 		- check Content-Type header: if 'application/x-www-form-urlencoded' -> decode body
@@ -434,11 +434,51 @@ void		Session::makeHEADResponse(void) {
 	_response->setStatusText("OK");
 }
 
+std::string		generateFilename()
+{
+	struct timeval tp;
+	gettimeofday(&tp, NULL);
+	long int ms = tp.tv_sec * 1000 + tp.tv_usec / 1000;
+	std::stringstream ss;
+	ss << ms;
+    std::string res  = ss.str();
+
+	return res;
+}
+
+std::string		createFileUpload(std::string const &exp, std::string const &body){
+	std::string filename;
+
+	filename = generateFilename();
+
+	std::ofstream outfile ("./www/upload/" + filename + "." + exp);
+
+	outfile << body;
+	outfile.close();
+	return filename + "." + exp;
+}
+
 void		Session::makePOSTResponse(void) {
 	// do smth
 	// update some info?
 	_response->setStatusCode(201);
-	_response->setStatusText("OK");
+	_response->setStatusText("Ok");
+	_response->setTransferEncoding("identity");
+	_response->setAllow(_serverLocation->getLimitExcept());
+	_response->setLocation(this->_responseFilePath);
+
+	if (isCGI())
+		makeCGIResponse();
+	else
+	{
+		std::string conType = _request->getContentType();
+		if (conType != "unk")
+		{
+			std::string filename = createFileUpload(Util::getTypeByMime(conType), _request->getBody());
+			_response->setStatusText("Created");
+			_response->setLocation("./www/upload/" + filename);
+		}
+	}
 
 }
 
@@ -472,7 +512,7 @@ void		Session::generateResponse(void) {
 		else if (_request->getMethod() == POST)
 			makePOSTResponse();
 		else if (_request->getMethod() == PUT)
-			makePUTResponse();
+			makePOSTResponse();
 	}
 	responseToString();
 }
@@ -490,6 +530,7 @@ void		Session::responseToString(void) {
 	oss << "Content-Type: " << _response->getContentType() << std::endl;
 	oss << "Content-Length: " << _response->getContentLength() << std::endl;
 	oss << "Content-Language: " << _response->getContentLanguage() << std::endl;
+	oss << "Content-Location: " << _response->getContentLocation() << std::endl;
 	oss << "Last-Modified: " << _response->getLastModified() << std::endl;
 	oss << "Allow: " << Util::allowToString(_response->getAllow()) << std::endl;
 	oss << "Location: " << _response->getLocation() << std::endl;
@@ -526,20 +567,26 @@ void		Session::remove(void) {
 // MONDREW handle
 void		Session::handle(void) {
 
-	int		ret;
+	ssize_t		ret;
 
 	if (getWantToRead() == true)
 	{
 		ret = read(_socket, _buf, BUFFER_SIZE);
 		if (ret < 0)
 		{
+			std::cout << "Error read\n";
 			// Exceptions will be better!
 		}
 		else if (ret == 0 || ret < BUFFER_SIZE)
 		{
 			// EOF reached
 			_buf[ret] = '\0';
-			_requestStr += _buf;
+			//_requestStr += _buf;
+			int i = 0;
+			while (i < ret){
+				_requestStr += _buf[i];
+				i++;
+			}
 			if (Util::printRequests)
 			{
 				std::cout << "================== HTTPRequest - START ===================\n";
@@ -554,7 +601,11 @@ void		Session::handle(void) {
 		else
 		{
 			_buf[ret] = '\0';
-			_requestStr += _buf;
+			int i = 0;
+			while (i < ret){
+				_requestStr += _buf[i];
+				i++;
+			}
 		}
 	}
 	else if (getWantToWrite() == true)

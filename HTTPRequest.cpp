@@ -6,19 +6,19 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/20 15:53:09 by mondrew           #+#    #+#             */
-/*   Updated: 2021/04/21 11:03:39 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/04/23 17:42:16 by gjessica         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "HTTPRequest.hpp"
 #include "Util.hpp"
+#include <locale>
 #include <cstdlib>
 
 HTTPRequest::HTTPRequest(std::string const &str, Session *session) :
 													_session(session),
 													_valid(true),
 													_allow(0) {
-
 	parseRequest(str);
 }
 
@@ -45,17 +45,38 @@ void			HTTPRequest::setBody(std::string const &str) {
 	this->_body = str;
 }
 
-int 			isKey(std::string const &line, std::string const &key)
+std::string		toLower(std::string str){
+	int len = str.length();
+	int i = 0;
+	char res[len+1];
+	while (i < len)
+	{
+		if (str[i] >= 'A' && str[i] <= 'Z')
+			res[i] = str[i] - ('Z' - 'z');
+		else
+			res[i] = str[i];
+		i++;
+	}
+	res[i] = '\0';
+	return res;
+}
+
+int 			isKey(std::string line, std::string key)
 {
-	return (line.find(key) == 0);
+	return ((toLower(line)).find(toLower(key)) == 0);
 }
 
 std::string		getValue(std::string const &line, std::string const &key)
 {
-	return (line.substr(key.length() + 2));
+	std::string str;
+	str = line;
+
+	str.erase(std::remove(str.begin(), str.end(), '\r'), str.end());
+	// -> Change erase to your function
+	return (str.substr(key.length() + 2));
 }
 
-bool 			HTTPRequest::setStartLineParam(std::string &line)
+bool 			HTTPRequest::setStartLineParam(std::string line)
 {
 	std::cout << "=======>>>>>>>line<<<<: " << line << std::endl; // debug // why here "/"?
 	std::string		tmpTarget;
@@ -109,7 +130,8 @@ bool 			HTTPRequest::setStartLineParam(std::string &line)
 
 void			HTTPRequest::parseRequest(std::string const &str)
 {
-	std::istringstream	f(str);
+
+	std::istringstream	f( str);
 	std::string			line;
 
 	//Check first line - METHOD PATH PROTOCOL
@@ -118,6 +140,7 @@ void			HTTPRequest::parseRequest(std::string const &str)
 		return ;
 
     while (std::getline(f, line)) {
+
 		if (isKey(line, "Accept-Charsets"))
 			this->_acceptCharset = getValue(line, "Accept-Charsets");
 		else if (isKey(line, "Accept-Language"))
@@ -137,11 +160,11 @@ void			HTTPRequest::parseRequest(std::string const &str)
 			this->_authorization = getValue(line, "Authorization");
 		else if (isKey(line, "Content-Language"))
 			this->_contentLanguage = getValue(line, "Content-Language");
-		else if (isKey(line, "Content-Length"))
+		else if (isKey(line, "Content-Length") )
 			this->_contentLength = atoi(getValue(line, "Content-Length").c_str());
 		else if (isKey(line, "Content-Location"))
 			this->_contentLocation = getValue(line, "Content-Location");
-		else if (isKey(line, "Content-Type"))
+		else if (isKey(line, "Content-Type") )
 			this->_contentType = getValue(line, "Content-Type");
 		else if (isKey(line, "Date"))
 			this->_date = getValue(line, "Date");
@@ -151,10 +174,11 @@ void			HTTPRequest::parseRequest(std::string const &str)
 			this->_referer = getValue(line, "Referer");
 		else if (isKey(line, "User-Agent"))
 			this->_userAgent = getValue(line, "User-Agent");
-		else if (line.empty())
+		else if (line.empty() || line.size() == 1)
 		{
 			while (std::getline(f, line))
-				this->_body += line;
+				this->_body += line + "\n";
+			this->_body = this->_body.substr(0, this->_body.size()-1);
 			if (!this->_body.empty() && this->_contentLength == 0)
 				this->_body = Util::unchunkData(this->_body);
 			break;
@@ -191,8 +215,8 @@ void			HTTPRequest::print(void) const
 	std::cout << "Date = " << this->_date << std::endl;
 	std::cout << "Host = " << this->_host << std::endl;
 	std::cout << "Referer = " << this->_referer << std::endl;
+	std::cout << "Body = " << (this->_body).c_str() << std::endl;
 	std::cout << "User-Agent = " << this->_userAgent << std::endl;
-	std::cout << "Body = " << this->_body << std::endl;
 }
 
 std::string const	&HTTPRequest::getError(void) const
