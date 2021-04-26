@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/30 10:55:24 by mondrew           #+#    #+#             */
-/*   Updated: 2021/04/23 17:11:00 by gjessica         ###   ########.fr       */
+/*   Updated: 2021/04/26 10:00:12 by gjessica         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,6 +78,15 @@ class Util
 			return (str[str.length() - 1]);
 		}
 
+		static std::string	removeLeadingWhitespaces(std::string const &str) {
+
+			std::size_t		i = 0;
+
+			while (i < str.length() && str[i] == ' ')
+				i++;
+			return (i < str.length() ? str.substr(i) : "");
+		}
+
 		static std::string	getDate(void)
 		{
 			struct timeval	tv;
@@ -92,7 +101,7 @@ class Util
 			// 3) Fill 'struct tm' structure (we have only seconds scince the Epoch)
 			strptime(s.c_str(), "%s", &tm);
 			// 4) Now we need only to get all information we need from 'tm' to string
-			strftime(buf, sizeof(buf), "%a, %d %b %Y %T GMT", &tm);
+			strftime(buf, sizeof(buf), "%a, %d %b %Y %T %Z", &tm);
 			return (std::string(buf));
 		}
 
@@ -107,7 +116,7 @@ class Util
 			// 2) Fill 'struct tm' structure (we have only seconds scince the Epoch)
 			strptime(s.c_str(), "%s", &tm);
 			// 3) Now we need only to get all information we need from 'tm' to string
-			strftime(buf, sizeof(buf), "%a, %d %b %Y %T GMT", &tm);
+			strftime(buf, sizeof(buf), "%a, %d %b %Y %T %Z", &tm);
 			return (std::string(buf));
 		}
 
