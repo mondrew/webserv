@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/20 15:53:09 by mondrew           #+#    #+#             */
-/*   Updated: 2021/04/26 10:59:37 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/04/26 14:57:48 by gjessica         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -142,7 +142,7 @@ void			HTTPRequest::parseRequest(std::string const &str)
 		return ;
 
     while (std::getline(f, line)) {
-
+		line.erase(std::remove(line.begin(), line.end(), '\r'), line.end());
 		if (isKey(line, "Accept-Charsets"))
 			this->_acceptCharset = getValue(line, "Accept-Charsets");
 		else if (isKey(line, "Accept-Language"))
@@ -176,7 +176,9 @@ void			HTTPRequest::parseRequest(std::string const &str)
 			this->_referer = getValue(line, "Referer");
 		else if (isKey(line, "User-Agent"))
 			this->_userAgent = getValue(line, "User-Agent");
-		else if (line.empty() || line.size() == 1)
+		else if (isKey(line, "Transfer-Encoding"))
+			this->_transferEncoding = getValue(line, "Transfer-Encoding");
+		else if (line.empty())
 		{
 			while (std::getline(f, line))
 				this->_body += line + "\n";
@@ -217,6 +219,7 @@ void			HTTPRequest::print(void) const
 	std::cout << "Date = " << this->_date << std::endl;
 	std::cout << "Host = " << this->_host << std::endl;
 	std::cout << "Referer = " << this->_referer << std::endl;
+	std::cout << "TransferEncoding = " << this->_transferEncoding << std::endl;
 	std::cout << "Body = " << (this->_body).c_str() << std::endl;
 	std::cout << "User-Agent = " << this->_userAgent << std::endl;
 }
@@ -330,6 +333,10 @@ std::string const	&HTTPRequest::getContentType(void) const {
 
 	return (this->_contentType);
 }
+
+std::string const	&HTTPRequest::getTransferEncoding(void) const{
+	return (this->_transferEncoding);
+};
 
 std::string const	&HTTPRequest::getDate(void) const {
 

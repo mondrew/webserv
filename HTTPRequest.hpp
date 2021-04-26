@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/20 15:48:48 by mondrew           #+#    #+#             */
-/*   Updated: 2021/04/23 17:01:15 by gjessica         ###   ########.fr       */
+/*   Updated: 2021/04/26 11:26:42 by gjessica         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,6 +84,8 @@ class HTTPRequest {
 								// http://example.com/
 
 		std::string		_userAgent; // example:
+
+		std::string		_transferEncoding; // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Transfer-Encoding
 		// Firefox:
 		// Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0
 		// Safari:
@@ -130,6 +132,7 @@ class HTTPRequest {
 		std::string const	&getError(void) const;
 		std::string const	&getCgiPathInfo(void) const;
 		std::string const	&getCgiPathTranslated(void) const;
+		std::string const	&getTransferEncoding(void) const;
 
 		int					getBodyLength(void) const;
 
@@ -142,7 +145,7 @@ class HTTPRequest {
 
 	private:
 
-		bool 				setStartLineParam(std::string line);
+		bool 				setStartLineParam(std::string &line);
 		void				splitTargetAndCgiPathInfo(void);
 		void				parseRequest(std::string const &str);
 };

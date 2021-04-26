@@ -6,7 +6,7 @@
 #    By: gjessica <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/12/08 23:16:50 by mondrew           #+#    #+#              #
-#    Updated: 2021/04/20 09:03:59 by mondrew          ###   ########.fr        #
+#    Updated: 2021/04/26 15:08:43 by gjessica         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -68,6 +68,9 @@ re: fclean all
 run:
 	@./$(NAME) configs/server.conf
 
+run42:
+	@./$(NAME) configs/test42.conf
+
 rerun: re run
 
 start:
@@ -93,3 +96,5 @@ stop:
 	fi
 
 restart: re run
+
+restart42: re run42

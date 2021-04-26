@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/17 23:10:08 by mondrew           #+#    #+#             */
-/*   Updated: 2021/04/26 10:51:41 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/04/26 15:28:17 by gjessica         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -223,7 +223,8 @@ bool		Session::fillErrorResponse(int code) {
 	else if (code == 505)
 		_response->setStatusText("HTTP Version Not Supported");
 	_responseFilePath = (_theMaster->getErrorMap())[code];
-	_response->setBody(Util::fileToString((this->_responseFilePath)));
+	if (!(_request->getMethod() & HEAD))
+		_response->setBody(Util::fileToString((this->_responseFilePath)));
 	_response->setContentLength(_response->getBody().length());
 	return (false);
 }
@@ -491,16 +492,17 @@ void		Session::makePOSTResponse(void) {
 	// update some info?
 	_response->setStatusCode(200);
 	_response->setStatusText("OK");
-	_response->setTransferEncoding("identity");
+	_response->setTransferEncoding(_request->getTransferEncoding());
 	_response->setAllow(_serverLocation->getLimitExcept());
 	_response->setLocation(this->_responseFilePath);
+	_response->setBody("");
 
 	if (isCGI())
 		makeCGIResponse();
 	else
 	{
 		std::string conType = _request->getContentType();
-		if (conType != "unk")
+		if (Util::getTypeByMime(conType) != "unk")
 		{
 			std::string filename = createFileUpload(Util::getTypeByMime(conType), _request->getBody());
 			_response->setStatusCode(201);
@@ -564,13 +566,13 @@ void		Session::responseToString(void) {
 	oss << "Allow: " << Util::allowToString(_response->getAllow()) << std::endl;
 	oss << "Location: " << _response->getLocation() << std::endl;
 	oss << "Retry-After: " << _response->getRetryAfter() << std::endl;
-	oss << "Transfer-Encoding: " << _response->getTransferEncoding() << std::endl;
+	//oss << "Transfer-Encoding: " << _response->getTransferEncoding() << std::endl;
 	oss << "WWW-Authenticate: " << _response->getWWWAuthenticate() << std::endl;
 	oss << std::endl;
 
 	// Body
 	// if (this->_request->getMethod() != GET && this->_request->getMethod() != HEAD)
-	oss << _response->getBody() << std::endl; // Is it nessecary to add "\n" after last line?
+	oss << _response->getBody(); // Is it nessecary to add "\n" after last line?
 
 	_responseStr = oss.str();
 
@@ -601,6 +603,7 @@ void		Session::handle(void) {
 	if (getWantToRead() == true)
 	{
 		ret = read(_socket, _buf, BUFFER_SIZE);
+		std::cout << "Ret - " << ret << std::endl;
 		if (ret < 0)
 		{
 			std::cout << "Error read\n";
