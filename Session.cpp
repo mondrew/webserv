@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/17 23:10:08 by mondrew           #+#    #+#             */
-/*   Updated: 2021/04/21 12:46:00 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/04/26 08:29:45 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -246,8 +246,10 @@ bool		Session::isValidRequest(void) {
 void			Session::makeCGIResponse(void) {
 
 	CGIRequest 			cgiRequest(this->_request);
+	CGIResponse			cgiResponse;
 	pid_t				pid;
 	int					pipefd[2];
+	int					saveStdInFd;
 	std::ostringstream	oss;
 
 	if (pipe(pipefd) == -1)
@@ -267,10 +269,10 @@ void			Session::makeCGIResponse(void) {
 
 		close(pipefd[0]);
 
-		std::cout << "Hello from child!" << std::endl; // debug
-		// Replace stdout with WRITE-END of the PIPE
-		dup2(STDOUT_FILENO, pipefd[1]);
-		// dup2(pipefd[1], STDOUT_FILENO); // testingggggggggggggggggggggggggg
+		// Make STDOUT be the copy of the pipefd[1] (out pipe end)
+		dup2(pipefd[1], STDOUT_FILENO);
+		close(pipefd[1]);
+		// dup2(pipefd[1], STDOUT_FILENO);
 
 		// Run the CGI script
 
@@ -326,15 +328,35 @@ void			Session::makeCGIResponse(void) {
 	// Close OUT pipe side
 	close(pipefd[1]);
 
-	// Replace stdin with READ-END of the PIPE
-	dup2(STDIN_FILENO, pipefd[0]);
+	// Save stdin fd
+	saveStdInFd = dup(STDIN_FILENO);
 
-	oss << std::cin;
+	// Replace stdin with READ-END of the PIPE
+	dup2(pipefd[0], STDIN_FILENO);
+	close(pipefd[0]);
+	// dup2(pipefd[0], saveStdInFd);
+	// dup2(STDIN_FILENO, pipefd[0]);
+
+
+	/*
+	char	buf[1024];
+	int		ret;
+
+	while ((ret = read(0, buf, 1023)))
+	{
+		buf[ret] = '\0';
+		oss << buf;
+	}
+	*/
+
+	oss << std::cin.rdbuf();
 	oss << std::endl;
 
-	std::cout << "OSS===++++>>>: " << oss.str() << std::endl; // endl
+	// std::cout << "OSS===++++>>>: " << oss.str() << std::endl; // endl
 
-	_response->setBody(oss.str());
+	cgiResponse.parseCGIResponse(oss.str());
+	_response->setBody(cgiResponse.getBody());
+	_response->setContentType(cgiResponse.getContentType());
 	_response->setContentLength(_response->getBody().length());
 
 	_response->setRetryAfter("");
@@ -342,8 +364,6 @@ void			Session::makeCGIResponse(void) {
 	_response->setContentLocation(this->_responseFilePath);
 
 	// Change it: get info from CGI
-	_response->setContentType(\
-					Util::detectContentType(this->_responseFilePath));
 	_response->setLastModified(\
 				Util::getFileLastModified(this->_responseFilePath));
 
