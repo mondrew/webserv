@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/17 23:10:08 by mondrew           #+#    #+#             */
-/*   Updated: 2021/04/26 15:28:17 by gjessica         ###   ########.fr       */
+/*   Updated: 2021/04/26 23:57:46 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,89 +63,60 @@ bool		Session::isValidRequestTarget(void) {
 	// (maybe better to use absotute paths??)
 	bool			isValidPath = false;
 	bool			isValidFolder = false;
-	std::string		pathLoc;
-	int				pathType = DIR_PATH;
+	std::string		pathLoc; // path of the current Location from the config
+	//int				pathType = DIR_PATH; // DIRectory of FILE
+	std::string		reqPath = this->_request->getTarget(); // current request path
+	std::string		fullPath;
 
-	std::string		reqPath;
-	// Now check - is there such folder or not
+	if (Util::getLastChar(reqPath) == '/')
+		reqPath = Util::removeLastPath(reqPath); // for removing '/' at the end
+
+	// Check is there such Location in the config file
+	// CGI -> create special location in config '/cgi-bin'
 	for (std::vector<Location *>::iterator it = \
 						this->_theMaster->getLocationSet().begin();
 							it < this->_theMaster->getLocationSet().end(); it++)
 	{
-		reqPath = (*it)->getRoot() + this->_request->getTarget();
-		// std::cout << "===> reqPath: " << reqPath << std::endl; // debug
-		// If it is not folder -> delete last part of the path (filename)
-		if (!Util::isDirectory(reqPath))
-		{
-			pathType = FILE_PATH;
-			reqPath = Util::removeLastPath(reqPath);
-			// std::cout << "===> reqPath (removed file): " << reqPath << std::endl; // debug
-			if (reqPath.empty())
-				return (false);
-		}
-		if (Util::getLastChar(reqPath) == '/')
-			reqPath = Util::removeLastPath(reqPath); // for removing '/' at the end
-		if (Util::isCGI(this->_request->getTarget()) && \
-										reqPath.compare((*it)->getRoot()) != 0)
-				pathLoc = (*it)->getCgiPath();
-		else
-			pathLoc = (*it)->getRoot() + (*it)->getLocationPath();
-		if (Util::getLastChar(pathLoc) == '/')
-			pathLoc = Util::removeLastPath(pathLoc); // for removing '/' at the end
-		// std::cout << "===> pathLoc: " << pathLoc << std::endl; // debug
-		// std::cout << "------------------------------" << std::endl; // debug
-		if (pathLoc.compare(reqPath) == 0)
-		{
-			// Here we check the Path to the concrete file
-			isValidFolder = true;
+		if ((*it)->contains(reqPath)) {
 			this->_serverLocation = *it;
-			if (pathType == DIR_PATH)
-			{
-				std::string		delim = "/";
-				if (Util::getLastChar(reqPath) == '/')
-					delim = "";
-				if (this->_serverLocation->isAutoindex() &&
-						((*it)->getIndex().empty() || \
-					 		!Util::exists(reqPath + delim + (*it)->getIndex())))
-				{
-					this->_responseFilePath = reqPath + delim;
-				}
-				else
-					this->_responseFilePath = reqPath + delim + \
-										  					(*it)->getIndex();
-				// Logger::msg("RFP = " +this->_responseFilePath); // debug
-
-				isValidPath = true;
-			}
+			fullPath = (*it)->getRoot() + \
+					   reqPath.erase(0, ((*it)->getLocationPath()).size());
+			isValidFolder = true;
 			break ;
 		}
 	}
-	if (isValidFolder && (pathType == FILE_PATH))
+	if (!isValidFolder)
+		return (false);
+
+	this->_responseFilePath = fullPath;
+	std::cout << "FULL PATH: " << fullPath << std::endl; // debug
+
+	if (Util::isDirectory(fullPath))
 	{
-		if (Util::isCGI(this->_request->getTarget()))
-		{
-			// First lets check www.localhost:8002/cgi-bin/script.cgi
-			reqPath = this->_serverLocation->getRoot() + \
-					  								this->_request->getTarget();
-			if (!Util::exists(reqPath))
-			{
-				// Then lets check www.localhost:8002/script.cgi
-				reqPath = this->_serverLocation->getCgiPath() + \
-				  									this->_request->getTarget();
-				if (!Util::exists(reqPath))
-					return (false);
-			}
-		}
+		std::string		delim = "/";
+		if (Util::getLastChar(fullPath) == '/')
+			delim = "";
+
+		if (!this->_serverLocation->getIndex().empty() && \
+				Util::exists(fullPath + delim + this->_serverLocation->getIndex()))
+			this->_responseFilePath += delim + this->_serverLocation->getIndex();
 		else
 		{
-			reqPath = this->_serverLocation->getRoot() + \
-					  								this->_request->getTarget();
-			if (!Util::exists(reqPath))
+			if (!this->_serverLocation->isAutoindex())
 				return (false);
+			//this->_responseFilePath += delim; // do we need delim here?
 		}
 		isValidPath = true;
-		this->_responseFilePath = reqPath;
 	}
+	else
+	{
+	std::cout << "!!!!!!!!!!!!!!!!!!!!!!!" << std::endl; // debug
+		if (!Util::exists(fullPath))
+			return (false);
+		isValidPath = true;
+	}
+
+	// Print request target
 	if (Util::printRequestTarget)
 	{
 		if (isValidFolder)
@@ -156,7 +127,7 @@ bool		Session::isValidRequestTarget(void) {
 			std::cout << "File Path is valid" << std::endl;
 		else
 			std::cout << "File Path is invalid" << std::endl;
-		std::cout <<  "RESPONSE FIlE PATH: " << _responseFilePath << std::endl;
+		std::cout <<  "RESPONSE FIlE PATH: " << this->_responseFilePath << std::endl;
 	}
 	return (isValidPath);
 }
@@ -253,6 +224,10 @@ void			Session::makeCGIResponse(void) {
 	int					pipefd[2];
 	int					saveStdInFd;
 	std::ostringstream	oss;
+
+	std::cout << "===---Print parsed HTTPRequest instance---===" << std::endl; // debug
+	this->_request->print();
+	std::cout << "===---END Print parsed HTTPRequest instance---===" << std::endl; // debug
 
 	if (pipe(pipefd) == -1)
 	{

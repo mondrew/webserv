@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/18 10:27:39 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/30 07:19:35 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/04/26 23:33:31 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,14 +22,14 @@ class Location
 {
 	private:
 
-		std::string 		locationPath;
-		std::string 		root;
-		std::string			index;
-		char				limitExcept;
-		bool 				autoindex;
-		long 				maxBody;
-		std::string 		cgi;
-		std::string 		cgiPath;
+		std::string 		_locationPath;
+		std::string 		_root;
+		std::string			_index;
+		char				_limitExcept;
+		bool 				_autoindex;
+		long 				_maxBody;
+		std::string 		_cgi;
+		std::string 		_cgiPath;
 
 	public:
 
@@ -37,9 +37,11 @@ class Location
 		~Location();
 		Location(Location const &cp);
 
-		Location			&operator=(Location const &op);
+		Location				&operator=(Location const &op);
 
+		bool					contains(std::string const &path) const;
 		void 		 			print() const;
+
 		// Getters
 		std::string const		&getRoot() const;
 		std::string const		&getIndex() const;
