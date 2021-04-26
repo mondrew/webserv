@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/17 23:10:08 by mondrew           #+#    #+#             */
-/*   Updated: 2021/04/26 10:51:41 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/04/26 20:25:59 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -252,6 +252,10 @@ void			Session::makeCGIResponse(void) {
 	int					pipefd[2];
 	int					saveStdInFd;
 	std::ostringstream	oss;
+
+	std::cout << "===---Print parsed HTTPRequest instance---===" << std::endl; // debug
+	this->_request->print();
+	std::cout << "===---END Print parsed HTTPRequest instance---===" << std::endl; // debug
 
 	if (pipe(pipefd) == -1)
 	{
