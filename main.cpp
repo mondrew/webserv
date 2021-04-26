@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/18 09:20:58 by mondrew           #+#    #+#             */
-/*   Updated: 2021/04/23 20:28:02 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/04/26 09:59:03 by gjessica         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,14 +15,14 @@
 #include "Util.hpp"
 
 bool	Util::printConfig = false;
-bool	Util::printRequests = false;
-bool	Util::printResponses = false;
+bool	Util::printRequests = true;
+bool	Util::printResponses = true;
 bool	Util::printSockets = false;
 bool	Util::printLocations = false;
 bool	Util::printServerAccepts = false;
 bool	Util::printConnections = false;
 bool	Util::printRequestTarget = false;
-bool	Util::printRequestType = true;
+bool	Util::printRequestType = false;
 
 int		main(int argc, char **argv)
 {
