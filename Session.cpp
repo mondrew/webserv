@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/17 23:10:08 by mondrew           #+#    #+#             */
-/*   Updated: 2021/04/27 10:16:47 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/04/27 13:17:00 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 #include "CGIRequest.hpp"
 #include "CGIResponse.hpp"
 #include <vector>
+#include <list>
 #include <string>
 #include <iostream>
 #include <sstream>
@@ -224,9 +225,11 @@ void			Session::makeCGIResponse(void) {
 	int					saveStdInFd;
 	std::ostringstream	oss;
 
+	/*
 	std::cout << "===---Print parsed HTTPRequest instance---===" << std::endl; // debug
 	this->_request->print();
 	std::cout << "===---END Print parsed HTTPRequest instance---===" << std::endl; // debug
+	*/
 
 	if (pipe(pipefd) == -1)
 	{
@@ -355,34 +358,41 @@ void			Session::makeCGIResponse(void) {
 
 std::string		Session::getDirListing(std::string const &path)
 {
-	std::cout << "----------------------------" << std::endl; // debug
-	DIR					*dir;
-	struct dirent		*diread;
-	std::ostringstream	oss;
+	DIR						*dir;
+	struct dirent			*diread;
+	std::ostringstream		oss;
+	std::list<std::string>	files;
 
-	//path ./www/pages/test/
-	// std::cout << "!!!!!!!!path " << path << std::endl; // debug
 	oss << "<html><head><title>MGINX</title></head>";
 	oss << "<body>";
 	if ((dir = opendir((path).c_str())) != 0)
 	{
 		// Fix it - so the first will be '.' then '..' and then other directories
-        while ((diread = readdir(dir)) != 0) {
-			std::cout << "_+_+_+: " << diread->d_name << std::endl; // debug
-			// std::cout << "!!!diread->d_name " << diread->d_name << std::endl; // debug
-			// std::cout << "!!!this->_request->getTarget() " << this->_request->getTarget() << "\n";
+        while ((diread = readdir(dir)) != 0)
+		{
+			if (std::string(diread->d_name).compare(".") == 0)
+				files.push_front(std::string(diread->d_name));
+			else if (std::string(diread->d_name).compare("..") == 0)
+			{
+				if (files.size() && (files.begin())->compare(".") == 0)
+					files.insert(++files.begin(), std::string(diread->d_name));
+				else
+					files.push_front(std::string(diread->d_name));
+			}
+			else
+				files.push_back(std::string(diread->d_name));
+		}
+		for (std::list<std::string>::iterator it = files.begin();\
+														it != files.end(); it++)
+		{
 			oss << "<a href='" << this->_request->getTarget();
-			// oss << "<a href='" << this->_responseFilePath;
 			if (Util::getLastChar(this->_request->getTarget()) != '/')
 				oss << "/";
-			std::cout << "getTarget(): " << this->_request->getTarget() << std::endl; // debug
-			std::cout << "responseFilePath: " << this->_responseFilePath << std::endl; // debug
-
-			oss << (diread->d_name) << "'>";
-			oss << (diread->d_name);
+			oss << *it << "'>";
+			oss << *it;
 			oss <<  "</a>";
 			oss << "<br />";
-			std::cout << "oss: " << oss.str() << std::endl; // debug
+			// std::cout << "oss: " << oss.str() << std::endl; // debug
         }
         closedir (dir);
     }
@@ -456,7 +466,6 @@ void		Session::makeGETResponse(void) {
 		//NEW BLOCK
 		// Logger::msg("ResponsePath - " + this->_responseFilePath); // debug
 		// Autoindex
-		std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl; // debug
 		if (!Util::isDirectory(this->_responseFilePath))
 			_response->setBody(Util::fileToString((this->_responseFilePath)));
 		else

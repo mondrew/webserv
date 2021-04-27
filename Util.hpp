@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/30 10:55:24 by mondrew           #+#    #+#             */
-/*   Updated: 2021/04/27 08:09:11 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/04/27 13:07:18 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@
 # include <map>
 # include <cmath>
 # include <sstream>
+# include <list>
 
 # define NOT_LIMIT -1
 
@@ -636,7 +637,6 @@ class Util
 			if (!mime.compare("video/x-msvideo")) return "avi";
 			return "unk";
 		}
-
 };
 
 #endif
