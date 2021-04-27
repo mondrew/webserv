@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/18 10:27:39 by mondrew           #+#    #+#             */
-/*   Updated: 2021/04/26 23:33:31 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/04/27 08:14:34 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@ class Location
 
 		Location				&operator=(Location const &op);
 
-		bool					contains(std::string const &path) const;
+		bool					isContainedInPath(std::string const &path) const;
 		void 		 			print() const;
 
 		// Getters

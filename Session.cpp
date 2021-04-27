@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/17 23:10:08 by mondrew           #+#    #+#             */
-/*   Updated: 2021/04/26 23:57:46 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/04/27 10:16:47 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,28 +59,28 @@ bool		Session::getDeleteMe(void) const {
 
 bool		Session::isValidRequestTarget(void) {
 
-	// Need to check here if all paths are CORRECT
-	// (maybe better to use absotute paths??)
 	bool			isValidPath = false;
 	bool			isValidFolder = false;
-	std::string		pathLoc; // path of the current Location from the config
-	//int				pathType = DIR_PATH; // DIRectory of FILE
 	std::string		reqPath = this->_request->getTarget(); // current request path
 	std::string		fullPath;
+	std::string		cleanPath;
 
 	if (Util::getLastChar(reqPath) == '/')
 		reqPath = Util::removeLastPath(reqPath); // for removing '/' at the end
 
 	// Check is there such Location in the config file
-	// CGI -> create special location in config '/cgi-bin'
+	// For CGI -> create special location in config '/cgi-bin'
 	for (std::vector<Location *>::iterator it = \
 						this->_theMaster->getLocationSet().begin();
 							it < this->_theMaster->getLocationSet().end(); it++)
 	{
-		if ((*it)->contains(reqPath)) {
+		if ((*it)->isContainedInPath(reqPath))
+		{
+			cleanPath = reqPath.erase(0, ((*it)->getLocationPath()).size());
 			this->_serverLocation = *it;
-			fullPath = (*it)->getRoot() + \
-					   reqPath.erase(0, ((*it)->getLocationPath()).size());
+			if (!cleanPath.empty() && cleanPath[0] != '/')
+				cleanPath.insert(0, "/");
+			fullPath = (*it)->getRoot() + cleanPath;
 			isValidFolder = true;
 			break ;
 		}
@@ -89,7 +89,7 @@ bool		Session::isValidRequestTarget(void) {
 		return (false);
 
 	this->_responseFilePath = fullPath;
-	std::cout << "FULL PATH: " << fullPath << std::endl; // debug
+	// std::cout << "===>>> FULL PATH: " << fullPath << std::endl; // debug
 
 	if (Util::isDirectory(fullPath))
 	{
@@ -110,7 +110,6 @@ bool		Session::isValidRequestTarget(void) {
 	}
 	else
 	{
-	std::cout << "!!!!!!!!!!!!!!!!!!!!!!!" << std::endl; // debug
 		if (!Util::exists(fullPath))
 			return (false);
 		isValidPath = true;
@@ -356,6 +355,49 @@ void			Session::makeCGIResponse(void) {
 
 std::string		Session::getDirListing(std::string const &path)
 {
+	std::cout << "----------------------------" << std::endl; // debug
+	DIR					*dir;
+	struct dirent		*diread;
+	std::ostringstream	oss;
+
+	//path ./www/pages/test/
+	// std::cout << "!!!!!!!!path " << path << std::endl; // debug
+	oss << "<html><head><title>MGINX</title></head>";
+	oss << "<body>";
+	if ((dir = opendir((path).c_str())) != 0)
+	{
+		// Fix it - so the first will be '.' then '..' and then other directories
+        while ((diread = readdir(dir)) != 0) {
+			std::cout << "_+_+_+: " << diread->d_name << std::endl; // debug
+			// std::cout << "!!!diread->d_name " << diread->d_name << std::endl; // debug
+			// std::cout << "!!!this->_request->getTarget() " << this->_request->getTarget() << "\n";
+			oss << "<a href='" << this->_request->getTarget();
+			// oss << "<a href='" << this->_responseFilePath;
+			if (Util::getLastChar(this->_request->getTarget()) != '/')
+				oss << "/";
+			std::cout << "getTarget(): " << this->_request->getTarget() << std::endl; // debug
+			std::cout << "responseFilePath: " << this->_responseFilePath << std::endl; // debug
+
+			oss << (diread->d_name) << "'>";
+			oss << (diread->d_name);
+			oss <<  "</a>";
+			oss << "<br />";
+			std::cout << "oss: " << oss.str() << std::endl; // debug
+        }
+        closedir (dir);
+    }
+	else
+	{
+		// Internal Server error
+		Logger::e("Error open directory " + path);
+        return "";
+    }
+	return (oss.str());
+}
+
+/*
+std::string		Session::getDirListing(std::string const &path)
+{
 	DIR					*dir;
 	struct dirent		*diread;
 	std::ostringstream	str;
@@ -388,6 +430,7 @@ std::string		Session::getDirListing(std::string const &path)
     }
 	return (str.str());
 }
+*/
 
 void		Session::makeGETResponse(void) {
 
@@ -412,6 +455,8 @@ void		Session::makeGETResponse(void) {
 			std::cout << "REQUEST_TYPE: ==>==> GET <==<==" << std::endl;
 		//NEW BLOCK
 		// Logger::msg("ResponsePath - " + this->_responseFilePath); // debug
+		// Autoindex
+		std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl; // debug
 		if (!Util::isDirectory(this->_responseFilePath))
 			_response->setBody(Util::fileToString((this->_responseFilePath)));
 		else
@@ -485,7 +530,6 @@ void		Session::makePOSTResponse(void) {
 			_response->setLocation("./www/upload/" + filename);
 		}
 	}
-
 }
 
 void		Session::makePUTResponse(void) {
