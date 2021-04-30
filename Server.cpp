@@ -3,15 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
+/*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/16 09:02:17 by mondrew           #+#    #+#             */
-/*   Updated: 2021/04/21 12:50:14 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/04/30 11:14:09 by gjessica         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
 #include <iostream>
+#include <fcntl.h>
 #include <sys/socket.h>
 
 #define MAX_USERS 128
@@ -81,6 +82,7 @@ int		Server::start(void) {
 		// Can be exception
 		std::cout << "Error: cant't create server socket." << std::endl;
 		return (-1);
+
 	}
 
 	// Prevents port sticking
@@ -146,6 +148,7 @@ void		Server::handle(void) {
 		setSocket(-1);
 		return ;
 	}
+	fcntl(sockfd, F_SETFL, O_NONBLOCK);
 
 	if (Util::printServerAccepts)
 	{
@@ -162,6 +165,7 @@ void		Server::handle(void) {
 void		Server::removeSession(Session *s) {
 
 	// Delete Client from the sessionSet linked-list in Server
+	//usleep(500);
 	_sessionSet.remove(s);
 
 	// Remove fd from EventSelector object array

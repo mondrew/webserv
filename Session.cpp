@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/17 23:10:08 by mondrew           #+#    #+#             */
-/*   Updated: 2021/04/27 13:17:00 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/04/30 11:21:41 by gjessica         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -582,26 +582,26 @@ void		Session::responseToString(void) {
 
 	// Status Line
 	oss << _response->getProtocolVersion() << " " << _response->getStatusCode();
-	oss << " " << _response->getStatusText() << std::endl;
+	oss << " " << _response->getStatusText() << "\r\n";
 	// Headers
-	oss << "Server: " << _response->getServer() << std::endl;
-	oss << "Date: " << _response->getDate() << std::endl;
-	oss << "Content-Type: " << _response->getContentType() << std::endl;
-	oss << "Content-Length: " << _response->getContentLength() << std::endl;
-	oss << "Content-Language: " << _response->getContentLanguage() << std::endl;
-	oss << "Content-Location: " << _response->getContentLocation() << std::endl;
-	oss << "Last-Modified: " << _response->getLastModified() << std::endl;
-	oss << "Allow: " << Util::allowToString(_response->getAllow()) << std::endl;
-	oss << "Location: " << _response->getLocation() << std::endl;
-	oss << "Retry-After: " << _response->getRetryAfter() << std::endl;
-	//oss << "Transfer-Encoding: " << _response->getTransferEncoding() << std::endl;
-	oss << "WWW-Authenticate: " << _response->getWWWAuthenticate() << std::endl;
-	oss << std::endl;
+	oss << "Server: " << _response->getServer() << "\r\n";
+	oss << "Date: " << _response->getDate() << "\r\n";
+	oss << "Content-Type: " << _response->getContentType() << "\r\n";
+	oss << "Content-Length: " << _response->getContentLength() << "\r\n";
+	oss << "Content-Language: " << _response->getContentLanguage() << "\r\n";
+	oss << "Content-Location: " << _response->getContentLocation() << "\r\n";
+	oss << "Last-Modified: " << _response->getLastModified() << "\r\n";
+	oss << "Allow: " << Util::allowToString(_response->getAllow()) << "\r\n";
+	oss << "Location: " << _response->getLocation() << "\r\n";
+	oss << "Retry-After: " << _response->getRetryAfter() << "\r\n";
+	//oss << "Transfer-Encoding: " << _response->getTransferEncoding() << "\r\n";
+	oss << "WWW-Authenticate: " << _response->getWWWAuthenticate() << "\r\n";
+	oss << "\r\n";
 
 	// Body
 	// if (this->_request->getMethod() != GET && this->_request->getMethod() != HEAD)
 	oss << _response->getBody(); // Is it nessecary to add "\n" after last line?
-
+	//oss << "\r\n";
 	_responseStr = oss.str();
 
 	if (Util::printResponses)
@@ -630,8 +630,9 @@ void		Session::handle(void) {
 
 	if (getWantToRead() == true)
 	{
-		ret = read(_socket, _buf, BUFFER_SIZE);
-		std::cout << "Ret - " << ret << std::endl;
+		//memset(_buf, 0, BUFFER_SIZE+1);
+		std::cout << "NEW" << std::endl;
+		ret = recv(_socket, _buf, BUFFER_SIZE, 0);
 		if (ret < 0)
 		{
 			std::cout << "Error read\n";
@@ -642,29 +643,47 @@ void		Session::handle(void) {
 			// EOF reached
 			_buf[ret] = '\0';
 			//_requestStr += _buf;
+			std::cout << "Last - " << _buf << std::endl;;
 			int i = 0;
 			while (i < ret){
 				_requestStr += _buf[i];
 				i++;
 			}
-			if (Util::printRequests)
+			if (_requestStr.find("\r\n\r\n") != std::string::npos)
 			{
-				std::cout << "================== HTTPRequest - START ===================\n";
-				std::cout << _requestStr << std::endl;
-				// _request->print(); // wrong! we don't have instance of HTTPRequest class yet!!!
-				std::cout << "================== HTTPRequest - END ===================\n";
+				if (Util::printRequests)
+				{
+					std::cout << "================== HTTPRequest - START ===================\n";
+					std::cout << _requestStr << std::endl;
+					// _request->print(); // wrong! we don't have instance of HTTPRequest class yet!!!
+					std::cout << "================== HTTPRequest - END ===================\n";
+				}
+				setWantToRead(false);
+				setWantToWrite(true);
+				generateResponse();
 			}
-			generateResponse();
-			setWantToRead(false);
-			setWantToWrite(true);
 		}
 		else
 		{
 			_buf[ret] = '\0';
+			//std::cout << _buf << std::endl;;
 			int i = 0;
 			while (i < ret){
 				_requestStr += _buf[i];
 				i++;
+			}
+			if (_requestStr.find("\r\n\r\n") != std::string::npos)
+			{
+				if (Util::printRequests)
+				{
+					std::cout << "================== HTTPRequest - START ===================\n";
+					std::cout << _requestStr << std::endl;
+					// _request->print(); // wrong! we don't have instance of HTTPRequest class yet!!!
+					std::cout << "================== HTTPRequest - END ===================\n";
+				}
+				setWantToRead(false);
+				setWantToWrite(true);
+				generateResponse();
 			}
 		}
 	}
@@ -672,8 +691,8 @@ void		Session::handle(void) {
 	{
 		if (!_responseStr.empty())
 		{
-			ret = write(_socket, _responseStr.c_str(), \
-				std::min(BUFFER_SIZE, static_cast<int>(_responseStr.length())));
+			ret = send(_socket, _responseStr.c_str(), \
+				std::min(BUFFER_SIZE, static_cast<int>(_responseStr.length())), 0);
 			_responseStr.erase(0, ret);
 		}
 		else
