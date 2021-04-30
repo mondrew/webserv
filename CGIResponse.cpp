@@ -6,7 +6,7 @@
 /*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/09 15:19:55 by mondrew           #+#    #+#             */
-/*   Updated: 2021/04/23 20:08:40 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/04/29 23:32:33 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,22 +26,28 @@ CGIResponse::~CGIResponse(void) {
 
 void				CGIResponse::parseCGIResponse(std::string const &str) {
 
-	std::size_t		pos;
-	std::size_t		posEnd;
-	std::string		tmp;
+	std::size_t			pos;
+	std::string			line;
+	std::istringstream	iss(str);
 
-	if ((pos = str.find("Content-Type:")) != std::string::npos || \
-			(pos = str.find("Content-type:")) != std::string::npos || \
-			(pos = str.find("content-type:")) != std::string::npos)
+	while(std::getline(iss, line))
 	{
-		tmp = Util::removeLeadingWhitespaces(str.substr(pos + 13));
-		if ((posEnd = tmp.find("\n", pos)) == std::string::npos)
+		if ((pos = line.find("\r")) != std::string::npos)
+			line = line.substr(0, pos);
+		if (Util::isKey(line, "Content-type"))
+			this->_contentType = Util::getValue(line, "Content-type");
+		else if (Util::isKey(line, "Location"))
+			this->_location = Util::getValue(line, "Location");
+		else if (Util::isKey(line, "Status"))
+			this->_status = Util::getValue(line, "Status");
+		else if (line.empty())
 		{
-			std::cout << "Error occured" << std::endl;
-			return ;
+			while (std::getline(iss, line))
+				this->_body += line + "\n";
+			this->_body = this->_body.substr(0, this->_body.size() - 1); // deletes last '\n'
+			// I suppose that there will be no chunked CGI Responses
+			break ;
 		}
-		setBody(tmp.substr(posEnd + 1));
-		setContentType(tmp.substr(0, posEnd));
 	}
 }
 
@@ -50,17 +56,37 @@ std::string const	&CGIResponse::getContentType(void) const {
 	return (this->_contentType);
 }
 
+std::string const	&CGIResponse::getLocation(void) const {
+
+	return (this->_location);
+}
+
+std::string const	&CGIResponse::getStatus(void) const {
+
+	return (this->_status);
+}
+
 std::string const	&CGIResponse::getBody(void) const {
 
 	return (this->_body);
 }
 
-void				CGIResponse::setBody(std::string const &body) {
-
-	this->_body = body;
-}
-
 void				CGIResponse::setContentType(std::string const &contentType) {
 
 	this->_contentType = contentType;
+}
+
+void				CGIResponse::setLocation(std::string const &location) {
+
+	this->_location = location;
+}
+
+void				CGIResponse::setStatus(std::string const &status) {
+
+	this->_status = status;
+}
+
+void				CGIResponse::setBody(std::string const &body) {
+
+	this->_body = body;
 }

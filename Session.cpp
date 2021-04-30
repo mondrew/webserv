@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/17 23:10:08 by mondrew           #+#    #+#             */
-/*   Updated: 2021/04/27 13:17:00 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/04/30 09:20:37 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,7 @@
 #include <dirent.h>
 #include <stdlib.h>
 #include <fstream>
+#include <cstring>
 
 // Query string added
 
@@ -216,13 +217,88 @@ bool		Session::isValidRequest(void) {
 	return (true);
 }
 
+const char			**Session::createArgv(void) {
+
+	std::list<std::string>	vs;
+	std::string				str;
+	char					**argv = 0;
+	std::size_t				i = 0;
+
+
+	vs.push_front(this->_request->getTarget());
+	if (!this->_request->getQueryString().empty())
+	{
+		std::istringstream	iss(this->_request->getQueryString());
+		if (this->_request->getQueryString().find("=") != std::string::npos)
+		{
+			// This is simple query string
+			while (std::getline(iss, str, '&'))
+				vs.push_back(str);
+		}
+		else
+		{
+			// This is search string
+			while (std::getline(iss, str, '+'))
+				vs.push_back(str);
+		}
+		// Decode all strings
+		for (std::list<std::string>::iterator it = vs.begin(); it != vs.end(); it++)
+			*it = Util::decodeUriEncoded(*it);
+	}
+
+	argv = static_cast<char **>(malloc(sizeof(char *) * (vs.size() + 1)));
+
+	for (std::list<std::string>::iterator it = vs.begin(); it != vs.end(); it++)
+	{
+		argv[i] = static_cast<char *>(malloc(sizeof(char) * ((*it).length() + 1)));
+		memcpy(argv[i], (*it).c_str(), (*it).length() + 1);
+		i++;
+	}
+	argv[vs.size()] = 0;
+	return (const_cast<const char **>(argv));
+}
+
+const char		**Session::createEnvp(CGIRequest *cgiRequest) {
+
+	std::list<std::string>	envpList;
+	char			**envp = static_cast<char **>(malloc(sizeof(char *) * 17));
+	std::size_t		i = 0;
+
+	envpList.push_back(cgiRequest->getAuthType());
+	envpList.push_back(cgiRequest->getContentLength());
+	envpList.push_back(cgiRequest->getGatewayInterface());
+	envpList.push_back(cgiRequest->getPathInfo());
+	envpList.push_back(cgiRequest->getPathTranslated());
+	envpList.push_back(cgiRequest->getQueryString());
+	envpList.push_back(cgiRequest->getRemoteAddr());
+	envpList.push_back(cgiRequest->getRemoteIdent());
+	envpList.push_back(cgiRequest->getRemoteUser());
+	envpList.push_back(cgiRequest->getRequestMethod());
+	envpList.push_back(cgiRequest->getRequestURI());
+	envpList.push_back(cgiRequest->getScriptName());
+	envpList.push_back(cgiRequest->getServerName());
+	envpList.push_back(cgiRequest->getServerPort());
+	envpList.push_back(cgiRequest->getServerProtocol());
+	envpList.push_back(cgiRequest->getServerSoftware());
+
+	for (std::list<std::string>::iterator it = envpList.begin(); \
+													it != envpList.end(); it++)
+	{
+		envp[i] = static_cast<char *>(malloc(sizeof(char) * ((*it).length() + 1)));
+		memcpy(envp[i], (*it).c_str(), (*it).length() + 1);
+		i++;
+	}
+	envp[16] = 0;
+	return (const_cast<const char **>(envp));
+}
+
 void			Session::makeCGIResponse(void) {
 
 	CGIRequest 			cgiRequest(this->_request);
 	CGIResponse			cgiResponse;
 	pid_t				pid;
 	int					pipefd[2];
-	int					saveStdInFd;
+	// int					saveStdInFd;
 	std::ostringstream	oss;
 
 	/*
@@ -245,48 +321,22 @@ void			Session::makeCGIResponse(void) {
 	{
 		// Child
 		// Close IN pipe side
-
 		close(pipefd[0]);
 
 		// Make STDOUT be the copy of the pipefd[1] (out pipe end)
 		dup2(pipefd[1], STDOUT_FILENO);
 		close(pipefd[1]);
-		// dup2(pipefd[1], STDOUT_FILENO);
 
-		// Run the CGI script
+		// 1. Create argv
 
-		if ((this->_request->getMethod() || this->_request->getMethod()) && \
-			(this->_request->getQueryString().find("=")) != std::string::npos)
-		{
-		}
-		const char	**argv = static_cast<const char **>(malloc(sizeof(char *) * 2));
-		argv[0] = this->_request->getTarget().c_str();
-		argv[1] = 0;
-		//const char *argv[2] = {this->_request->getTarget().c_str()}; // добавить в CGIRequest
-		const char	**envp = static_cast<const char **>(malloc(sizeof(char *) * 17));
-		envp[0] = cgiRequest.getAuthType().c_str();
-		envp[1] = cgiRequest.getContentLength().c_str();
-		envp[2] = cgiRequest.getGatewayInterface().c_str();
-		envp[3] = cgiRequest.getPathInfo().c_str();
-		envp[4] = cgiRequest.getPathTranslated().c_str();
-		envp[5] = cgiRequest.getQueryString().c_str();
-		envp[6] = cgiRequest.getRemoteAddr().c_str();
-		envp[7] = cgiRequest.getRemoteIdent().c_str();
-		envp[8] = cgiRequest.getRemoteUser().c_str();
-		envp[9] = cgiRequest.getRequestMethod().c_str();
-		envp[10] = cgiRequest.getRequestURI().c_str();
-		envp[11] = cgiRequest.getScriptName().c_str();
-		envp[12] = cgiRequest.getServerName().c_str();
-		envp[13] = cgiRequest.getServerPort().c_str();
-		envp[14] = cgiRequest.getServerProtocol().c_str();
-		envp[15] = cgiRequest.getServerSoftware().c_str();
-		envp[16] = 0;
+		const char **argv = createArgv();
+		const char **envp = createEnvp(&cgiRequest);
 
 		// 1. [ GET ] method - produce the document based on: meta-variables
 		// 		- should parse the query string to the array on words (argv)
 		//		- if the query String doesn't contain unencoded '=' character, we should
 		//			interpret query string as 'indexed' HTTP query:
-		//			a. Parse it (delimiter if '+')
+		//			a. Parse it (delimiter is '+')
 		//			b. Decode each string
 		//		- decode queryString Util::decodeUriEncoded(
 		//
@@ -298,40 +348,34 @@ void			Session::makeCGIResponse(void) {
 		// 		meta-variables & data in request message-body
 		// 		it MUST check CONTENT_LENGTH and CONTENT_TYPE
 		// 		- check Content-Type header: if 'application/x-www-form-urlencoded' -> decode body
-		execve(_responseFilePath.c_str(), \
-			const_cast<char *const*>(argv), const_cast<char * const*>(envp));
+		int retex = execve(_responseFilePath.c_str(), \
+			const_cast<char *const *>(argv), const_cast<char *const *>(envp));
+		std::cerr << "retex: " << retex << std::endl; // debug
+
+		Util::freeTwoDimentionalArray(argv);
+		Util::freeTwoDimentionalArray(envp);
 
 		exit(0);
 	}
 	// Parent
-	// Close OUT pipe side
+	// 28.04.2021: Close OUT pipe side
+	// !!!!!!!!!!!! Может нет!?
+	// Мы должны в скрипт передать в stdin данные!!!!!
 	close(pipefd[1]);
 
-	// Save stdin fd
-	saveStdInFd = dup(STDIN_FILENO);
+	// Save stdin fd (WRONG!!!)
+	// saveStdInFd = dup(STDIN_FILENO);
 
 	// Replace stdin with READ-END of the PIPE
 	dup2(pipefd[0], STDIN_FILENO);
 	close(pipefd[0]);
-	// dup2(pipefd[0], saveStdInFd);
-	// dup2(STDIN_FILENO, pipefd[0]);
 
-
-	/*
-	char	buf[1024];
-	int		ret;
-
-	while ((ret = read(0, buf, 1023)))
-	{
-		buf[ret] = '\0';
-		oss << buf;
-	}
-	*/
+	// restore stdin (WRONG!!!)
+	// dup2(saveStdInFd, STDIN_FILENO);
 
 	oss << std::cin.rdbuf();
 	oss << std::endl;
 
-	// std::cout << "OSS===++++>>>: " << oss.str() << std::endl; // endl
 	if (Util::printCGIResponseString) {
 		std::cout << "-----= [ Pure CGI Response String From Child ] =-----" << std::endl;
 		std::cout << "[CGI_STRING]: " << oss.str();
@@ -340,16 +384,16 @@ void			Session::makeCGIResponse(void) {
 	}
 
 	cgiResponse.parseCGIResponse(oss.str());
-	_response->setBody(cgiResponse.getBody());
-	_response->setContentType(cgiResponse.getContentType());
-	_response->setContentLength(_response->getBody().length());
+	this->_response->setBody(cgiResponse.getBody());
+	this->_response->setContentType(cgiResponse.getContentType());
+	this->_response->setContentLength(_response->getBody().length());
 
-	_response->setRetryAfter("");
-	_response->setWWWAuthenticate("");
-	_response->setContentLocation(this->_responseFilePath);
+	this->_response->setRetryAfter("");
+	this->_response->setWWWAuthenticate("");
+	this->_response->setContentLocation(this->_responseFilePath);
 
 	// Change it: get info from CGI
-	_response->setLastModified(\
+	this->_response->setLastModified(\
 				Util::getFileLastModified(this->_responseFilePath));
 
 	// Wait for the child
@@ -631,7 +675,7 @@ void		Session::handle(void) {
 	if (getWantToRead() == true)
 	{
 		ret = read(_socket, _buf, BUFFER_SIZE);
-		std::cout << "Ret - " << ret << std::endl;
+		//std::cout << "Ret - " << ret << std::endl;
 		if (ret < 0)
 		{
 			std::cout << "Error read\n";
