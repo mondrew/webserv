@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/16 09:02:17 by mondrew           #+#    #+#             */
-/*   Updated: 2021/04/30 11:14:09 by gjessica         ###   ########.fr       */
+/*   Updated: 2021/04/30 19:41:19 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -148,7 +148,7 @@ void		Server::handle(void) {
 		setSocket(-1);
 		return ;
 	}
-	fcntl(sockfd, F_SETFL, O_NONBLOCK);
+	// fcntl(sockfd, F_SETFL, O_NONBLOCK); // mondrew: not sure it is necessary here
 
 	if (Util::printServerAccepts)
 	{

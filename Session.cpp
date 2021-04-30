@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/17 23:10:08 by mondrew           #+#    #+#             */
-/*   Updated: 2021/04/30 11:21:41 by gjessica         ###   ########.fr       */
+/*   Updated: 2021/04/30 19:42:26 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -686,8 +686,7 @@ void		Session::handle(void) {
 		{
 			// EOF reached
 			_buf[ret] = '\0';
-			//_requestStr += _buf;
-			std::cout << "Last - " << _buf << std::endl;;
+			// std::cout << "Last - " << _buf << std::endl;;
 			int i = 0;
 			while (i < ret){
 				_requestStr += _buf[i];

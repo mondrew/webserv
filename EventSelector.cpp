@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/18 00:50:52 by mondrew           #+#    #+#             */
-/*   Updated: 2021/04/30 11:12:12 by gjessica         ###   ########.fr       */
+/*   Updated: 2021/04/30 19:38:06 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -156,7 +156,7 @@ void			EventSelector::run() {
 			{
 				if ((*it)->getDeleteMe())
 				{
-					std::cout << "Remove " << (*it)->getSocket() << std::endl;
+					// std::cout << "Remove " << (*it)->getSocket() << std::endl;
 					(*it)->remove();
 					it = _socketOwnerSet.begin();
 				}
