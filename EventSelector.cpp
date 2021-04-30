@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   EventSelector.cpp                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
+/*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/18 00:50:52 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/31 13:54:23 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/04/30 11:12:12 by gjessica         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -134,7 +134,7 @@ void			EventSelector::run() {
 		else if (res == 0)
 		{
 			// Timeout exceeded
-			std::cout << "Timeout exceeded." << std::endl; 
+			std::cout << "Timeout exceeded." << std::endl;
 			continue ;
 		}
 		else
@@ -146,21 +146,17 @@ void			EventSelector::run() {
 				bool	w = FD_ISSET((*it)->getSocket(), &wrs);
 				if (r)
 					(*it)->handle();
-				// Fixing segfault
 				else if (w)
-				{
 					(*it)->handle();
-				}
-				// Segfault is here: if handle in Session was successfull
-				// we delete Session from everywhere (including _socketOwnerSet)
-				// and the last iteration of iterator leads to out of limit
-				// (access to the firbidden memory)
 			}
+
+			//usleep(1000);
 			for (std::list<ASocketOwner *>::iterator it = _socketOwnerSet.begin();
 												it != _socketOwnerSet.end(); it++)
 			{
 				if ((*it)->getDeleteMe())
 				{
+					std::cout << "Remove " << (*it)->getSocket() << std::endl;
 					(*it)->remove();
 					it = _socketOwnerSet.begin();
 				}

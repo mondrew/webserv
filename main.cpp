@@ -15,8 +15,8 @@
 #include "Util.hpp"
 
 bool	Util::printConfig = false;
-bool	Util::printRequests = false;
-bool	Util::printResponses = false;
+bool	Util::printRequests = true;
+bool	Util::printResponses = true;
 bool	Util::printSockets = false;
 bool	Util::printLocations = false;
 bool	Util::printServerAccepts = false;
