@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/20 15:53:09 by mondrew           #+#    #+#             */
-/*   Updated: 2021/04/30 09:20:03 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/04/30 21:46:47 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -126,6 +126,16 @@ bool 			HTTPRequest::setStartLineParam(std::string &line)
 		splitTargetAndCgiPathInfo();
 		// setCgiPathTranslated();
 	}
+
+	if (this->_method == PUT)
+	{
+		if ((pos = this->_target.find_last_of("/")) != std::string::npos)
+		{
+			this->_filename = this->_target.substr(pos + 1);
+			this->_target.erase(pos);
+		}
+	}
+
 
 	this->_protocolVersion = line.substr(line.find(" ") + 1);
 
@@ -382,6 +392,10 @@ std::string const	&HTTPRequest::getCgiPathTranslated(void) const {
 Session				*HTTPRequest::getSession(void) const {
 
 	return (this->_session);
+}
+
+std::string const	&HTTPRequest::getFilename(void) const {
+	return (this->_filename);
 }
 
 void				HTTPRequest::splitTargetAndCgiPathInfo(void) {

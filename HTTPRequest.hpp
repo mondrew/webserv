@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/20 15:48:48 by mondrew           #+#    #+#             */
-/*   Updated: 2021/04/30 09:14:53 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/04/30 21:46:05 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,7 @@ class HTTPRequest {
 		std::string		_queryString;
 		std::string		_cgiPathInfo;
 		std::string		_cgiPathTranslated;
+		std::string		_filename;
 
 		std::string		_protocolVersion;
 
@@ -137,6 +138,8 @@ class HTTPRequest {
 		int					getBodyLength(void) const;
 
 		Session				*getSession(void) const;
+
+		std::string const	&getFilename(void) const;
 
 		// SETTERS
 		int					setError(std::string const &str);
