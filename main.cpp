@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/18 09:20:58 by mondrew           #+#    #+#             */
-/*   Updated: 2021/04/30 10:27:40 by gjessica         ###   ########.fr       */
+/*   Updated: 2021/04/30 09:23:12 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@ bool	Util::printServerAccepts = false;
 bool	Util::printConnections = false;
 bool	Util::printRequestTarget = false;
 bool	Util::printRequestType = false;
-bool	Util::printCGIResponseString= false;
+bool	Util::printCGIResponseString = true;
 
 int		main(int argc, char **argv)
 {

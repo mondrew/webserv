@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/30 10:55:24 by mondrew           #+#    #+#             */
-/*   Updated: 2021/04/30 10:53:40 by gjessica         ###   ########.fr       */
+/*   Updated: 2021/04/30 08:17:34 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,7 @@
 # include <cmath>
 # include <sstream>
 # include <list>
+# include <cstdlib>
 
 # define NOT_LIMIT -1
 
@@ -365,7 +366,7 @@ class Util
 			if (found == std::string::npos)
 				return ("80");
 			else
-				return (host.substr(found));
+				return (host.substr(found + 1));
 		}
 
 		static std::string			decodeUriEncoded(std::string str) {
@@ -636,6 +637,45 @@ class Util
 			if (!mime.compare("video/x-ms-wmv")) return "wmv";
 			if (!mime.compare("video/x-msvideo")) return "avi";
 			return "unk";
+		}
+
+		static void			freeTwoDimentionalArray(const char **array)
+		{
+			for (int i = 0; array[i]; i++)
+				free(const_cast<void *>(static_cast<const void *>(array[i])));
+			free(array);
+		}
+
+		static bool			isKey(std::string const &line, std::string const &key) {
+
+			return (toLower(line).find(toLower(key)) == 0);
+		}
+
+		static std::string	getValue(std::string const &line, std::string const &key) {
+			
+			std::size_t		pos = toLower(line).find(toLower(key));
+			std::string		ret;
+
+			if (pos == std::string::npos)
+				return ("");
+			ret = line.substr(pos + key.length());
+			if ((pos = ret.find(":")) == std::string::npos)
+				return ("");
+			ret.erase(0, pos);
+			ret = Util::removeLeadingWhitespaces(ret);
+			return (ret);
+		}
+
+		static std::string	toLower(std::string const &line) {
+
+			std::string		lowStr = line;
+
+			for (std::size_t i = 0; i < lowStr.length(); i++)
+			{
+				if (lowStr[i] >= 'A' && lowStr[i] <= 'Z')
+					lowStr[i] = lowStr[i] + ('a' - 'A');
+			}
+			return (lowStr);
 		}
 };
 

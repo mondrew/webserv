@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/20 15:53:09 by mondrew           #+#    #+#             */
-/*   Updated: 2021/04/26 14:57:48 by gjessica         ###   ########.fr       */
+/*   Updated: 2021/04/30 09:20:03 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,10 +46,12 @@ void			HTTPRequest::setBody(std::string const &str) {
 	this->_body = str;
 }
 
-std::string		toLower(std::string str){
-	int len = str.length();
-	int i = 0;
-	char res[len+1];
+std::string		toLower(std::string const &str) {
+
+	int		len = str.length();
+	int		i = 0;
+	char	res[len + 1];
+
 	while (i < len)
 	{
 		if (str[i] >= 'A' && str[i] <= 'Z')
@@ -59,10 +61,10 @@ std::string		toLower(std::string str){
 		i++;
 	}
 	res[i] = '\0';
-	return res;
+	return (res);
 }
 
-int 			isKey(std::string line, std::string key)
+int 			isKey(std::string const &line, std::string const &key)
 {
 	return ((toLower(line)).find(toLower(key)) == 0);
 }
@@ -100,7 +102,10 @@ bool 			HTTPRequest::setStartLineParam(std::string &line)
 	}
 
 	line = line.substr(line.find("/"));
-	tmpTarget = line.substr(0, line.find(" "));
+	if ((pos = line.find(" ")) != std::string::npos)
+		tmpTarget = line.substr(0, pos);
+	else
+		return (false);
 
 	// std::cout << "tmpTarget in setStartLineParam: " << tmpTarget << std::endl; // debug 0-0-0
 
@@ -131,8 +136,7 @@ bool 			HTTPRequest::setStartLineParam(std::string &line)
 
 void			HTTPRequest::parseRequest(std::string const &str)
 {
-
-	std::istringstream	f( str);
+	std::istringstream	f(str);
 	std::string			line;
 
 	//Check first line - METHOD PATH PROTOCOL
@@ -182,7 +186,7 @@ void			HTTPRequest::parseRequest(std::string const &str)
 		{
 			while (std::getline(f, line))
 				this->_body += line + "\n";
-			this->_body = this->_body.substr(0, this->_body.size()-1);
+			this->_body = this->_body.substr(0, this->_body.size() - 1); // deletes last '\n'
 			if (!this->_body.empty() && this->_contentLength == 0)
 				this->_body = Util::unchunkData(this->_body);
 			break;
@@ -222,6 +226,8 @@ void			HTTPRequest::print(void) const
 	std::cout << "TransferEncoding = " << this->_transferEncoding << std::endl;
 	std::cout << "Body = " << (this->_body).c_str() << std::endl;
 	std::cout << "User-Agent = " << this->_userAgent << std::endl;
+	// std::cout << "CgiPathInfo = " << this->_cgiPathInfo << std::endl;
+	// std::cout << "CgiPathTranslated = " << this->_cgiPathTranslated << std::endl;
 }
 
 std::string const	&HTTPRequest::getError(void) const
@@ -380,16 +386,15 @@ Session				*HTTPRequest::getSession(void) const {
 
 void				HTTPRequest::splitTargetAndCgiPathInfo(void) {
 
-	std::string		tmp;
-	std::size_t		found;
+	std::string		tmp = this->_target;
+	std::size_t		pos;
 
-	if ((found = this->_target.find("cgi-bin/")) != std::string::npos)
+	if ((pos = this->_target.find("cgi-bin/")) != std::string::npos)
 	{
-		tmp = this->_target.substr(found + 8);
-		if ((found = tmp.find("/")) != std::string::npos)
+		if ((pos = this->_target.find("/", pos + 8)) != std::string::npos)
 		{
-			this->_target = tmp.substr(0, found);
-			this->_cgiPathInfo = tmp.substr(found);
+			this->_target = tmp.substr(0, pos);
+			this->_cgiPathInfo = tmp.substr(pos);
 		}
 	}
 }

@@ -6,7 +6,7 @@
 /*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/09 13:59:12 by mondrew           #+#    #+#             */
-/*   Updated: 2021/04/21 12:52:42 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/04/30 09:26:19 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,7 @@ CGIRequest::CGIRequest(HTTPRequest *request) : _httpRequest(request) {
 	_contentLength = "CONTENT_LENGTH=";
 	_gatewayInterface = "GATEWAY_INTERFACE=";
 	_pathInfo = "PATH_INFO=";
-	_pathTranslated = "PATH_TRANSLATED";
+	_pathTranslated = "PATH_TRANSLATED=";
 	_queryString = "QUERY_STRING=";
 	_remoteAddr = "REMOTE_ADDR=";
 	_remoteIdent = "REMOTE_IDENT=";
