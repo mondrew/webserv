@@ -6,7 +6,7 @@
 /*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/16 07:58:05 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/30 11:02:40 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/05/01 16:12:13 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,7 @@ class Server : public ASocketOwner {
 		std::string					_defaultErrorPage404;
 		std::vector<Location *>		_locationSet;
 		std::list<Session *>		_sessionSet;
-		std::map<int, std::string>	_errorMap;
+		std::map<int, std::string>	_pagesMap;
 
 		Server(void);
 
@@ -66,7 +66,7 @@ class Server : public ASocketOwner {
 		std::string const					&getDefaultErrorPage404(void) const;
 		std::vector<Location *> 			&getLocationSet(void);
 		std::list<Session *> const			&getSessionSet(void) const;
-		std::map<int, std::string> 			&getErrorMap(void);
+		std::map<int, std::string> 			&getPagesMap(void);
 
 		// Setters
 		void	addServerName(std::string const &server_name);

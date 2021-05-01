@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/20 15:53:09 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/01 00:27:47 by gjessica         ###   ########.fr       */
+/*   Updated: 2021/05/01 20:52:09 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -420,4 +420,12 @@ void				HTTPRequest::setCgiPathTranslated(void) {
 
 	this->_cgiPathTranslated = \
 			this->_session->getServerLocation()->getRoot() + this->_cgiPathInfo;
+}
+
+void				HTTPRequest::setContentLength(int contentLength) {
+	this->_contentLength = contentLength;
+}
+
+void				HTTPRequest::setTarget(std::string const &target) {
+	this->_target = target;
 }

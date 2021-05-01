@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/16 09:02:17 by mondrew           #+#    #+#             */
-/*   Updated: 2021/04/30 19:41:19 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/05/01 16:11:40 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,16 +23,18 @@ Server::Server(int a_socket) : ASocketOwner(a_socket),
 									_host("localhost"),
 									_port(80) {
 
-	_errorMap[400] = "./www/pages/400_BadRequest.html";
-	_errorMap[401] = "./www/pages/401_Unauthorized.html";
-	_errorMap[403] = "./www/pages/403_Forbidden.html";
-	_errorMap[404] = "./www/pages/404_NotFound.html";
-	_errorMap[405] = "./www/pages/405_MethodNotAllowed.html";
-	_errorMap[408] = "./www/pages/408_RequestTimeout.html";
-	_errorMap[500] = "./www/pages/500_InternalServerError.html";
-	_errorMap[501] = "./www/pages/501_NotImplemented.html";
-	_errorMap[503] = "./www/pages/503_ServiceUnavailable.html";
-	_errorMap[505] = "./www/pages/505_HTTPVersionNotSupported.html";
+	_pagesMap[302] = "./www/pages/302_Found.html";
+	_pagesMap[307] = "./www/pages/302_TemporatyRedirect.html";
+	_pagesMap[400] = "./www/pages/400_BadRequest.html";
+	_pagesMap[401] = "./www/pages/401_Unauthorized.html";
+	_pagesMap[403] = "./www/pages/403_Forbidden.html";
+	_pagesMap[404] = "./www/pages/404_NotFound.html";
+	_pagesMap[405] = "./www/pages/405_MethodNotAllowed.html";
+	_pagesMap[408] = "./www/pages/408_RequestTimeout.html";
+	_pagesMap[500] = "./www/pages/500_InternalServerError.html";
+	_pagesMap[501] = "./www/pages/501_NotImplemented.html";
+	_pagesMap[503] = "./www/pages/503_ServiceUnavailable.html";
+	_pagesMap[505] = "./www/pages/505_HTTPVersionNotSupported.html";
 	return ;
 }
 
@@ -208,9 +210,9 @@ std::list<Session *> const		&Server::getSessionSet(void) const {
 	return (this->_sessionSet);
 }
 
-std::map<int, std::string> 		&Server::getErrorMap(void) {
+std::map<int, std::string> 		&Server::getPagesMap(void) {
 
-	return (this->_errorMap);
+	return (this->_pagesMap);
 }
 
 // Setters

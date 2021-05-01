@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/17 23:06:28 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/01 01:08:13 by gjessica         ###   ########.fr       */
+/*   Updated: 2021/05/01 21:01:01 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,11 @@ class Session : public ASocketOwner {
 		Server			*_theMaster;
 		HTTPRequest		*_request;
 		HTTPResponse	*_response;
+
+		CGIRequest		*_cgiRequest;
+		CGIResponse		*_cgiResponse;
+
+		std::string		_requestFile; // should set this name in makePOST or makePUT
 
 		Location		*_serverLocation;
 		int				_remoteAddr;
@@ -90,14 +95,20 @@ class Session : public ASocketOwner {
 		void			makePOSTResponse(void);
 		void			makePUTResponse(void);
 		void			makeCGIResponse(void);
+		void			makeRedirectionResponse(std::string const &path, \
+								int statusCode, std::string const &statusText);
 		void			checkNeedToRead(void);
 
 		const char		**createArgv(void);
 		const char		**createEnvp(CGIRequest *cgiRequest);
 
 		// GETTERS
-		int				getRemoteAddr(void) const;
-		Location		*getServerLocation(void) const;
+		int					getRemoteAddr(void) const;
+		Location			*getServerLocation(void) const;
+		std::string const	&getRequestFile(void) const;
+
+		// SETTERS
+		void				setRequestFile(std::string const &requestFile);
 };
 
 #endif
