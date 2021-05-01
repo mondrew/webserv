@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/17 23:06:28 by mondrew           #+#    #+#             */
-/*   Updated: 2021/04/29 23:17:48 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/05/01 01:08:13 by gjessica         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,6 +90,7 @@ class Session : public ASocketOwner {
 		void			makePOSTResponse(void);
 		void			makePUTResponse(void);
 		void			makeCGIResponse(void);
+		void			checkNeedToRead(void);
 
 		const char		**createArgv(void);
 		const char		**createEnvp(CGIRequest *cgiRequest);

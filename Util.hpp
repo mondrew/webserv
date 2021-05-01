@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/30 10:55:24 by mondrew           #+#    #+#             */
-/*   Updated: 2021/04/30 08:17:34 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/05/01 01:08:26 by gjessica         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -652,7 +652,7 @@ class Util
 		}
 
 		static std::string	getValue(std::string const &line, std::string const &key) {
-			
+
 			std::size_t		pos = toLower(line).find(toLower(key));
 			std::string		ret;
 

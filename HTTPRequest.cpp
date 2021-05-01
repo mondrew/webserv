@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/20 15:53:09 by mondrew           #+#    #+#             */
-/*   Updated: 2021/04/30 21:46:47 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/05/01 00:27:47 by gjessica         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -197,11 +197,13 @@ void			HTTPRequest::parseRequest(std::string const &str)
 			while (std::getline(f, line))
 				this->_body += line + "\n";
 			this->_body = this->_body.substr(0, this->_body.size() - 1); // deletes last '\n'
-			if (!this->_body.empty() && this->_contentLength == 0)
-				this->_body = Util::unchunkData(this->_body);
+			// if (!this->_body.empty() && this->_contentLength == 0)
+			// 	this->_body = Util::unchunkData(this->_body);
 			break;
 		}
     }
+	if (this->_transferEncoding == "chunked")
+			this->_body = Util::unchunkData(this->_body);
 	// setCgiPathInfo();
 	// setCgiPathTranslated();
 }
