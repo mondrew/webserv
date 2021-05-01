@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/17 23:10:08 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/01 22:55:49 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/05/01 23:12:04 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -389,9 +389,12 @@ void			Session::makeCGIResponse(void) {
 		dup2(pipefd[1], STDOUT_FILENO);
 	close(pipefd[1]); // !!!!!!!!! - IT MAY BE CRITICAL!!! DON'T TOUCH
 
-	std::ifstream	ifs(this->getRequestFile().c_str());
-	std::cout << ifs.rdbuf();
-	ifs.close();
+	if (!this->getRequestFile().empty())
+	{
+		std::ifstream	ifs(this->getRequestFile().c_str());
+		std::cout << ifs.rdbuf();
+		ifs.close();
+	}
 
 	// Save stdin fd (WRONG!!!)
 	// saveStdInFd = dup(STDIN_FILENO);
