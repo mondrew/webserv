@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/17 23:06:28 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/01 21:01:01 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/05/01 22:23:24 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,6 +82,7 @@ class Session : public ASocketOwner {
 		bool			isValidRequestAllow(void) const;
 		bool			isValidRequestHost(void) const;
 		bool			isValidPermissions(void) const;
+		bool			isValidBodySize(void) const;
 		bool			isCGI(void) const;
 		virtual bool	getDeleteMe(void) const;
 		virtual void	remove(void);

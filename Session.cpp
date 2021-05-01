@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/17 23:10:08 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/01 21:32:45 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/05/01 22:55:49 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -149,6 +149,14 @@ bool		Session::isValidPermissions(void) const {
 	return (Util::isAllowedToRead(this->_responseFilePath));
 }
 
+bool		Session::isValidBodySize(void) const {
+
+	if (this->_serverLocation->getMaxBody() != NOT_LIMIT)
+		return (static_cast<long>(this->_request->getBody().size()) <= \
+										this->_serverLocation->getMaxBody());
+	return (true);
+}
+
 bool		Session::isCGI(void) const {
 
 	return (Util::isCGI(this->_responseFilePath));
@@ -188,6 +196,8 @@ bool		Session::fillErrorResponse(int code) {
 		_response->setStatusText("Method Not Allowed");
 	else if (code == 408)
 		_response->setStatusText("Request Timeout");
+	else if (code == 413)
+		_response->setStatusText("Request Entity Too Large");
 	else if (code == 500)
 		_response->setStatusText("Internal Server Error");
 	else if (code == 501)
@@ -210,12 +220,14 @@ bool		Session::isValidRequest(void) {
 		return (fillErrorResponse(501));
 	else if (!_request->isValid() || !this->isValidRequestHost())
 		return (fillErrorResponse(400));
-	else if (!isValidRequestTarget())
+	else if (!isValidRequestTarget()) // also sets some fields. Not OOP style
 		return (fillErrorResponse(404));
 	else if (!isValidRequestAllow())
 		return (fillErrorResponse(405));
 	else if (!isValidPermissions())
 		return (fillErrorResponse(403));
+	else if (!isValidBodySize())
+		return (fillErrorResponse(413));
 	return (true);
 }
 

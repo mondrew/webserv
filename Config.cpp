@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/18 10:27:07 by mondrew           #+#    #+#             */
-/*   Updated: 2021/04/05 09:51:56 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/05/01 22:53:04 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -155,7 +155,7 @@ Location 		*Config::parseLocation(std::ifstream &file, std::string &partStr)
 			location->setCgiPath(partStr);
 		}
 	}
-	return location;
+	return (location);
 }
 
 Server 			*Config::parseServer(std::ifstream &file, std::string &partStr)

@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/16 09:02:17 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/01 16:11:40 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/05/01 22:01:00 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,7 @@ Server::Server(int a_socket) : ASocketOwner(a_socket),
 	_pagesMap[404] = "./www/pages/404_NotFound.html";
 	_pagesMap[405] = "./www/pages/405_MethodNotAllowed.html";
 	_pagesMap[408] = "./www/pages/408_RequestTimeout.html";
+	_pagesMap[413] = "./www/pages/413_RequestEntityTooLarge.html";
 	_pagesMap[500] = "./www/pages/500_InternalServerError.html";
 	_pagesMap[501] = "./www/pages/501_NotImplemented.html";
 	_pagesMap[503] = "./www/pages/503_ServiceUnavailable.html";
