@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/18 11:14:42 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/24 12:42:57 by gjessica         ###   ########.fr       */
+/*   Updated: 2021/05/01 01:05:46 by gjessica         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,9 @@
 # define ERROR_BIND 3
 # define ERROR_LISTEN 4
 # define ERROR_CONFIG_PARSE 5
+# define TEXT_RED "[1;31m"
+# define TEXT_GREEN "[1;32m"
+# define TEXT_DEFAULT "[0m"
 
 class Logger {
 
@@ -58,6 +61,12 @@ class Logger {
 		{
 			std::cout << msg << "\n";
 			return (0);
+		}
+
+		void static log(std::string title, std::string body, std::string color){
+			std::cout << "\n\033" << color << "================== " << title << " START ================== \033[0m" << std::endl;
+			std::cout << body << std::endl;
+			std::cout << "\033" << color << "================== " << title << " END ==================== \033[0m" << std::endl;
 		}
 };
 

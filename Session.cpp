@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/17 23:10:08 by mondrew           #+#    #+#             */
-/*   Updated: 2021/04/30 21:56:48 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/05/01 17:28:19 by gjessica         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -569,6 +569,7 @@ void		Session::makePOSTResponse(void) {
 	_response->setAllow(_serverLocation->getLimitExcept());
 	_response->setLocation(this->_responseFilePath);
 	_response->setBody("");
+	_response->setContentLength(0);
 
 	if (isCGI())
 		makeCGIResponse();
@@ -587,15 +588,31 @@ void		Session::makePOSTResponse(void) {
 
 void		Session::makePUTResponse(void) {
 
-	if (_request->getContentLength() == 0 && !_request->getBody().empty())
-		_request->setBody(Util::unchunkData(_request->getBody()));
-
-	// Save file to ./www/upload
+	//std::cout << _request->getFilename() << " | "<< _serverLocation->getRoot() << std::endl;
+	std::ofstream outfile (_serverLocation->getRoot() + "/upload/" + _request->getFilename());
+	outfile << _request->getBody();
+	outfile.close();
 	_response->setStatusCode(201);
 	_response->setStatusText("Created");
-	// OR
-	// _response->setStatusCode(204);
-	// _response->setStatusText("No Content");
+	_response->setTransferEncoding(_request->getTransferEncoding());
+	_response->setAllow(_serverLocation->getLimitExcept());
+	_response->setLocation(this->_responseFilePath);
+	_response->setBody("");
+	_response->setContentLength(0);
+
+	if (isCGI())
+		makeCGIResponse();
+	else
+	{
+		// std::string conType = _request->getContentType();
+		// if (Util::getTypeByMime(conType) != "unk")
+		// {
+		// 	std::string filename = createFileUpload(Util::getTypeByMime(conType), _request->getBody());
+		// 	_response->setStatusCode(201);
+		// 	_response->setStatusText("Created");
+		// 	_response->setLocation("./www/upload/" + filename);
+		// }
+	}
 }
 
 void		Session::generateResponse(void) {
@@ -615,7 +632,7 @@ void		Session::generateResponse(void) {
 		else if (_request->getMethod() == POST)
 			makePOSTResponse();
 		else if (_request->getMethod() == PUT)
-			makePOSTResponse();
+			makePUTResponse();
 	}
 	responseToString();
 }
@@ -649,11 +666,7 @@ void		Session::responseToString(void) {
 	_responseStr = oss.str();
 
 	if (Util::printResponses)
-	{
-		std::cout << "=====================Response START==================" << std::endl;
-		std::cout << _responseStr;
-		std::cout << "=====================Repsonse END====================" << std::endl;
-	}
+		Logger::log("Response", _responseStr, TEXT_RED);
 }
 
 void		Session::setRequestCgiPathTranslated(void) const {
@@ -667,70 +680,53 @@ void		Session::remove(void) {
 	_theMaster->removeSession(this);
 }
 
+void		Session::checkNeedToRead()
+{
+	if (_requestStr.find("Transfer-Encoding: chunked") !=  std::string::npos)
+	{
+		if (_requestStr.find("0\r\n\r\n") != std::string::npos)
+		{
+			if (Util::printRequests)
+				Logger::log("HTTPRequest", _requestStr, TEXT_GREEN);
+			setWantToRead(false);
+			setWantToWrite(true);
+			generateResponse();
+		}
+	}
+	else if (_requestStr.find("\r\n\r\n") != std::string::npos)
+	{
+		if (Util::printRequests)
+			Logger::log("HTTPRequest", _requestStr, TEXT_GREEN);
+		setWantToRead(false);
+		setWantToWrite(true);
+		generateResponse();
+	}
+}
+
 // MONDREW handle
 void		Session::handle(void) {
 
 	ssize_t		ret;
+	int 		i = 0;
 
-	if (getWantToRead() == true)
+	if (getWantToRead())
 	{
-		//memset(_buf, 0, BUFFER_SIZE+1);
-		// std::cout << "NEW" << std::endl;
 		ret = recv(_socket, _buf, BUFFER_SIZE, 0);
 		if (ret < 0)
 		{
 			std::cout << "Error read\n";
 			// Exceptions will be better!
 		}
-		else if (ret == 0 || ret < BUFFER_SIZE)
-		{
-			// EOF reached
-			_buf[ret] = '\0';
-			// std::cout << "Last - " << _buf << std::endl;;
-			int i = 0;
-			while (i < ret){
-				_requestStr += _buf[i];
-				i++;
-			}
-			if (_requestStr.find("\r\n\r\n") != std::string::npos)
-			{
-				if (Util::printRequests)
-				{
-					std::cout << "================== HTTPRequest - START ===================\n";
-					std::cout << _requestStr << std::endl;
-					// _request->print(); // wrong! we don't have instance of HTTPRequest class yet!!!
-					std::cout << "================== HTTPRequest - END ===================\n";
-				}
-				setWantToRead(false);
-				setWantToWrite(true);
-				generateResponse();
-			}
-		}
 		else
 		{
-			_buf[ret] = '\0';
-			//std::cout << _buf << std::endl;;
-			int i = 0;
 			while (i < ret){
 				_requestStr += _buf[i];
 				i++;
 			}
-			if (_requestStr.find("\r\n\r\n") != std::string::npos)
-			{
-				if (Util::printRequests)
-				{
-					std::cout << "================== HTTPRequest - START ===================\n";
-					std::cout << _requestStr << std::endl;
-					// _request->print(); // wrong! we don't have instance of HTTPRequest class yet!!!
-					std::cout << "================== HTTPRequest - END ===================\n";
-				}
-				setWantToRead(false);
-				setWantToWrite(true);
-				generateResponse();
-			}
+			checkNeedToRead();
 		}
 	}
-	else if (getWantToWrite() == true)
+	else if (getWantToWrite())
 	{
 		if (!_responseStr.empty())
 		{
