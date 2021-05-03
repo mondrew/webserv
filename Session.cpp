@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/17 23:10:08 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/01 23:12:04 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/05/03 11:53:56 by gjessica         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -383,7 +383,7 @@ void			Session::makeCGIResponse(void) {
 		exit(0);
 	}
 	// Parent
-	
+
 	// If it is POST -> then we should send the POST body to stdin for CGI script
 	if (this->_request->getMethod() == POST)
 		dup2(pipefd[1], STDOUT_FILENO);
@@ -719,19 +719,30 @@ void		Session::makePOSTResponse(void) {
 	_response->setBody("");
 	_response->setContentLength(0);
 
+	if (!_request->getBody().empty())
+	{
+		std::string conType = _request->getContentType();
+		std::string filePath = "./www/upload/" + createFileUpload(Util::getTypeByMime(conType), _request->getBody());
+		_requestFile = filePath;
+		//std::cout << _requestFile << std::endl;
+	}
+
 	if (isCGI())
 		makeCGIResponse();
 	else
 	{
-		std::string conType = _request->getContentType();
-		if (Util::getTypeByMime(conType) != "unk")
-		{
-			std::string filename = \
-				createFileUpload(Util::getTypeByMime(conType), _request->getBody());
-			_response->setStatusCode(201);
-			_response->setStatusText("Created");
-			_response->setLocation("./www/upload/" + filename);
-		}
+		_response->setStatusCode(201);
+		_response->setStatusText("Created");
+		_response->setLocation(_requestFile);
+		// std::string conType = _request->getContentType();
+		// if (Util::getTypeByMime(conType) != "unk")
+		// {
+		// 	std::string filename = \
+		// 		createFileUpload(Util::getTypeByMime(conType), _request->getBody());
+		// 	_response->setStatusCode(201);
+		// 	_response->setStatusText("Created");
+		// 	_response->setLocation("./www/upload/" + filename);
+		// }
 	}
 }
 
