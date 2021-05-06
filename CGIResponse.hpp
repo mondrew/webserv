@@ -6,7 +6,7 @@
 /*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/09 15:16:21 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/01 20:33:06 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/05/06 11:26:49 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@ class CGIResponse {
 		std::string		_status;
 		int				_statusCode;
 		std::string		_statusText;
+		int				_contentLength;
 		std::string		_body;
 
 		CGIResponse(CGIResponse const &src);
@@ -35,9 +36,11 @@ class CGIResponse {
 		~CGIResponse(void);
 
 		void				parseCGIResponse(std::string const &str);
+		void				print(void) const;
 
 		// Getters
 		std::string const	&getContentType(void) const;
+		int					getContentLength(void) const;
 		std::string const	&getLocation(void) const;
 		std::string const	&getStatus(void) const;
 		int					getStatusCode(void) const;
@@ -46,6 +49,7 @@ class CGIResponse {
 
 		// Setters
 		void				setContentType(std::string const &contentType);
+		void				setContentLength(int contentLength);
 		void				setLocation(std::string const &location);
 		void				setStatus(std::string const &status);
 		void				setBody(std::string const &body);

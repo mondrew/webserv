@@ -6,7 +6,7 @@
 /*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/09 15:19:55 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/01 20:38:00 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/05/06 11:41:45 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,17 @@
 #include <iostream>
 #include "Util.hpp"
 #include <cstdlib>
+#include <stdlib.h>
 
 CGIResponse::CGIResponse(void) {
+
+	_contentType = "";
+	_location = "";
+	_status = "";
+	_statusCode = 0;
+	_statusText = "";
+	_contentLength = 0;
+	_body = "";
 
 	return ;
 }
@@ -39,6 +48,8 @@ void				CGIResponse::parseCGIResponse(std::string const &str) {
 			this->_contentType = Util::getValue(line, "Content-type");
 		else if (Util::isKey(line, "Location"))
 			this->_location = Util::getValue(line, "Location");
+		else if (Util::isKey(line, "Content-Length"))
+			this->_contentLength = atoi(Util::getValue(line, "Content-Length").c_str());
 		else if (Util::isKey(line, "Status"))
 		{
 			this->_status = Util::getValue(line, "Status");
@@ -59,9 +70,23 @@ void				CGIResponse::parseCGIResponse(std::string const &str) {
 	}
 }
 
+void				CGIResponse::print(void) const {
+	
+	std::cerr << "_contentType: " << _contentType << std::endl;
+	std::cerr << "_location: " << _location << std::endl;
+	std::cerr << "_status: " << _status << std::endl;
+	std::cerr << "_contentLength: " << _contentLength << std::endl;
+	std::cerr << "_body: " << _body << std::endl;
+}
+
 std::string const	&CGIResponse::getContentType(void) const {
 
 	return (this->_contentType);
+}
+
+int					CGIResponse::getContentLength(void) const {
+
+	return (this->_contentLength);
 }
 
 std::string const	&CGIResponse::getLocation(void) const {
@@ -92,6 +117,11 @@ std::string const	&CGIResponse::getBody(void) const {
 void				CGIResponse::setContentType(std::string const &contentType) {
 
 	this->_contentType = contentType;
+}
+
+void				CGIResponse::setContentLength(int contentLength) {
+
+	this->_contentLength = contentLength;
 }
 
 void				CGIResponse::setLocation(std::string const &location) {

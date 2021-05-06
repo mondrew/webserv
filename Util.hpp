@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/30 10:55:24 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/01 01:08:26 by gjessica         ###   ########.fr       */
+/*   Updated: 2021/05/04 22:40:11 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -661,7 +661,7 @@ class Util
 			ret = line.substr(pos + key.length());
 			if ((pos = ret.find(":")) == std::string::npos)
 				return ("");
-			ret.erase(0, pos);
+			ret.erase(0, pos + 1);
 			ret = Util::removeLeadingWhitespaces(ret);
 			return (ret);
 		}

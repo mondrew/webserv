@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/17 23:10:08 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/03 11:53:56 by gjessica         ###   ########.fr       */
+/*   Updated: 2021/05/06 12:18:25 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,7 +67,7 @@ bool		Session::isValidRequestTarget(void) {
 	std::string		fullPath;
 	std::string		cleanPath;
 
-	if (Util::getLastChar(reqPath) == '/')
+	if (Util::getLastChar(reqPath) == '/' && reqPath.compare("/") != 0)
 		reqPath = Util::removeLastPath(reqPath); // for removing '/' at the end
 
 	// Check is there such Location in the config file
@@ -78,6 +78,26 @@ bool		Session::isValidRequestTarget(void) {
 	{
 		if ((*it)->isContainedInPath(reqPath))
 		{
+			// '/' | '/test.bla' | '/directory'
+			cleanPath = reqPath.substr(((*it)->getLocationPath()).size());
+			if (!cleanPath.empty() && cleanPath[0] != '/')
+				cleanPath.insert(0, "/");
+			fullPath = (*it)->getRoot() + cleanPath;
+			if (Util::exists(fullPath))
+			{
+				this->_serverLocation = *it;
+				isValidFolder = true;
+				if ((*it)->getLocationPath().compare("/") != 0 || \
+												!Util::isDirectory(fullPath))
+					break ;
+			}
+			// this->_serverLocation = *it;
+			// isValidFolder = true;
+		}
+		/*
+		if ((*it)->isContainedInPath(reqPath))
+		{
+			std::cout << "==========>!!!!!!!!!!" << std::endl; // debug
 			cleanPath = reqPath.erase(0, ((*it)->getLocationPath()).size());
 			this->_serverLocation = *it;
 			if (!cleanPath.empty() && cleanPath[0] != '/')
@@ -86,6 +106,7 @@ bool		Session::isValidRequestTarget(void) {
 			isValidFolder = true;
 			break ;
 		}
+		*/
 	}
 	if (!isValidFolder)
 		return (false);
@@ -303,6 +324,19 @@ const char		**Session::createEnvp(CGIRequest *cgiRequest) {
 		i++;
 	}
 	envp[16] = 0;
+
+	// Print ENVP
+	/*
+	int		j = 0;
+	while (envp[j])
+	{
+		if (j != 3)
+			std::cerr << envp[j] << std::endl;
+		j++;
+	}
+	std::cerr << "!j!: " << j << std::endl; // debug
+	*/
+
 	return (const_cast<const char **>(envp));
 }
 
@@ -310,7 +344,17 @@ void			Session::makeCGIResponse(void) {
 
 	pid_t				pid;
 	int					pipefd[2];
+	// int					pipefdEx[2];
 	std::ostringstream	oss;
+
+	///////////////// NEW ////////// FOR TEST ////////////////////////////////////
+	if (this->_request->getTarget().find(".bla") != std::string::npos && \
+											this->_request->getMethod() == POST)
+	{
+		// this->_responseFilePath = "./www/cgi-bin/reader.cgi"; //////////////!!!
+		this->_responseFilePath = "./www/cgi-bin/ubuntu_cgi_tester"; //////////////!!!
+	}
+	///////////////// NEW ////////// FOR TEST ////////////////////////////////////
 
 	if (this->_request->getContentType().find(\
 				"application/x-www-form-urlencoded") != std::string::npos)
@@ -318,6 +362,19 @@ void			Session::makeCGIResponse(void) {
 		this->_request->setBody(Util::decodeUriEncoded(this->_request->getBody()));
 		this->_request->setContentLength(this->_request->getBody().length());
 	}
+
+	//???/////////////////////////////////////////////////////
+	if (!this->getRequestFile().empty())
+	{
+		/*
+		std::ifstream	ifs(this->getRequestFile().c_str());
+		std::cout << ifs.rdbuf() << std::endl; // I've spent 5 hours fixing this
+		close(STDOUT_FILENO); // I've spent 6 hours for that
+		ifs.close();
+		*/
+		this->_request->setCgiPathInfo(this->_request->getBody());
+	}
+	///////////////////////////////////////////////////////
 
 	this->_cgiRequest = new CGIRequest(this->_request);
 	this->_cgiResponse = new CGIResponse();
@@ -333,6 +390,15 @@ void			Session::makeCGIResponse(void) {
 		std::cout << "Pipe failed" << std::endl;
 		// Internal Server Error
 	}
+
+	/*//////////////////////////
+	if (pipe(pipefdEx) == -1)
+	{
+		std::cout << "Pipe failed" << std::endl;
+		// Internal Server Error
+	}
+	*///////////////////
+
 	if ((pid = fork()) == -1)
 	{
 		std::cout << "Fork failed" << std::endl;
@@ -340,14 +406,24 @@ void			Session::makeCGIResponse(void) {
 	}
 	if (pid == 0)
 	{
-		// Child
+		// Child == Child == Child == Child == Child == Child == Child == Child == Child == Child //
 		// Close IN pipe side - we should read from stdin
+		/*
 		if (this->_request->getMethod() == POST)
 			dup2(pipefd[0], STDIN_FILENO);
 		close(pipefd[0]); // !!!!!!!!! - IT MAY BE CRITICAL!!!
+		*/
 
+		// NEW
+		/*
+		close(pipefdEx[1]);
+		dup2(pipefdEx[0], STDIN_FILENO);
+		close(pipefdEx[0]);
+		*/
+		// END NEW
 
 		// Make STDOUT be the copy of the pipefd[1] (out pipe end)
+		close(pipefd[0]);
 		dup2(pipefd[1], STDOUT_FILENO);
 		close(pipefd[1]);
 
@@ -373,50 +449,78 @@ void			Session::makeCGIResponse(void) {
 		// 		it MUST check CONTENT_LENGTH and CONTENT_TYPE
 		// 		- check Content-Type header: if 'application/x-www-form-urlencoded' -> decode body
 
-		int retex = execve(_responseFilePath.c_str(), \
+		std::cerr << "Child STARTS EXECVE <+++++++++=====" << std::endl; // debug
+		execve(_responseFilePath.c_str(), \
 			const_cast<char *const *>(argv), const_cast<char *const *>(envp));
-		std::cerr << "retex: " << retex << std::endl; // debug
 
 		Util::freeTwoDimentionalArray(argv);
 		Util::freeTwoDimentionalArray(envp);
 
 		exit(0);
 	}
-	// Parent
+	// Parent ==  Parent == Parent == Parent == Parent == Parent == Parent == Parent == Parent //
+	int		saveOut = 98;
+	int		saveIn = 99;
+	dup2(STDOUT_FILENO, saveOut);
+	dup2(STDIN_FILENO, saveIn);
 
 	// If it is POST -> then we should send the POST body to stdin for CGI script
+	/*
 	if (this->_request->getMethod() == POST)
 		dup2(pipefd[1], STDOUT_FILENO);
 	close(pipefd[1]); // !!!!!!!!! - IT MAY BE CRITICAL!!! DON'T TOUCH
+	*/
 
-	if (!this->getRequestFile().empty())
-	{
-		std::ifstream	ifs(this->getRequestFile().c_str());
-		std::cout << ifs.rdbuf();
-		ifs.close();
-	}
-
-	// Save stdin fd (WRONG!!!)
-	// saveStdInFd = dup(STDIN_FILENO);
-
+	// NEW
+	/*
+	close(pipefdEx[0]);
+	dup2(pipefdEx[1], STDOUT_FILENO);
+	close(pipefdEx[1]);
+	*/
+	// END NEW
+	
 	// Replace stdin with READ-END of the PIPE
+	close(pipefd[1]);
 	dup2(pipefd[0], STDIN_FILENO);
 	close(pipefd[0]);
 
-	// restore stdin (WRONG!!!)
-	// dup2(saveStdInFd, STDIN_FILENO);
+	////////////////////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////////////////////
+	// FOR TEST NO NEED TO SEND TO STDIN TO CGI SCRIPT THE FILE WE RECEIVED???
+	if (!this->getRequestFile().empty())
+	{
+		/*
+		std::ifstream	ifs(this->getRequestFile().c_str());
+		std::cout << ifs.rdbuf() << std::endl; // I've spent 5 hours fixing this
+		close(STDOUT_FILENO); // I've spent 6 hours for that
+		ifs.close();
+		*/
+		// this->_request->setCgiPathInfo(this->_request->getBody());
+	}
 
+	// usleep
+	std::cerr << "Parent STARTS READING <+++++++++=====" << std::endl; // debug
 	oss << std::cin.rdbuf();
 	oss << std::endl;
+	std::cerr << "Parent FINISHED READING <+++++++++=====" << std::endl; // debug
+
+	// Restore STDIN_FILENO & STDOUT_FILENO
+	dup2(saveOut, STDOUT_FILENO);
+	dup2(saveIn, STDIN_FILENO);
 
 	if (Util::printCGIResponseString) {
 		std::cout << "-----= [ Pure CGI Response String From Child ] =-----" << std::endl;
-		std::cout << "[CGI_STRING]: " << oss.str();
+		std::cout << "[CGI_STRING]: " << oss.str() << std::endl;
 		std::cout << "-----= [ END CGI Response String ] =-----" << std::endl;
 		std::cout << std::endl;
 	}
 
 	_cgiResponse->parseCGIResponse(oss.str());
+
+	//
+	_cgiResponse->print();
+	//
 
 	// Check the Redirection cases
 	if (!_cgiResponse->getLocation().empty())
@@ -458,15 +562,23 @@ void			Session::makeCGIResponse(void) {
 		}
 	}
 
-	this->_response->setStatusCode(this->_cgiResponse->getStatusCode());
-	this->_response->setStatusText(this->_cgiResponse->getStatusText());
+	if (!this->_cgiResponse->getStatus().empty())
+	{
+		this->_response->setStatusCode(this->_cgiResponse->getStatusCode());
+		this->_response->setStatusText(this->_cgiResponse->getStatusText());
+	}
 	if (!this->_cgiResponse->getContentType().empty())
 		this->_response->setContentType(this->_cgiResponse->getContentType());
 	else
 		this->_response->setContentType("text/html");
 
-	this->_response->setBody(_cgiResponse->getBody());
-	this->_response->setContentLength(_response->getBody().length());
+	if (!this->_cgiResponse->getBody().empty())
+		this->_response->setBody(_cgiResponse->getBody());
+	if (this->_cgiResponse->getContentLength() != 0)
+		this->_response->setContentLength(this->_cgiResponse->getContentLength());
+	else
+		this->_response->setContentLength(_cgiResponse->getBody().length()); // !!!
+	// !!! МОЖЕТ СКРИПТ ВОЗВРАЩАЕТ CONTENT_LENGTH!!!
 	this->_response->setContentLocation(this->_responseFilePath);
 
 	// Change it: get info from CGI
@@ -695,17 +807,15 @@ std::string		generateFilename()
 	return res;
 }
 
-std::string		createFileUpload(std::string const &exp, std::string const &body){
-	std::string filename;
+std::string		createFileUpload(std::string const &exp, std::string const &body) {
 
-	filename = generateFilename();
-
-	std::string tmp = "./www/upload/" + filename + "." + exp;
-	std::ofstream outfile(tmp.c_str());
+	std::string		filename = generateFilename();
+	std::string 	tmp = "./www/upload/" + filename + "." + exp;
+	std::ofstream	outfile(tmp.c_str());
 
 	outfile << body;
 	outfile.close();
-	return filename + "." + exp;
+	return (filename + "." + exp);
 }
 
 void		Session::makePOSTResponse(void) {
@@ -721,13 +831,13 @@ void		Session::makePOSTResponse(void) {
 
 	if (!_request->getBody().empty())
 	{
-		std::string conType = _request->getContentType();
-		std::string filePath = "./www/upload/" + createFileUpload(Util::getTypeByMime(conType), _request->getBody());
+		std::string		conType = _request->getContentType();
+		std::string		filePath = "./www/upload/" + \
+			createFileUpload(Util::getTypeByMime(conType), _request->getBody());
 		_requestFile = filePath;
-		//std::cout << _requestFile << std::endl;
+		// std::cout << _requestFile << std::endl;
 	}
-
-	if (isCGI())
+	if (isCGI() || this->_request->getTarget().find(".bla") != std::string::npos) // NEW
 		makeCGIResponse();
 	else
 	{
@@ -875,6 +985,11 @@ void		Session::checkNeedToRead()
 // MONDREW handle
 void		Session::handle(void) {
 
+	/*
+	static int j = 0;
+	std::cout << "|" << j++ <<  "|" << std::endl;
+	*/
+
 	ssize_t		ret;
 	int 		i = 0;
 
@@ -888,7 +1003,8 @@ void		Session::handle(void) {
 		}
 		else
 		{
-			while (i < ret){
+			while (i < ret)
+			{
 				_requestStr += _buf[i];
 				i++;
 			}

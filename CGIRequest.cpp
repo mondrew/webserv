@@ -6,7 +6,7 @@
 /*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/09 13:59:12 by mondrew           #+#    #+#             */
-/*   Updated: 2021/04/30 09:26:19 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/05/06 12:12:35 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,6 +69,7 @@ CGIRequest::CGIRequest(HTTPRequest *request) : _httpRequest(request) {
 	}
 	this->_gatewayInterface += "CGI/1.1";
 	this->_pathInfo += this->_httpRequest->getCgiPathInfo();
+	
 	this->_pathTranslated += this->_httpRequest->getCgiPathTranslated();
 	this->_queryString += this->_httpRequest->getQueryString();
 	this->_remoteAddr += \

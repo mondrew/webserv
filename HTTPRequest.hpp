@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/20 15:48:48 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/01 20:47:59 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/05/05 15:20:27 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -145,6 +145,7 @@ class HTTPRequest {
 		int					setError(std::string const &str);
 		void				setBody(std::string const &str);
 		void				setCgiPathTranslated(void);
+		void				setCgiPathInfo(std::string const &str);
 		void				setContentLength(int contentLength);
 		void				setTarget(std::string const &target);
 

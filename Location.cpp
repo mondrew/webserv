@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/18 10:28:50 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/01 22:26:26 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/05/04 14:17:53 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,15 +46,14 @@ Location	&Location::operator=(Location const &op) {
 
 bool		Location::isContainedInPath(std::string const &path) const {
 
+	// true - only if the '_locationPath' exists in 'path' at the very beginning!
 	std::size_t		pos;
 	std::string		tmp = path;
 
-	// true - only if the 'path' exists in '_locationPath' at the very beginning!
-	
-	// The special case => path "/"
-	if (!this->_locationPath.compare("/"))
-		return (path.empty() ? true : false);
-	else if ((pos = path.find(this->_locationPath)) == 0)
+	// The special case => path = "/"
+	// if (!this->_locationPath.compare("/") && path.empty())
+	//	return (true);
+	if ((pos = path.find(this->_locationPath)) == 0)
 		return (true);
 	return (false);
 }
