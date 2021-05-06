@@ -6,7 +6,7 @@
 /*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/09 13:59:12 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/06 12:12:35 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/05/06 15:16:01 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,22 +18,22 @@
 
 CGIRequest::CGIRequest(void) : _httpRequest(0) {
 
-		_authType = "AUTH_TYPE=";
-		_contentLength = "CONTENT_LENGTH=";
-		_gatewayInterface = "GATEWAY_INTERFACE=";
-		_pathInfo = "PATH_INFO=";
-		_pathTranslated = "PATH_TRANSLATED=";
-		_queryString = "QUERY_STRING=";
-		_remoteAddr = "REMOTE_ADDR=";
-		_remoteIdent = "REMOTE_IDENT=";
-		_remoteUser = "REMOTE_USER=";
-		_requestMethod = "REQUEST_METHOD=";
-		_requestURI = "REQUEST_URI=";
-		_scriptName = "SCRIPT_NAME=";
-		_serverName = "SERVER_NAME=";
-		_serverPort = "SERVER_PORT=";
-		_serverProtocol = "SERVER_PROTOCOL=";
-		_serverSoftware = "SERVER_SOFTWARE=";
+	_authType = "AUTH_TYPE=";
+	_contentLength = "CONTENT_LENGTH=";
+	_gatewayInterface = "GATEWAY_INTERFACE=";
+	_pathInfo = "PATH_INFO=";
+	_pathTranslated = "PATH_TRANSLATED=";
+	_queryString = "QUERY_STRING=";
+	_remoteAddr = "REMOTE_ADDR=";
+	_remoteIdent = "REMOTE_IDENT=";
+	_remoteUser = "REMOTE_USER=";
+	_requestMethod = "REQUEST_METHOD=";
+	_requestURI = "REQUEST_URI=";
+	_scriptName = "SCRIPT_NAME=";
+	_serverName = "SERVER_NAME=";
+	_serverPort = "SERVER_PORT=";
+	_serverProtocol = "SERVER_PROTOCOL=";
+	_serverSoftware = "SERVER_SOFTWARE=";
 }
 
 CGIRequest::CGIRequest(HTTPRequest *request) : _httpRequest(request) {
@@ -57,6 +57,7 @@ CGIRequest::CGIRequest(HTTPRequest *request) : _httpRequest(request) {
 
 	// The Script-URI
 	this->_authType += this->_httpRequest->getAuthorizationType();
+	std::cout << "httpRequestBodyLength: " << _httpRequest->getBodyLength() << std::endl;
 	if (!this->_httpRequest->getBodyLength())
 	{
 		this->_contentLength += "";
@@ -64,7 +65,7 @@ CGIRequest::CGIRequest(HTTPRequest *request) : _httpRequest(request) {
 	}
 	else
 	{
-		this->_contentLength += this->_httpRequest->getBodyLength();
+		this->_contentLength += Util::toString(this->_httpRequest->getBodyLength());
 		this->_contentType += this->_httpRequest->getContentType();
 	}
 	this->_gatewayInterface += "CGI/1.1";
@@ -109,6 +110,26 @@ CGIRequest::CGIRequest(HTTPRequest *request) : _httpRequest(request) {
 CGIRequest::~CGIRequest(void) {
 
 	return ;
+}
+
+void				CGIRequest::print(void) const {
+
+	std::cout << _authType << std::endl;
+	std::cout << _contentLength << std::endl;
+	std::cout << _gatewayInterface << std::endl;
+	std::cout << _pathInfo << std::endl;
+	std::cout << _pathTranslated << std::endl;
+	std::cout << _queryString << std::endl;
+	std::cout << _remoteAddr << std::endl;
+	std::cout << _remoteIdent << std::endl;
+	std::cout << _remoteUser << std::endl;
+	std::cout << _requestMethod << std::endl;
+	std::cout << _requestURI << std::endl;
+	std::cout << _scriptName << std::endl;
+	std::cout << _serverName << std::endl;
+	std::cout << _serverPort << std::endl;
+	std::cout << _serverProtocol << std::endl;
+	std::cout << _serverSoftware << std::endl;
 }
 
 std::string const	&CGIRequest::getAuthType(void) const {

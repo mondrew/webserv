@@ -6,7 +6,7 @@
 /*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/09 13:39:10 by mondrew           #+#    #+#             */
-/*   Updated: 2021/04/20 09:07:04 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/05/06 15:06:29 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,6 +49,8 @@ class CGIRequest {
 
 		CGIRequest(HTTPRequest *request);
 		~CGIRequest(void);
+
+		void				print(void) const;
 
 		// GETTERS
 		std::string const	&getAuthType(void) const;

@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/17 23:10:08 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/06 12:18:25 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/05/06 15:28:54 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,6 +83,7 @@ bool		Session::isValidRequestTarget(void) {
 			if (!cleanPath.empty() && cleanPath[0] != '/')
 				cleanPath.insert(0, "/");
 			fullPath = (*it)->getRoot() + cleanPath;
+
 			if (Util::exists(fullPath))
 			{
 				this->_serverLocation = *it;
@@ -379,11 +380,12 @@ void			Session::makeCGIResponse(void) {
 	this->_cgiRequest = new CGIRequest(this->_request);
 	this->_cgiResponse = new CGIResponse();
 
-	/*
-	std::cout << "===---Print parsed HTTPRequest instance---===" << std::endl; // debug
-	this->_request->print();
-	std::cout << "===---END Print parsed HTTPRequest instance---===" << std::endl; // debug
-	*/
+	if (Util::printCGIRequestENVP)
+	{
+		std::cout << "~~~~~~~~~~~~~~~~~~~~~~CGI_REQUEST~~~~~~~~~~~~~~~~~~~~~~~" << std::endl;
+		this->_cgiRequest->print();
+		std::cout << "~~~~~~~~~~~~~~~~~~~~~CGI_REQUEST END~~~~~~~~~~~~~~~~~~~~" << std::endl;
+	}
 
 	if (pipe(pipefd) == -1)
 	{
@@ -499,8 +501,9 @@ void			Session::makeCGIResponse(void) {
 		// this->_request->setCgiPathInfo(this->_request->getBody());
 	}
 
-	// usleep
+	// usleep(10000000);
 	std::cerr << "Parent STARTS READING <+++++++++=====" << std::endl; // debug
+
 	oss << std::cin.rdbuf();
 	oss << std::endl;
 	std::cerr << "Parent FINISHED READING <+++++++++=====" << std::endl; // debug
