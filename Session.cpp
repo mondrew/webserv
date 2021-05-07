@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/17 23:10:08 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/06 15:28:54 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/05/07 15:55:39 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -261,7 +261,8 @@ const char			**Session::createArgv(void) {
 	std::size_t				i = 0;
 
 
-	vs.push_front(this->_request->getTarget());
+	// vs.push_front(this->_request->getTarget());
+	vs.push_front(this->_responseFilePath);
 	if (!this->_request->getQueryString().empty())
 	{
 		std::istringstream	iss(this->_request->getQueryString());
@@ -280,6 +281,9 @@ const char			**Session::createArgv(void) {
 		// Decode all strings
 		for (std::list<std::string>::iterator it = vs.begin(); it != vs.end(); it++)
 			*it = Util::decodeUriEncoded(*it);
+	}
+	if (true) // CGI 06052021 test
+	{
 	}
 
 	argv = static_cast<char **>(malloc(sizeof(char *) * (vs.size() + 1)));
@@ -345,7 +349,7 @@ void			Session::makeCGIResponse(void) {
 
 	pid_t				pid;
 	int					pipefd[2];
-	// int					pipefdEx[2];
+	int					pipefdEx[2];
 	std::ostringstream	oss;
 
 	///////////////// NEW ////////// FOR TEST ////////////////////////////////////
@@ -353,6 +357,7 @@ void			Session::makeCGIResponse(void) {
 											this->_request->getMethod() == POST)
 	{
 		// this->_responseFilePath = "./www/cgi-bin/reader.cgi"; //////////////!!!
+		this->_responseFilePathOld = this->_responseFilePath; // save for PATH_INFO
 		this->_responseFilePath = "./www/cgi-bin/ubuntu_cgi_tester"; //////////////!!!
 	}
 	///////////////// NEW ////////// FOR TEST ////////////////////////////////////
@@ -367,17 +372,17 @@ void			Session::makeCGIResponse(void) {
 	//???/////////////////////////////////////////////////////
 	if (!this->getRequestFile().empty())
 	{
-		/*
-		std::ifstream	ifs(this->getRequestFile().c_str());
-		std::cout << ifs.rdbuf() << std::endl; // I've spent 5 hours fixing this
-		close(STDOUT_FILENO); // I've spent 6 hours for that
-		ifs.close();
-		*/
-		this->_request->setCgiPathInfo(this->_request->getBody());
+		// this->_request->setCgiPathInfo((this->_request->getBody()).substr(0, 9)); // 100 billion 'n'
+		this->_request->setCgiPathInfo("/directory/youpi.bla");// IT SHOULD BE CORRECT!!!
+
+		// this->_request->setCgiPathInfo(this->_responseFilePathOld); // path to 'youpi.bla'
+
+		// this->_request->setCgiPathInfo(""); // path to 'youpi.bla'
+		// this->_request->setCgiPathTranslated("./www/YoupiBanane/youpi.bla"); // path to 'youpi.bla'
 	}
 	///////////////////////////////////////////////////////
 
-	this->_cgiRequest = new CGIRequest(this->_request);
+	this->_cgiRequest = new CGIRequest(this, this->_request);
 	this->_cgiResponse = new CGIResponse();
 
 	if (Util::printCGIRequestENVP)
@@ -393,13 +398,11 @@ void			Session::makeCGIResponse(void) {
 		// Internal Server Error
 	}
 
-	/*//////////////////////////
 	if (pipe(pipefdEx) == -1)
 	{
 		std::cout << "Pipe failed" << std::endl;
 		// Internal Server Error
 	}
-	*///////////////////
 
 	if ((pid = fork()) == -1)
 	{
@@ -417,11 +420,9 @@ void			Session::makeCGIResponse(void) {
 		*/
 
 		// NEW
-		/*
 		close(pipefdEx[1]);
 		dup2(pipefdEx[0], STDIN_FILENO);
 		close(pipefdEx[0]);
-		*/
 		// END NEW
 
 		// Make STDOUT be the copy of the pipefd[1] (out pipe end)
@@ -474,11 +475,9 @@ void			Session::makeCGIResponse(void) {
 	*/
 
 	// NEW
-	/*
 	close(pipefdEx[0]);
 	dup2(pipefdEx[1], STDOUT_FILENO);
 	close(pipefdEx[1]);
-	*/
 	// END NEW
 	
 	// Replace stdin with READ-END of the PIPE
@@ -498,7 +497,8 @@ void			Session::makeCGIResponse(void) {
 		close(STDOUT_FILENO); // I've spent 6 hours for that
 		ifs.close();
 		*/
-		// this->_request->setCgiPathInfo(this->_request->getBody());
+		std::cout << this->_request->getBody() << std::endl;
+	 	// std::cout << std::endl;
 	}
 
 	// usleep(10000000);
@@ -513,18 +513,18 @@ void			Session::makeCGIResponse(void) {
 	dup2(saveIn, STDIN_FILENO);
 
 	if (Util::printCGIResponseString) {
-		std::cout << "-----= [ Pure CGI Response String From Child ] =-----" << std::endl;
-		std::cout << "[CGI_STRING]: " << oss.str() << std::endl;
-		std::cout << "-----= [ END CGI Response String ] =-----" << std::endl;
-		std::cout << std::endl;
+		std::cerr << "-----= [ Pure CGI Response String From Child ] =-----" << std::endl;
+		std::cerr << "[CGI_STRING]: " << oss.str() << std::endl;
+		std::cerr << "-----= [ END CGI Response String ] =-----" << std::endl;
+		std::cerr << std::endl;
 	}
 
 	_cgiResponse->parseCGIResponse(oss.str());
 
 	//
-	_cgiResponse->print();
+	// _cgiResponse->print();
 	//
-
+	
 	// Check the Redirection cases
 	if (!_cgiResponse->getLocation().empty())
 	{
@@ -810,16 +810,18 @@ std::string		generateFilename()
 	return res;
 }
 
-std::string		createFileUpload(std::string const &exp, std::string const &body) {
+/* GJESSICA
+std::string		createFileUpload(std::string const &ext, std::string const &body) {
 
 	std::string		filename = generateFilename();
-	std::string 	tmp = "./www/upload/" + filename + "." + exp;
+	std::string 	tmp = "./www/upload/" + filename + "." + ext;
 	std::ofstream	outfile(tmp.c_str());
 
 	outfile << body;
 	outfile.close();
-	return (filename + "." + exp);
+	return (filename + "." + ext);
 }
+*/
 
 void		Session::makePOSTResponse(void) {
 	// do smth
@@ -828,16 +830,27 @@ void		Session::makePOSTResponse(void) {
 	_response->setStatusText("OK");
 	_response->setTransferEncoding(_request->getTransferEncoding());
 	_response->setAllow(_serverLocation->getLimitExcept());
-	_response->setLocation(this->_responseFilePath);
+	// _response->setLocation(this->_responseFilePath);
 	_response->setBody("");
 	_response->setContentLength(0);
 
 	if (!_request->getBody().empty())
 	{
+		//MONDREW
+		/*
+		std::ofstream	ofs(_responseFilePath.c_str());
+
+		ofs << _request->getBody();
+		ofs.close();
 		std::string		conType = _request->getContentType();
-		std::string		filePath = "./www/upload/" + \
-			createFileUpload(Util::getTypeByMime(conType), _request->getBody());
-		_requestFile = filePath;
+		*/
+
+		// GJESSICA
+		// std::string		filePath = "./www/upload/" + \
+		//	createFileUpload(Util::getTypeByMime(conType), _request->getBody());
+		//_requestFile = filePath;
+		_requestFile = "1"; // just for makeCGIResponse working at the beginning
+
 		// std::cout << _requestFile << std::endl;
 	}
 	if (isCGI() || this->_request->getTarget().find(".bla") != std::string::npos) // NEW
@@ -1045,6 +1058,11 @@ Location			*Session::getServerLocation(void) const {
 
 std::string const	&Session::getRequestFile(void) const {
 	return (this->_requestFile);
+}
+
+std::string const	&Session::getResponseFilePath(void) const {
+
+	return (this->_responseFilePath);
 }
 
 // SETTERS

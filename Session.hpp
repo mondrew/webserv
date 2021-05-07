@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/17 23:06:28 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/01 23:16:12 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/05/06 21:25:14 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,6 +51,7 @@ class Session : public ASocketOwner {
 		Location		*_serverLocation;
 		int				_remoteAddr;
 		std::string		_responseFilePath;
+		std::string		_responseFilePathOld;
 
 		char			_buf[BUFFER_SIZE + 1];
 		int				_bufLeft;
@@ -107,6 +108,7 @@ class Session : public ASocketOwner {
 		int					getRemoteAddr(void) const;
 		Location			*getServerLocation(void) const;
 		std::string const	&getRequestFile(void) const;
+		std::string const	&getResponseFilePath(void) const;
 
 		// SETTERS
 		void				setRequestFile(std::string const &requestFile);

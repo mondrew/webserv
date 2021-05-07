@@ -6,7 +6,7 @@
 /*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/09 13:59:12 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/06 15:16:01 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/05/07 14:36:46 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 #include <string>
 #include <arpa/inet.h>
 
-CGIRequest::CGIRequest(void) : _httpRequest(0) {
+CGIRequest::CGIRequest(void) : _session(0), _httpRequest(0) {
 
 	_authType = "AUTH_TYPE=";
 	_contentLength = "CONTENT_LENGTH=";
@@ -36,7 +36,9 @@ CGIRequest::CGIRequest(void) : _httpRequest(0) {
 	_serverSoftware = "SERVER_SOFTWARE=";
 }
 
-CGIRequest::CGIRequest(HTTPRequest *request) : _httpRequest(request) {
+CGIRequest::CGIRequest(Session *session, HTTPRequest *request) :
+														_session(session), \
+														_httpRequest(request) {
 
 	_authType = "AUTH_TYPE=";
 	_contentLength = "CONTENT_LENGTH=";
@@ -57,7 +59,7 @@ CGIRequest::CGIRequest(HTTPRequest *request) : _httpRequest(request) {
 
 	// The Script-URI
 	this->_authType += this->_httpRequest->getAuthorizationType();
-	std::cout << "httpRequestBodyLength: " << _httpRequest->getBodyLength() << std::endl;
+	// std::cout << "httpRequestBodyLength: " << _httpRequest->getBodyLength() << std::endl;
 	if (!this->_httpRequest->getBodyLength())
 	{
 		this->_contentLength += "";
@@ -70,6 +72,11 @@ CGIRequest::CGIRequest(HTTPRequest *request) : _httpRequest(request) {
 	}
 	this->_gatewayInterface += "CGI/1.1";
 	this->_pathInfo += this->_httpRequest->getCgiPathInfo();
+
+	// this->_pathInfo = "PATH_INFO=./www/YoupiBanane/youpi.bla";
+	// this->_pathInfo = "PATH_INFO=/home/mondrew/GITHUB/Webserv/www/YoupiBanane/youpi.bla";
+	// this->_pathInfo = "PATH_INFO=youpi.bla";
+	// this->_pathInfo = "PATH_INFO=../YoupiBanane/youpi.bla";
 	
 	this->_pathTranslated += this->_httpRequest->getCgiPathTranslated();
 	this->_queryString += this->_httpRequest->getQueryString();
@@ -97,7 +104,8 @@ CGIRequest::CGIRequest(HTTPRequest *request) : _httpRequest(request) {
 
 	this->_requestMethod += this->_httpRequest->getMethodName(); 
 	this->_requestURI += this->_httpRequest->getTarget();
-	this->_scriptName += this->_httpRequest->getTarget();
+	// this->_scriptName += this->_httpRequest->getTarget();
+	this->_scriptName += this->_session->getResponseFilePath();
 
 	this->_serverName += \
 			Util::getServerNameFromHost(this->_httpRequest->getHost());

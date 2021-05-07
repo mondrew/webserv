@@ -6,7 +6,7 @@
 /*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/09 15:19:55 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/06 11:41:45 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/05/07 14:39:06 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,6 +64,7 @@ void				CGIResponse::parseCGIResponse(std::string const &str) {
 			while (std::getline(iss, line))
 				this->_body += line + "\n";
 			this->_body = this->_body.substr(0, this->_body.size() - 1); // deletes last '\n'
+			// decode?
 			// I suppose that there will be no chunked CGI Responses
 			break ;
 		}

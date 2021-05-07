@@ -6,7 +6,7 @@
 /*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/09 13:39:10 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/06 15:06:29 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/05/06 21:26:54 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 # define CGI_REQUEST_HPP
 
 # include "HTTPRequest.hpp"
+# include "Session.hpp"
 
 class HTTPRequest;
 
@@ -21,6 +22,7 @@ class CGIRequest {
 
 	private:
 
+		Session			*_session;
 		HTTPRequest		*_httpRequest;
 
 		std::string		_authType;
@@ -47,7 +49,7 @@ class CGIRequest {
 
 	public:
 
-		CGIRequest(HTTPRequest *request);
+		CGIRequest(Session *session, HTTPRequest *request);
 		~CGIRequest(void);
 
 		void				print(void) const;
@@ -70,6 +72,7 @@ class CGIRequest {
 		std::string const	&getServerPort(void) const;
 		std::string const	&getServerProtocol(void) const;
 		std::string const	&getServerSoftware(void) const;
+		Session				*getSession(void) const;
 };
 
 #endif
