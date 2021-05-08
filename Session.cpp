@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/17 23:10:08 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/07 15:55:39 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/05/08 11:03:43 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,7 +69,7 @@ bool		Session::isValidRequestTarget(void) {
 
 	if (Util::getLastChar(reqPath) == '/' && reqPath.compare("/") != 0)
 		reqPath = Util::removeLastPath(reqPath); // for removing '/' at the end
-
+	
 	// Check is there such Location in the config file
 	// For CGI -> create special location in config '/cgi-bin'
 	for (std::vector<Location *>::iterator it = \
@@ -78,6 +78,20 @@ bool		Session::isValidRequestTarget(void) {
 	{
 		if ((*it)->isContainedInPath(reqPath))
 		{
+
+			if (this->_request->getTarget().find(".bla") != std::string::npos)
+			{
+				if ((*it)->getLocationPath().compare("/") == 0)
+					continue ;
+				cleanPath = reqPath.substr(((*it)->getLocationPath()).size());
+				if (!cleanPath.empty() && cleanPath[0] != '/')
+					cleanPath.insert(0, "/");
+				fullPath = (*it)->getRoot() + cleanPath;
+				this->_responseFilePath = fullPath;
+				this->_serverLocation = *it;
+				return (true);
+			}
+
 			// '/' | '/test.bla' | '/directory'
 			cleanPath = reqPath.substr(((*it)->getLocationPath()).size());
 			if (!cleanPath.empty() && cleanPath[0] != '/')
@@ -358,7 +372,8 @@ void			Session::makeCGIResponse(void) {
 	{
 		// this->_responseFilePath = "./www/cgi-bin/reader.cgi"; //////////////!!!
 		this->_responseFilePathOld = this->_responseFilePath; // save for PATH_INFO
-		this->_responseFilePath = "./www/cgi-bin/ubuntu_cgi_tester"; //////////////!!!
+		this->_responseFilePath = this->_serverLocation->getCgiPath();
+		// this->_responseFilePath = "./www/cgi-bin/ubuntu_cgi_tester"; //////////////!!!
 	}
 	///////////////// NEW ////////// FOR TEST ////////////////////////////////////
 
@@ -373,7 +388,7 @@ void			Session::makeCGIResponse(void) {
 	if (!this->getRequestFile().empty())
 	{
 		// this->_request->setCgiPathInfo((this->_request->getBody()).substr(0, 9)); // 100 billion 'n'
-		this->_request->setCgiPathInfo("/directory/youpi.bla");// IT SHOULD BE CORRECT!!!
+		this->_request->setCgiPathInfo(this->_request->getTarget());// IT SHOULD BE CORRECT!!!
 
 		// this->_request->setCgiPathInfo(this->_responseFilePathOld); // path to 'youpi.bla'
 
@@ -452,7 +467,7 @@ void			Session::makeCGIResponse(void) {
 		// 		it MUST check CONTENT_LENGTH and CONTENT_TYPE
 		// 		- check Content-Type header: if 'application/x-www-form-urlencoded' -> decode body
 
-		std::cerr << "Child STARTS EXECVE <+++++++++=====" << std::endl; // debug
+		// std::cerr << "Child STARTS EXECVE <+++++++++=====" << std::endl; // debug
 		execve(_responseFilePath.c_str(), \
 			const_cast<char *const *>(argv), const_cast<char *const *>(envp));
 
@@ -502,11 +517,11 @@ void			Session::makeCGIResponse(void) {
 	}
 
 	// usleep(10000000);
-	std::cerr << "Parent STARTS READING <+++++++++=====" << std::endl; // debug
+	// std::cerr << "Parent STARTS READING <+++++++++=====" << std::endl; // debug
 
 	oss << std::cin.rdbuf();
 	oss << std::endl;
-	std::cerr << "Parent FINISHED READING <+++++++++=====" << std::endl; // debug
+	// std::cerr << "Parent FINISHED READING <+++++++++=====" << std::endl; // debug
 
 	// Restore STDIN_FILENO & STDOUT_FILENO
 	dup2(saveOut, STDOUT_FILENO);
@@ -521,9 +536,12 @@ void			Session::makeCGIResponse(void) {
 
 	_cgiResponse->parseCGIResponse(oss.str());
 
-	//
-	// _cgiResponse->print();
-	//
+	if (Util::printCGIResponse)
+	{
+		std::cout << "================ Parsed CGI Response =====================" << std::endl;
+		_cgiResponse->print();
+		std::cout << "================ Parsed CGI Response END =====================" << std::endl;
+	}
 	
 	// Check the Redirection cases
 	if (!_cgiResponse->getLocation().empty())
@@ -1001,10 +1019,11 @@ void		Session::checkNeedToRead()
 // MONDREW handle
 void		Session::handle(void) {
 
-	/*
-	static int j = 0;
-	std::cout << "|" << j++ <<  "|" << std::endl;
-	*/
+	if (Util::printHandleCounter)
+	{
+		static int j = 0;
+		std::cout << "|" << j++ <<  "|" << std::endl;
+	}
 
 	ssize_t		ret;
 	int 		i = 0;

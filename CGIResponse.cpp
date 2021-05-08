@@ -6,7 +6,7 @@
 /*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/09 15:19:55 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/07 14:39:06 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/05/07 22:20:24 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,7 +77,7 @@ void				CGIResponse::print(void) const {
 	std::cerr << "_location: " << _location << std::endl;
 	std::cerr << "_status: " << _status << std::endl;
 	std::cerr << "_contentLength: " << _contentLength << std::endl;
-	std::cerr << "_body: " << _body << std::endl;
+	// std::cerr << "_body: " << _body << std::endl;
 }
 
 std::string const	&CGIResponse::getContentType(void) const {

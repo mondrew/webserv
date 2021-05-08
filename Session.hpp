@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/17 23:06:28 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/06 21:25:14 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/05/08 10:59:24 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@
 #include "HTTPRequest.hpp"
 #include "HTTPResponse.hpp"
 
-# define BUFFER_SIZE 1024
+# define BUFFER_SIZE 102400
 
 # define NONE 0
 # define DIR_PATH 1
