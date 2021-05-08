@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/20 15:48:48 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/07 09:40:34 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/05/08 23:23:43 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,6 +94,8 @@ class HTTPRequest {
 		// Chrome:
 		// Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36
 
+		std::map<std::string, std::string>	_specialHeaders;
+
 		// BODY
 		std::string		_body; // or _path
 
@@ -140,6 +142,7 @@ class HTTPRequest {
 		Session				*getSession(void) const;
 
 		std::string const	&getFilename(void) const;
+		std::map<std::string, std::string> &getSpecialHeaders(void);
 
 		// SETTERS
 		int					setError(std::string const &str);

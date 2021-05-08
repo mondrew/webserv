@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/17 23:10:08 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/08 11:03:43 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/05/08 23:36:30 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -315,8 +315,8 @@ const char			**Session::createArgv(void) {
 const char		**Session::createEnvp(CGIRequest *cgiRequest) {
 
 	std::list<std::string>	envpList;
-	char			**envp = static_cast<char **>(malloc(sizeof(char *) * 17));
-	std::size_t		i = 0;
+	char					**envp;
+	std::size_t				i = 0;
 
 	envpList.push_back(cgiRequest->getAuthType());
 	envpList.push_back(cgiRequest->getContentLength());
@@ -334,6 +334,16 @@ const char		**Session::createEnvp(CGIRequest *cgiRequest) {
 	envpList.push_back(cgiRequest->getServerPort());
 	envpList.push_back(cgiRequest->getServerProtocol());
 	envpList.push_back(cgiRequest->getServerSoftware());
+	if (!this->_request->getSpecialHeaders().empty())
+	{
+		for (std::map<std::string, std::string>::iterator it = \
+						this->_request->getSpecialHeaders().begin(); \
+						it != this->_request->getSpecialHeaders().end(); it++)
+			envpList.push_back("HTTP_" + \
+						Util::toUpperUnderscore(it->first) + "=" + it->second);
+	}
+
+	envp = static_cast<char **>(malloc(sizeof(char *) * (envpList.size() + 1)));
 
 	for (std::list<std::string>::iterator it = envpList.begin(); \
 													it != envpList.end(); it++)
@@ -342,19 +352,21 @@ const char		**Session::createEnvp(CGIRequest *cgiRequest) {
 		memcpy(envp[i], (*it).c_str(), (*it).length() + 1);
 		i++;
 	}
-	envp[16] = 0;
+	envp[envpList.size()] = 0;
 
 	// Print ENVP
-	/*
-	int		j = 0;
-	while (envp[j])
+	if (Util::printCGIRequestENVP)
 	{
-		if (j != 3)
+		std::cout << "~~~~~~~~~~~~~~~~~~~~~~CGI_REQUEST~~~~~~~~~~~~~~~~~~~~~~~" << std::endl;
+		int		j = 0;
+		while (envp[j])
+		{
 			std::cerr << envp[j] << std::endl;
-		j++;
+			j++;
+		}
+		// std::cerr << "!j!: " << j << std::endl; // debug
+		std::cout << "~~~~~~~~~~~~~~~~~~~~~CGI_REQUEST END~~~~~~~~~~~~~~~~~~~~" << std::endl;
 	}
-	std::cerr << "!j!: " << j << std::endl; // debug
-	*/
 
 	return (const_cast<const char **>(envp));
 }
@@ -400,7 +412,7 @@ void			Session::makeCGIResponse(void) {
 	this->_cgiRequest = new CGIRequest(this, this->_request);
 	this->_cgiResponse = new CGIResponse();
 
-	if (Util::printCGIRequestENVP)
+	if (Util::printCGIRequest)
 	{
 		std::cout << "~~~~~~~~~~~~~~~~~~~~~~CGI_REQUEST~~~~~~~~~~~~~~~~~~~~~~~" << std::endl;
 		this->_cgiRequest->print();

@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/30 10:55:24 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/08 11:03:27 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/05/08 23:36:51 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,6 +60,7 @@ class Util
 		static bool		printRequestType;
 		static bool		printCGIResponseString;
 		static bool		printCGIResponse;
+		static bool		printCGIRequest;
 		static bool		printCGIRequestENVP;
 		static bool		printHandleCounter;
 
@@ -679,6 +680,20 @@ class Util
 					lowStr[i] = lowStr[i] + ('a' - 'A');
 			}
 			return (lowStr);
+		}
+
+		static std::string	toUpperUnderscore(std::string const &line) {
+
+			std::string		str = line;
+
+			for (std::size_t i = 0; i < str.size(); i++)
+			{
+				if (str[i] >= 'a' && str[i] <= 'z')
+					str[i] -= 'a' - 'A';
+				else if (str[i] == '-')
+					str[i] = '_';
+			}
+			return (str);
 		}
 };
 

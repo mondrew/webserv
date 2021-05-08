@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/20 15:53:09 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/07 09:40:13 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/05/08 23:23:50 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 #include <locale>
 #include <cstdlib>
 #include <algorithm>
+#include <utility>
 
 HTTPRequest::HTTPRequest(std::string const &str, Session *session) :
 													_session(session),
@@ -71,12 +72,26 @@ int 			isKey(std::string const &line, std::string const &key)
 
 std::string		getValue(std::string const &line, std::string const &key)
 {
-	std::string str;
-	str = line;
+	std::string		str = line;
 
 	str.erase(std::remove(str.begin(), str.end(), '\r'), str.end());
 	// -> Change erase to your function
 	return (str.substr(key.length() + 2));
+}
+
+std::pair<std::string, std::string>		getSpecialHeader(std::string const &line)
+{
+	std::string		header;
+	std::string		value;
+	std::size_t		pos;
+
+	if ((pos = line.find(":")) != std::string::npos)
+	{
+		header = line.substr(0, pos);
+		value = line.substr(pos + 1);
+		value = Util::removeLeadingWhitespaces(value);
+	}
+	return (std::pair<std::string, std::string>(header, value));
 }
 
 bool 			HTTPRequest::setStartLineParam(std::string &line)
@@ -200,6 +215,11 @@ void			HTTPRequest::parseRequest(std::string const &str)
 			// if (!this->_body.empty() && this->_contentLength == 0)
 			// 	this->_body = Util::unchunkData(this->_body);
 			break;
+		}
+		else
+		{
+			// Special headers
+			this->_specialHeaders.insert(getSpecialHeader(line));
 		}
     }
 	if (this->_transferEncoding == "chunked")
@@ -398,6 +418,11 @@ Session				*HTTPRequest::getSession(void) const {
 
 std::string const	&HTTPRequest::getFilename(void) const {
 	return (this->_filename);
+}
+
+std::map<std::string, std::string> &HTTPRequest::getSpecialHeaders(void) {
+
+	return (this->_specialHeaders);
 }
 
 void				HTTPRequest::splitTargetAndCgiPathInfo(void) {
