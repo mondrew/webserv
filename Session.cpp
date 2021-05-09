@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/17 23:10:08 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/08 23:36:30 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/05/09 16:45:44 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,7 @@
 #include <stdlib.h>
 #include <fstream>
 #include <cstring>
+#define BUFFER 1000000
 
 // Query string added
 
@@ -489,17 +490,12 @@ void			Session::makeCGIResponse(void) {
 		exit(0);
 	}
 	// Parent ==  Parent == Parent == Parent == Parent == Parent == Parent == Parent == Parent //
+
+	/* 09/05/2021
 	int		saveOut = 98;
 	int		saveIn = 99;
 	dup2(STDOUT_FILENO, saveOut);
 	dup2(STDIN_FILENO, saveIn);
-
-	// If it is POST -> then we should send the POST body to stdin for CGI script
-	/*
-	if (this->_request->getMethod() == POST)
-		dup2(pipefd[1], STDOUT_FILENO);
-	close(pipefd[1]); // !!!!!!!!! - IT MAY BE CRITICAL!!! DON'T TOUCH
-	*/
 
 	// NEW
 	close(pipefdEx[0]);
@@ -511,33 +507,61 @@ void			Session::makeCGIResponse(void) {
 	close(pipefd[1]);
 	dup2(pipefd[0], STDIN_FILENO);
 	close(pipefd[0]);
+	*/
+	////////09/05/2021 NEW
+	close(pipefdEx[0]);
+	close(pipefd[1]);
+	////////09/05/2021 NEW
 
-	////////////////////////////////////////////////////////////////////////////////////////////
-	////////////////////////////////////////////////////////////////////////////////////////////
-	////////////////////////////////////////////////////////////////////////////////////////////
-	// FOR TEST NO NEED TO SEND TO STDIN TO CGI SCRIPT THE FILE WE RECEIVED???
-	if (!this->getRequestFile().empty())
+	int		ret;
+
+	if (!this->_request->getBody().empty())
 	{
-		/*
+		/* too old
 		std::ifstream	ifs(this->getRequestFile().c_str());
 		std::cout << ifs.rdbuf() << std::endl; // I've spent 5 hours fixing this
 		close(STDOUT_FILENO); // I've spent 6 hours for that
 		ifs.close();
 		*/
-		std::cout << this->_request->getBody() << std::endl;
-	 	// std::cout << std::endl;
+
+		// New but with dup2 - ACTUAL
+		// std::cout << this->_request->getBody() << std::endl;
+
+		// Without dup2: 09/05/2021
+		ret = write(pipefdEx[1], this->_request->getBody().c_str(), \
+											this->_request->getBody().size());
+		if (ret == -1)
+			std::cout << "Write error" << std::endl;
 	}
 
-	// usleep(10000000);
 	// std::cerr << "Parent STARTS READING <+++++++++=====" << std::endl; // debug
 
+	/* 09/05/2021
 	oss << std::cin.rdbuf();
 	oss << std::endl;
+	*/
+
+	char	buffer[BUFFER + 1];
+
+	while ((ret = read(pipefd[0], buffer, BUFFER)) > 0)
+	{
+		buffer[ret] = '\0';
+		oss << buffer;
+	}
+	if (ret < 0)
+		std::cout << "Read error" << std::endl;
+
 	// std::cerr << "Parent FINISHED READING <+++++++++=====" << std::endl; // debug
 
+	/* 09/05/2021
 	// Restore STDIN_FILENO & STDOUT_FILENO
 	dup2(saveOut, STDOUT_FILENO);
 	dup2(saveIn, STDIN_FILENO);
+	*/
+	////////09/05/2021 NEW
+	close(pipefdEx[1]);
+	close(pipefd[0]);
+	////////09/05/2021 NEW
 
 	if (Util::printCGIResponseString) {
 		std::cerr << "-----= [ Pure CGI Response String From Child ] =-----" << std::endl;
@@ -610,8 +634,7 @@ void			Session::makeCGIResponse(void) {
 	if (this->_cgiResponse->getContentLength() != 0)
 		this->_response->setContentLength(this->_cgiResponse->getContentLength());
 	else
-		this->_response->setContentLength(_cgiResponse->getBody().length()); // !!!
-	// !!! МОЖЕТ СКРИПТ ВОЗВРАЩАЕТ CONTENT_LENGTH!!!
+		this->_response->setContentLength(_cgiResponse->getBody().length());
 	this->_response->setContentLocation(this->_responseFilePath);
 
 	// Change it: get info from CGI
