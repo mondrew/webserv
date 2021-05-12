@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/17 23:06:28 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/08 10:59:24 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/05/12 09:59:01 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,8 +46,6 @@ class Session : public ASocketOwner {
 		CGIRequest		*_cgiRequest;
 		CGIResponse		*_cgiResponse;
 
-		std::string		_requestFile; // should set this name in makePOST or makePUT
-
 		Location		*_serverLocation;
 		int				_remoteAddr;
 		std::string		_responseFilePath;
@@ -63,6 +61,10 @@ class Session : public ASocketOwner {
 
 		std::string		_login; // In some case we may need it. WWWAuthenticate Response header
 		std::string		_password; // If we need them but they are empty -> 401 Unauthorized
+
+		bool			_validRequestFlag;
+		pid_t			_pid;
+		std::ostringstream	_oss;
 
 		Session(void);
 		Session(Session const &src);
@@ -90,7 +92,7 @@ class Session : public ASocketOwner {
 		virtual void	handle(void);
 
 		void			fillDefaultResponseFields(void);
-		bool			fillErrorResponse(int code);
+		bool			makeErrorResponse(int code);
 
 		void			makeGETResponse(void);
 		void			makeHEADResponse(void);
@@ -107,11 +109,9 @@ class Session : public ASocketOwner {
 		// GETTERS
 		int					getRemoteAddr(void) const;
 		Location			*getServerLocation(void) const;
-		std::string const	&getRequestFile(void) const;
 		std::string const	&getResponseFilePath(void) const;
 
 		// SETTERS
-		void				setRequestFile(std::string const &requestFile);
 };
 
 #endif
