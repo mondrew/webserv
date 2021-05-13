@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/18 09:20:58 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/12 23:50:34 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/05/13 09:10:27 by gjessica         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ bool	Util::printCGIResponseString = false;
 bool	Util::printCGIResponse = false;
 bool	Util::printCGIRequest = false;
 bool	Util::printCGIRequestENVP = false;
-bool	Util::printHandleCounter = false;
+bool	Util::printHandleCounter = true;
 
 int		main(int argc, char **argv)
 {

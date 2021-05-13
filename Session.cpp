@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/17 23:10:08 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/12 23:55:59 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/05/13 19:31:04 by gjessica         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,7 +71,7 @@ bool		Session::isValidRequestTarget(void) {
 
 	if (Util::getLastChar(reqPath) == '/' && reqPath.compare("/") != 0)
 		reqPath = Util::removeLastPath(reqPath); // for removing '/' at the end
-	
+
 	// Check is there such Location in the config file
 	// For CGI -> create special location in config '/cgi-bin'
 	for (std::vector<Location *>::iterator it = \
@@ -466,21 +466,49 @@ void			Session::makeCGIResponse(void) {
 		else
 			this->_wantToReadFromFd = true;
 	}
+	else if (getWantToReadFromFd() == true)
+	{
+		if (this->_request->getBody().empty())
+			setWantToWriteToFd(false);
+		int		retVal;
+		char	buffer[BUFFER_SIZE + 1];
+		std::cerr << "getWantToReadFromFd\n";
+		fcntl(this->_readFd,F_SETFL, O_NONBLOCK);
+		retVal = read(this->_readFd, buffer, BUFFER_SIZE);
+		if (retVal < 0)
+		{
+			setWantToReadFromFd(false);
+			std::cerr << "Error read\n";
+			// Exceptions will be better!
+		}
+		else if (retVal > 0)
+		{
+				std::cerr << "retVal = " << retVal << std::endl;
+			// Попробуем прочитать так
+			buffer[retVal] = '\0';
+			_oss << buffer;
+		}
+		else
+			setWantToReadFromFd(false);
 
+	}
 	else if (getWantToWriteToFd() == true)
 	{
-		// std::cerr << "Writing to CGI script" << std::endl; // debug
+		 std::cerr << "Writing to CGI script" << std::endl; // debug
 		int		ret;
 
 		// Think this std::min is not necessary
+		fcntl(this->_writeFd,F_SETFL, O_NONBLOCK);
 		ret = write(this->_writeFd, this->_request->getBody().c_str(), \
 											this->_request->getBody().size());
-		// std::cerr << "ret: " << ret << std::endl; // debug
+		 std::cerr << "ret: " << ret << std::endl; // debug
 
 		if (ret > 0)
 		{
+			setWantToReadFromFd(true);
 			if (ret < static_cast<int>(this->_request->getBody().size()))
 			{
+
 				std::cerr << "Continue reading. Decreasing body" << std::endl; // debug
 				this->_request->setBody(this->_request->getBody().substr(ret));
 				std::cerr << "rest body size: " << this->_request->getBody().size() << std::endl; // debug
@@ -494,33 +522,14 @@ void			Session::makeCGIResponse(void) {
 			}
 		}
 		else if (ret == -1)
-			std::cout << "Write error" << std::endl;
+			std::cerr << "Write error" << std::endl;
 		else if (ret == 0)
 			std::cerr << "ERROR UNKNOWN: write returned 0!!!!<==========" << std::endl;
 	}
-	else if (getWantToReadFromFd() == true)
-	{
-		int		retVal;
-		char	buffer[BUFFER_SIZE + 1];
 
-		retVal = read(this->_readFd, buffer, BUFFER_SIZE);
-		if (retVal < 0)
-		{
-			std::cout << "Error read\n";
-			// Exceptions will be better!
-		}
-		else if (retVal > 0)
-		{
-			// Попробуем прочитать так
-			buffer[retVal] = '\0';
-			_oss << buffer;
-		}
-		else
-			setWantToReadFromFd(false);
-
-	}
 	if (!getWantToWriteToFd() && !getWantToReadFromFd())
 	{
+		std::cerr << "!getWantToWriteToFd() && !getWantToReadFromFd()" << std::endl;
 		_response->setStatusCode(200);
 		_response->setStatusText("OK");
 		_response->setAllow(_serverLocation->getLimitExcept());
@@ -572,7 +581,7 @@ void			Session::makeCGIResponse(void) {
 		_cgiResponse->print();
 		std::cout << "================ Parsed CGI Response END =====================" << std::endl;
 	}
-	
+
 	// Check the Redirection cases
 	/*
 	if (!_cgiResponse->getLocation().empty())
@@ -912,7 +921,7 @@ void		Session::handle(void) {
 		ret = recv(_socket, _buf, BUFFER_SIZE, 0);
 		if (ret < 0)
 		{
-			std::cout << "Error read\n";
+			std::cerr << "Error read\n";
 			// Exceptions will be better!
 		}
 		else
@@ -935,8 +944,10 @@ void		Session::handle(void) {
 	{
 		if (!_responseStr.empty())
 		{
+			std::cerr << "write\n";
 			ret = send(_socket, _responseStr.c_str(), \
 													_responseStr.length(), 0);
+			std::cerr << "write END\n";
 				//std::min(BUFFER_SIZE, static_cast<int>(_responseStr.length())), 0);
 			_responseStr.erase(0, ret);
 		}
