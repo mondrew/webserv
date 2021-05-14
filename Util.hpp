@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/30 10:55:24 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/08 23:36:51 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/05/14 08:31:38 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -181,9 +181,7 @@ class Util
 		{
 			struct stat		sb1;
 
-			//std::cout << "!_!_!_!_!_!_!__!: path: " << path << std::endl; // debug
 			stat(path.c_str(), &sb1);
-			//std::cout << "stat: " << (sb1.st_mode & S_IROTH) << std::endl;
 			return (sb1.st_mode & S_IROTH);
 		}
 

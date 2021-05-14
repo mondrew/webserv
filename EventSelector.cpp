@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/18 00:50:52 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/12 23:50:14 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/05/14 10:03:29 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -188,6 +188,8 @@ void			EventSelector::run() {
 				else if (w)
 				{
 					// std::cerr << "WRITE!" << std::endl; // debug
+					// perror("===>ERROR: "); // debug
+					errno = 0;
 					(*it)->handle();
 				}
 				else if (rFd)
@@ -197,7 +199,7 @@ void			EventSelector::run() {
 				}
 				else if (wFd)
 				{
-					// std::cerr << "WRITE_FD!" << std::endl; // debug
+					// std::cout << "WRITE_FD!" << std::endl; // debug
 					(*it)->handle();
 				}
 			}

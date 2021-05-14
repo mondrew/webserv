@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/17 23:10:08 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/12 23:55:59 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/05/14 08:51:40 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,7 +80,6 @@ bool		Session::isValidRequestTarget(void) {
 	{
 		if ((*it)->isContainedInPath(reqPath))
 		{
-
 			if (this->_request->getTarget().find(".bla") != std::string::npos)
 			{
 				if ((*it)->getLocationPath().compare("/") == 0)
@@ -184,6 +183,8 @@ bool		Session::isValidRequestHost(void) const {
 
 bool		Session::isValidPermissions(void) const {
 
+	if (this->_request->getTarget().find(".bla") != std::string::npos)
+		return (true);
 	return (Util::isAllowedToRead(this->_responseFilePath));
 }
 
@@ -554,7 +555,6 @@ void			Session::makeCGIResponse(void) {
 					Util::getFileLastModified(this->_responseFilePath));
 
 		// Wait for the child
-		// May be it will block???
 		waitpid(_pid, 0, 0);
 
 		setWantToWrite(true);
@@ -768,7 +768,7 @@ void		Session::makePOSTResponse(void) {
 
 	setWantToWrite(true);
 	responseToString();
-	std::cout << "MAKE POST RESPONSE!!! END<========!!!" << std::endl; // debug
+	// std::cout << "MAKE POST RESPONSE!!! END<========!!!" << std::endl; // debug
 }
 
 void		Session::makePUTResponse(void) {
