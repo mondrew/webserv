@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/17 23:10:08 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/13 19:31:04 by gjessica         ###   ########.fr       */
+/*   Updated: 2021/05/15 20:21:52 by gjessica         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -250,8 +250,8 @@ bool		Session::makeErrorResponse(int code) {
 	_response->setBody(Util::fileToString((this->_responseFilePath)));
 	_response->setContentLength(_response->getBody().length());
 
-	setWantToWrite(true);
 	responseToString();
+	setWantToWrite(true);
 	return (false);
 }
 
@@ -472,64 +472,68 @@ void			Session::makeCGIResponse(void) {
 			setWantToWriteToFd(false);
 		int		retVal;
 		char	buffer[BUFFER_SIZE + 1];
-		std::cerr << "getWantToReadFromFd\n";
+		//std::cerr << "getWantToReadFromFd\n";
 		fcntl(this->_readFd,F_SETFL, O_NONBLOCK);
 		retVal = read(this->_readFd, buffer, BUFFER_SIZE);
 		if (retVal < 0)
 		{
 			setWantToReadFromFd(false);
-			std::cerr << "Error read\n";
+		//	std::cerr << "Error read\n";
 			// Exceptions will be better!
 		}
 		else if (retVal > 0)
 		{
-				std::cerr << "retVal = " << retVal << std::endl;
+			//	std::cerr << "retVal = " << retVal << std::endl;
 			// Попробуем прочитать так
 			buffer[retVal] = '\0';
 			_oss << buffer;
 		}
 		else
-			setWantToReadFromFd(false);
+			 setWantToReadFromFd(false);
 
 	}
 	else if (getWantToWriteToFd() == true)
 	{
-		 std::cerr << "Writing to CGI script" << std::endl; // debug
+		// std::cerr << "Writing to CGI script" << std::endl; // debug
 		int		ret;
-
-		// Think this std::min is not necessary
-		fcntl(this->_writeFd,F_SETFL, O_NONBLOCK);
-		ret = write(this->_writeFd, this->_request->getBody().c_str(), \
-											this->_request->getBody().size());
-		 std::cerr << "ret: " << ret << std::endl; // debug
-
-		if (ret > 0)
+		if (this->_request->getBody().empty())
 		{
-			setWantToReadFromFd(true);
-			if (ret < static_cast<int>(this->_request->getBody().size()))
-			{
+			setWantToWriteToFd(false);
+		} else {
+			// Think this std::min is not necessary
+			fcntl(this->_writeFd,F_SETFL, O_NONBLOCK);
+			ret = write(this->_writeFd, this->_request->getBody().c_str(), \
+												this->_request->getBody().size());
+			// std::cerr << "ret: " << ret << std::endl; // debug
 
-				std::cerr << "Continue reading. Decreasing body" << std::endl; // debug
-				this->_request->setBody(this->_request->getBody().substr(ret));
-				std::cerr << "rest body size: " << this->_request->getBody().size() << std::endl; // debug
-			}
-			else
+			if (ret > 0)
 			{
-				// std::cerr << "Finished reading" << std::endl; // debug
-				this->_request->setBody("");
-				this->_wantToWriteToFd = false;
-				this->_wantToReadFromFd = true;
+				setWantToReadFromFd(true);
+				if (ret < static_cast<int>(this->_request->getBody().size()))
+				{
+
+				//	std::cerr << "Continue reading. Decreasing body" << std::endl; // debug
+					this->_request->setBody(this->_request->getBody().substr(ret));
+				//	std::cerr << "rest body size: " << this->_request->getBody().size() << std::endl; // debug
+				}
+				else
+				{
+					// std::cerr << "Finished reading" << std::endl; // debug
+					this->_request->setBody("");
+					this->_wantToWriteToFd = false;
+					this->_wantToReadFromFd = true;
+				}
 			}
+			else if (ret == -1)
+				std::cerr << "Write error" << std::endl;
+			else if (ret == 0)
+				std::cerr << "ERROR UNKNOWN: write returned 0!!!!<==========" << std::endl;
 		}
-		else if (ret == -1)
-			std::cerr << "Write error" << std::endl;
-		else if (ret == 0)
-			std::cerr << "ERROR UNKNOWN: write returned 0!!!!<==========" << std::endl;
 	}
 
 	if (!getWantToWriteToFd() && !getWantToReadFromFd())
 	{
-		std::cerr << "!getWantToWriteToFd() && !getWantToReadFromFd()" << std::endl;
+		//std::cerr << "!getWantToWriteToFd() && !getWantToReadFromFd()" << std::endl;
 		_response->setStatusCode(200);
 		_response->setStatusText("OK");
 		_response->setAllow(_serverLocation->getLimitExcept());
@@ -564,10 +568,10 @@ void			Session::makeCGIResponse(void) {
 
 		// Wait for the child
 		// May be it will block???
-		waitpid(_pid, 0, 0);
+		// waitpid(_pid, 0, 0);
 
-		setWantToWrite(true);
 		responseToString();
+		setWantToWrite(true);
 	}
 	if (Util::printCGIResponseString) {
 		std::cerr << "-----= [ Pure CGI Response String From Child ] =-----" << std::endl;
@@ -752,8 +756,8 @@ void		Session::makeGETResponse(void) {
 	_response->setLastModified(\
 				Util::getFileLastModified(this->_responseFilePath));
 
-	setWantToWrite(true);
 	responseToString();
+	setWantToWrite(true);
 }
 
 void		Session::makePOSTResponse(void) {
@@ -775,8 +779,8 @@ void		Session::makePOSTResponse(void) {
 		_response->setLocation(filePath);
 	}
 
-	setWantToWrite(true);
 	responseToString();
+	setWantToWrite(true);
 	std::cout << "MAKE POST RESPONSE!!! END<========!!!" << std::endl; // debug
 }
 
@@ -794,8 +798,8 @@ void		Session::makePUTResponse(void) {
 	_response->setLocation(this->_responseFilePath);
 	// _response->setTransferEncoding(_request->getTransferEncoding());
 
-	setWantToWrite(true);
 	responseToString();
+	setWantToWrite(true);
 }
 
 void		Session::generateResponse(void) {
@@ -863,7 +867,12 @@ void		Session::responseToString(void) {
 
 	_responseStr = oss.str();
 
-	if (Util::printResponses)
+	// if (Util::printResponses)
+	// 	{
+	// 		std::cerr <<  "================== " << "RESPONSE" << " START ================== " << std::endl;
+	// 		std::cerr << _responseStr << std::endl;
+	// 		std::cerr <<  "================== " << "RESPONSE" << " END ==================== " << std::endl;
+	// 	}
 		Logger::log("Response", _responseStr, TEXT_RED);
 }
 
@@ -918,8 +927,9 @@ void		Session::handle(void) {
 
 	if (getWantToRead())
 	{
-		ret = recv(_socket, _buf, BUFFER_SIZE, 0);
-		if (ret < 0)
+		fcntl(_socket, F_SETFL, O_NONBLOCK);
+		ret = recv(_socket, _buf, BUFFER_SIZE,0);
+		if (ret <= 0)
 		{
 			std::cerr << "Error read\n";
 			// Exceptions will be better!
@@ -938,25 +948,33 @@ void		Session::handle(void) {
 	{
 		// Generate Response
 		generateResponse();
+
 		// After finishing generate Response -> set wantToWrite!!!
 	}
 	else if (getWantToWrite())
 	{
 		if (!_responseStr.empty())
 		{
-			std::cerr << "write\n";
+		//	std::cerr << "write\n";
+		fcntl(_socket, F_SETFL, O_NONBLOCK);
 			ret = send(_socket, _responseStr.c_str(), \
-													_responseStr.length(), 0);
-			std::cerr << "write END\n";
+													_responseStr.length(),0);
+		//	std::cerr << "write END\n";
 				//std::min(BUFFER_SIZE, static_cast<int>(_responseStr.length())), 0);
 			_responseStr.erase(0, ret);
+			if (_responseStr.empty()){
+				_deleteMe = true;
+			std::cout << "DELETEEEEEEEEE\n";
+			}
 		}
 		else
 		{
+			std::cout << "DELETEEEEEEEEE\n";
+			_deleteMe = true;
 			// We have sent all HTTP Response
 			// Now we have to close the Session
 			// HTTP is connectionless protocol !
-			_deleteMe = true;
+
 		}
 	}
 	// Logger::msg("Target - " + _request->getTarget()); // debug

@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/16 09:02:17 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/01 22:01:00 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/05/15 12:36:54 by gjessica         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,7 +87,7 @@ int		Server::start(void) {
 		return (-1);
 
 	}
-
+	fcntl(_socket, F_SETFL, O_NONBLOCK);
 	// Prevents port sticking
 	opt = 1;
 	if (setsockopt(_socket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) == -1)
@@ -113,6 +113,7 @@ int		Server::start(void) {
 		setSocket(-1);
 		return (-1);
 	}
+
 	// Turn socket to the listening mode
 	if (listen(_socket, MAX_USERS) == -1)
 	{
@@ -168,7 +169,7 @@ void		Server::handle(void) {
 void		Server::removeSession(Session *s) {
 
 	// Delete Client from the sessionSet linked-list in Server
-	//usleep(500);
+	//usleep(5000);
 	_sessionSet.remove(s);
 
 	// Remove fd from EventSelector object array
