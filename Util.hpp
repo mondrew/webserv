@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/30 10:55:24 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/16 16:00:54 by gjessica         ###   ########.fr       */
+/*   Updated: 2021/05/16 18:20:14 by gjessica         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,6 +63,7 @@ class Util
 		static bool		printCGIRequest;
 		static bool		printCGIRequestENVP;
 		static bool		printHandleCounter;
+		static bool		printCountRemoveConnection;
 
 		static std::string	toString(int val)
 		{

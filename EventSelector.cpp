@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/18 00:50:52 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/16 14:05:49 by gjessica         ###   ########.fr       */
+/*   Updated: 2021/05/16 18:21:23 by gjessica         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,6 +107,9 @@ void EventSelector::run()
 	timeout.tv_sec = 1;
 	timeout.tv_usec = 0;
 	int counter = 0;
+
+	int count = 0;
+
 	while (!_quitFlag)
 	{
 		// Clear sets
@@ -119,7 +122,7 @@ void EventSelector::run()
 		_max_fd = findMaxSocket();
 		if (lastMaxFd < _max_fd){
 			lastMaxFd = _max_fd;
-		std::cout << "MAX SOCKET = " << _max_fd << std::endl;
+		//std::cout << "MAX SOCKET = " << _max_fd << std::endl;
 		}
 		for (std::list<ASocketOwner *>::iterator it = _socketOwnerSet.begin();
 			 it != _socketOwnerSet.end(); it++)
@@ -178,24 +181,24 @@ void EventSelector::run()
 		}
 		else if (res == 0)
 		{
-			if (counter == -1)
-			{
-				std::cout << "Waiting connection .  " << std::flush;
-			}
-			else if (counter == 0)
-			{
-				std::cout << "\rWaiting connection .  " << std::flush;
-			}
-			else if (counter == 1)
-			{
-				std::cout << "\rWaiting connection .. " << std::flush;
-			}
-			else if (counter == 2)
-			{
-				std::cout << "\rWaiting connection ..." << std::flush;
-				counter = -1;
-			}
-			counter++;
+			// if (counter == -1)
+			// {
+			// 	std::cout << "Waiting connection .  " << std::flush;
+			// }
+			// else if (counter == 0)
+			// {
+			// 	std::cout << "\rWaiting connection .  " << std::flush;
+			// }
+			// else if (counter == 1)
+			// {
+			// 	std::cout << "\rWaiting connection .. " << std::flush;
+			// }
+			// else if (counter == 2)
+			// {
+			// 	std::cout << "\rWaiting connection ..." << std::flush;
+			// 	counter = -1;
+			// }
+			// counter++;
 			//usleep(1000);
 		}
 		else
@@ -209,6 +212,10 @@ void EventSelector::run()
 				bool r = FD_ISSET((*it)->getSocket(), &rds);
 				if (w || r)
 				{
+					// if (w){
+					// 	count++;
+					// 	std::cout << "\rcount = " << count << std::flush;
+					// }
 					//fcntl((*it)->getSocket(), F_SETFL, O_NONBLOCK);
 					// std::cout << "WRITE! " << (*it)->getSocket() << std::endl; // debug
 					(*it)->handle();
@@ -274,7 +281,10 @@ void EventSelector::run()
 		{
 			if ((*it)->getDeleteMe())
 			{
-				//std::cout << "Remove " << (*it)->getSocket() << std::endl;
+				if (Util::printCountRemoveConnection){
+				count++;
+				std::cout << "\rRemove " << count << std::flush;
+				}
 				close((*it)->getSocket());
 				(*it)->remove();
 				it = _socketOwnerSet.begin();

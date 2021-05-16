@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/18 09:20:58 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/16 14:23:54 by gjessica         ###   ########.fr       */
+/*   Updated: 2021/05/16 18:20:35 by gjessica         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,7 @@ bool	Util::printCGIResponse = false;
 bool	Util::printCGIRequest = false;
 bool	Util::printCGIRequestENVP = false;
 bool	Util::printHandleCounter = false;
+bool	Util::printCountRemoveConnection = true;
 
 int		main(int argc, char **argv)
 {
