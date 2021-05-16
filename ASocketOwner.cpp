@@ -6,12 +6,13 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/18 00:10:08 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/11 13:27:54 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/05/16 18:46:05 by gjessica         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ASocketOwner.hpp"
 #include <unistd.h>
+#include <iostream>
 
 ASocketOwner::ASocketOwner(void) :	_socket(-1),
 									_readFd(-1),
@@ -43,7 +44,10 @@ ASocketOwner::ASocketOwner(ASocketOwner const &src) {
 ASocketOwner::~ASocketOwner(void) {
 
 	if (_socket != -1)
+	{
 		close(_socket);
+		std::cout << "CLOSE SOCKET OWNER " << _socket << "\n";
+	}
 	/*
 	if (_readFd != -1)
 		close(_readFd);

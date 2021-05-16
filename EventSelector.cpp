@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/18 00:50:52 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/16 18:21:23 by gjessica         ###   ########.fr       */
+/*   Updated: 2021/05/16 18:49:52 by gjessica         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -285,9 +285,12 @@ void EventSelector::run()
 				count++;
 				std::cout << "\rRemove " << count << std::flush;
 				}
+				//std::cout << "CLOSE SOCKET\n";
 				close((*it)->getSocket());
+				(*it)->setSocket(-1);
 				(*it)->remove();
 				it = _socketOwnerSet.begin();
+				usleep(10);
 			}
 		}
 	}
