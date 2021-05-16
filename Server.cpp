@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/16 09:02:17 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/15 12:36:54 by gjessica         ###   ########.fr       */
+/*   Updated: 2021/05/16 13:05:46 by gjessica         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 #include <fcntl.h>
 #include <sys/socket.h>
 
-#define MAX_USERS 128
+#define MAX_USERS 1000
 
 Server::Server(int a_socket) : ASocketOwner(a_socket),
 									_the_selector(0),

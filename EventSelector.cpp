@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/18 00:50:52 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/15 20:14:01 by gjessica         ###   ########.fr       */
+/*   Updated: 2021/05/16 14:05:49 by gjessica         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,7 +103,7 @@ void EventSelector::run()
 	fd_set rds;
 	fd_set wrs;
 	struct timeval timeout;
-
+	int lastMaxFd = 0;
 	timeout.tv_sec = 1;
 	timeout.tv_usec = 0;
 	int counter = 0;
@@ -117,6 +117,10 @@ void EventSelector::run()
 		// Loop for adding in sets fds which want to read or write
 		// Now I will add here all fds, but maybe it's not right
 		_max_fd = findMaxSocket();
+		if (lastMaxFd < _max_fd){
+			lastMaxFd = _max_fd;
+		std::cout << "MAX SOCKET = " << _max_fd << std::endl;
+		}
 		for (std::list<ASocketOwner *>::iterator it = _socketOwnerSet.begin();
 			 it != _socketOwnerSet.end(); it++)
 		{
@@ -130,16 +134,16 @@ void EventSelector::run()
 				// std::cerr << "run:WantToWrite: " << (*it)->getSocket() << std::endl; // debug
 				FD_SET((*it)->getSocket(), &wrs);
 			}
-			if ((*it)->getWantToWriteToFd())
-			{
-				// std::cerr << "run:WantToWriteToFd: " << (*it)->getWriteFd() << std::endl; // debug
-				FD_SET((*it)->getWriteFd(), &wrs);
-			}
-			if ((*it)->getWantToReadFromFd())
-			{
-				// std::cerr << "run:WantToReadFromFd: " << (*it)->getReadFd() << std::endl; // debug
-				FD_SET((*it)->getReadFd(), &rds);
-			}
+			// if ((*it)->getWantToWriteToFd())
+			// {
+			// 	// std::cerr << "run:WantToWriteToFd: " << (*it)->getWriteFd() << std::endl; // debug
+			// 	FD_SET((*it)->getWriteFd(), &wrs);
+			// }
+			// if ((*it)->getWantToReadFromFd())
+			// {
+			// 	// std::cerr << "run:WantToReadFromFd: " << (*it)->getReadFd() << std::endl; // debug
+			// 	FD_SET((*it)->getReadFd(), &rds);
+			// }
 		}
 
 		// Print Sockets
@@ -196,12 +200,14 @@ void EventSelector::run()
 		}
 		else
 		{
+			if (counter != -1) std::cout << std::endl;
 			counter = -1;
 			for (std::list<ASocketOwner *>::iterator it = _socketOwnerSet.begin();
 				 it != _socketOwnerSet.end(); it++)
 			{
 				bool w = FD_ISSET((*it)->getSocket(), &wrs);
-				if (w)
+				bool r = FD_ISSET((*it)->getSocket(), &rds);
+				if (w || r)
 				{
 					//fcntl((*it)->getSocket(), F_SETFL, O_NONBLOCK);
 					// std::cout << "WRITE! " << (*it)->getSocket() << std::endl; // debug
@@ -213,62 +219,63 @@ void EventSelector::run()
 				// 	it= _socketOwnerSet.erase(it);
 				// }
 			}
-			for (std::list<ASocketOwner *>::iterator it = _socketOwnerSet.begin();
-				 it != _socketOwnerSet.end(); it++)
-			{
-				bool r = FD_ISSET((*it)->getSocket(), &rds);
-				if (r)
-				{
-					//fcntl((*it)->getSocket(), F_SETFL, O_NONBLOCK);
-					// std::cout << "READ! " << (*it)->getSocket() << std::endl; // debug
-					(*it)->handle();
-				}
+			// for (std::list<ASocketOwner *>::iterator it = _socketOwnerSet.begin();
+			// 	 it != _socketOwnerSet.end(); it++)
+			// {
 
-				//  else if ((*it)->getDeleteMe()){
-				// 	(*it)->remove();
-				// 	it= _socketOwnerSet.erase(it);
-				// }
-			}
+			// 	if (r)
+			// 	{
+			// 		//fcntl((*it)->getSocket(), F_SETFL, O_NONBLOCK);
+			// 		// std::cout << "READ! " << (*it)->getSocket() << std::endl; // debug
+			// 		(*it)->handle();
+			// 	}
 
-
-			for (std::list<ASocketOwner *>::iterator it = _socketOwnerSet.begin();
-				 it != _socketOwnerSet.end(); it++)
-			{
-				bool rFd = FD_ISSET((*it)->getReadFd(), &rds);
-				if (rFd)
-				{
-					// std::cout << "READ_FD! "<< (*it)->getSocket() << std::endl; // debug
-					(*it)->handle();
-				}
-
-				//  else if ((*it)->getDeleteMe()){
-				// 	(*it)->remove();
-				// 	it= _socketOwnerSet.erase(it);
-				// }
-			}
-			for (std::list<ASocketOwner *>::iterator it = _socketOwnerSet.begin();
-				 it != _socketOwnerSet.end(); it++)
-			{
+			// 	//  else if ((*it)->getDeleteMe()){
+			// 	// 	(*it)->remove();
+			// 	// 	it= _socketOwnerSet.erase(it);
+			// 	// }
+			// }
 
 
-				bool wFd = FD_ISSET((*it)->getWriteFd(), &wrs);
+			// for (std::list<ASocketOwner *>::iterator it = _socketOwnerSet.begin();
+			// 	 it != _socketOwnerSet.end(); it++)
+			// {
+			// 	bool rFd = FD_ISSET((*it)->getReadFd(), &rds);
+			// 	if (rFd)
+			// 	{
+			// 		// std::cout << "READ_FD! "<< (*it)->getSocket() << std::endl; // debug
+			// 		(*it)->handle();
+			// 	}
 
-				//std::cout << " | w = " << w << " | rFd = " << rFd <<  " | wfd = " << wFd << std::endl;
+			// 	//  else if ((*it)->getDeleteMe()){
+			// 	// 	(*it)->remove();
+			// 	// 	it= _socketOwnerSet.erase(it);
+			// 	// }
+			// }
+			// for (std::list<ASocketOwner *>::iterator it = _socketOwnerSet.begin();
+			// 	 it != _socketOwnerSet.end(); it++)
+			// {
 
 
-				if (wFd)
-				{
-					//  std::cout << "WRITE_FD! "<< (*it)->getSocket() << std::endl; // debug
-					(*it)->handle();
-				}
-			}
+			// 	bool wFd = FD_ISSET((*it)->getWriteFd(), &wrs);
+
+			// 	//std::cout << " | w = " << w << " | rFd = " << rFd <<  " | wfd = " << wFd << std::endl;
+
+
+			// 	if (wFd)
+			// 	{
+			// 		//  std::cout << "WRITE_FD! "<< (*it)->getSocket() << std::endl; // debug
+			// 		(*it)->handle();
+			// 	}
+			// }
 		}
 		for (std::list<ASocketOwner *>::iterator it = _socketOwnerSet.begin();
 			 it != _socketOwnerSet.end(); it++)
 		{
 			if ((*it)->getDeleteMe())
 			{
-				std::cout << "Remove " << (*it)->getSocket() << std::endl;
+				//std::cout << "Remove " << (*it)->getSocket() << std::endl;
+				close((*it)->getSocket());
 				(*it)->remove();
 				it = _socketOwnerSet.begin();
 			}

@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/17 23:06:28 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/12 09:59:01 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/05/16 16:22:16 by gjessica         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,8 +103,8 @@ class Session : public ASocketOwner {
 								int statusCode, std::string const &statusText);
 		void			checkNeedToRead(void);
 
-		const char		**createArgv(void);
-		const char		**createEnvp(CGIRequest *cgiRequest);
+		 char		**createArgv(void);
+		 char		**createEnvp(CGIRequest *cgiRequest);
 
 		// GETTERS
 		int					getRemoteAddr(void) const;

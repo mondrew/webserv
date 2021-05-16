@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/30 10:55:24 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/08 23:36:51 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/05/16 16:00:54 by gjessica         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -208,7 +208,9 @@ class Util
 				std::cout << std::endl;
 			}
 			ifs.close();
-			return (oss.str());
+			std::string res = oss.str();
+			oss.clear();
+			return (res);
 		}
 
 		static bool			isCGI(std::string const &path)
@@ -643,7 +645,7 @@ class Util
 			return "unk";
 		}
 
-		static void			freeTwoDimentionalArray(const char **array)
+		static void			freeTwoDimentionalArray( char **array)
 		{
 			for (int i = 0; array[i]; i++)
 				free(const_cast<void *>(static_cast<const void *>(array[i])));

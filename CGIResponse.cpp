@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   CGIResponse.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
+/*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/09 15:19:55 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/07 22:20:24 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/05/16 16:10:12 by gjessica         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,7 +72,7 @@ void				CGIResponse::parseCGIResponse(std::string const &str) {
 }
 
 void				CGIResponse::print(void) const {
-	
+
 	std::cerr << "_contentType: " << _contentType << std::endl;
 	std::cerr << "_location: " << _location << std::endl;
 	std::cerr << "_status: " << _status << std::endl;
