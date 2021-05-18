@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
+/*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/16 07:58:05 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/11 13:28:11 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/05/17 17:36:07 by gjessica         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,7 +81,7 @@ class Server : public ASocketOwner {
 
 		// Start server
 		int				start(void);
-		virtual void	handle(void);
+		virtual void	handle(int action);
 
 		void			removeSession(Session *session);
 };

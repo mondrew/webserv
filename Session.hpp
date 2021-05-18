@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/17 23:06:28 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/16 16:22:16 by gjessica         ###   ########.fr       */
+/*   Updated: 2021/05/18 11:12:49 by gjessica         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,10 +51,7 @@ class Session : public ASocketOwner {
 		std::string		_responseFilePath;
 		std::string		_responseFilePathOld;
 
-		char			_buf[BUFFER_SIZE + 1];
-		int				_bufLeft;
 		std::string		_requestStr; // It should be 'HTTPRequest' class that owns that string
-		char			_write_buffer[BUFFER_SIZE];
 		std::string		_responseStr; // It should be 'HTTPResponse' class that owns that string
 
 		bool			_deleteMe;
@@ -63,8 +60,11 @@ class Session : public ASocketOwner {
 		std::string		_password; // If we need them but they are empty -> 401 Unauthorized
 
 		bool			_validRequestFlag;
-		pid_t			_pid;
 		std::ostringstream	_oss;
+		//pid_t			_pid;
+		//char			_buf[BUFFER_SIZE + 1];
+		//int				_bufLeft;
+		//char			_write_buffer[BUFFER_SIZE];
 
 		Session(void);
 		Session(Session const &src);
@@ -89,7 +89,7 @@ class Session : public ASocketOwner {
 		bool			isCGI(void) const;
 		virtual bool	getDeleteMe(void) const;
 		virtual void	remove(void);
-		virtual void	handle(void);
+		virtual void	handle(int action);
 
 		void			fillDefaultResponseFields(void);
 		bool			makeErrorResponse(int code);
@@ -105,6 +105,7 @@ class Session : public ASocketOwner {
 
 		 char		**createArgv(void);
 		 char		**createEnvp(CGIRequest *cgiRequest);
+		 void 		clean(void);
 
 		// GETTERS
 		int					getRemoteAddr(void) const;

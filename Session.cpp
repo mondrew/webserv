@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/17 23:10:08 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/16 17:13:40 by gjessica         ###   ########.fr       */
+/*   Updated: 2021/05/18 12:54:34 by gjessica         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,6 +53,38 @@ Session::Session(int a_sockfd, int remoteAddr, Server *master) : ASocketOwner(a_
 	//      <<  now->tm_sec
 	//      << "\n";
 	return;
+}
+
+void 	Session::clean(){
+	// if (_request)
+	// 	delete _request;
+	// if (_response)
+	// 	delete _response;
+	// if (_cgiRequest)
+	// 	delete _cgiRequest;
+	// if (_cgiResponse)
+	// 	delete _cgiResponse;
+	// if (_serverLocation)
+	// 	delete _serverLocation;
+	_request = 0;
+	_response = 0;
+	_cgiRequest = 0;
+	_cgiResponse = 0;
+	_serverLocation = 0;
+	_validRequestFlag = false;
+	_requestStr = "";
+	_responseStr = "";
+
+
+	_responseFilePath = "";
+	_responseFilePathOld = "";
+
+	_login = ""; // In some case we may need it. WWWAuthenticate Response header
+	_password = ""; // If we need them but they are empty -> 401 Unauthorized
+
+	_validRequestFlag = false;
+	_oss.str("");
+	_oss.clear();
 }
 
 Session::~Session(void)
@@ -749,6 +781,7 @@ void Session::makeCGIResponse(void)
 		_response->setAllow(_serverLocation->getLimitExcept());
 		_cgiResponse->parseCGIResponse(_oss.str());
 
+
 		if (!this->_cgiResponse->getStatus().empty())
 		{
 			this->_response->setStatusCode(this->_cgiResponse->getStatusCode());
@@ -763,6 +796,7 @@ void Session::makeCGIResponse(void)
 			this->_response->setBody(_cgiResponse->getBody());
 		if (this->_cgiResponse->getContentLength() != 0)
 			this->_response->setContentLength(this->_cgiResponse->getContentLength());
+
 		else
 			this->_response->setContentLength(_cgiResponse->getBody().length());
 		this->_response->setContentLocation(this->_responseFilePath);
@@ -1059,13 +1093,13 @@ void Session::responseToString(void)
 	_responseStr = oss.str();
 	oss.clear();
 
-	// if (Util::printResponses)
-	// 	{
-	// 		std::cerr <<  "================== " << "RESPONSE" << " START ================== " << std::endl;
-	// 		std::cerr << _responseStr << std::endl;
-	// 		std::cerr <<  "================== " << "RESPONSE" << " END ==================== " << std::endl;
-	// 	}
-	//Logger::log("Response", _responseStr, TEXT_RED);
+	if (Util::printResponses)
+		// 	{
+		// 		std::cerr <<  "================== " << "RESPONSE" << " START ================== " << std::endl;
+		// 		std::cerr << _responseStr << std::endl;
+		// 		std::cerr <<  "================== " << "RESPONSE" << " END ==================== " << std::endl;
+		// 	}
+		Logger::log("Response", _responseStr, TEXT_RED);
 }
 
 void Session::setRequestCgiPathTranslated(void) const
@@ -1091,9 +1125,10 @@ void Session::checkNeedToRead()
 			if (Util::printRequests)
 				Logger::log("HTTPRequest", _requestStr, TEXT_GREEN);
 			setWantToRead(false);
-			setWantToWrite(false);
-			// setWantToWrite(true);
-			// generateResponse();
+			//setWantToWrite(false);
+			 setWantToWrite(true);
+			generateResponse();
+			//setWantToWrite(true);
 		}
 	}
 	else if (_requestStr.find("\r\n\r\n") != std::string::npos)
@@ -1101,76 +1136,140 @@ void Session::checkNeedToRead()
 		if (Util::printRequests)
 			Logger::log("HTTPRequest", _requestStr, TEXT_GREEN);
 		setWantToRead(false);
-		setWantToWrite(false);
-		// setWantToWrite(true);
-		// generateResponse();
+		//setWantToWrite(false);
+		 setWantToWrite(true);
+		generateResponse();
+		//setWantToWrite(true);
 	}
 }
 
-// MONDREW handle
-void Session::handle(void)
+void Session::handle(int action)
 {
-
+	//action = 2;
 	if (Util::printHandleCounter)
 	{
 		static int j = 0;
 		std::cout << "|" << j++ << "|" << std::endl;
 	}
 
-	ssize_t ret;
-	int i = 0;
+	int ret = 0;
 
-	if (getWantToRead())
+	char bufffer[BUFFER_SIZE] = {0};
+
+	if (action == READ)
 	{
-		fcntl(_socket, F_SETFL, O_NONBLOCK);
-		ret = recv(_socket, _buf, BUFFER_SIZE, 0);
-		if (ret <= 0)
+		ret = recv(_socket, bufffer, BUFFER_SIZE-1, 0);
+		if (ret < 0)
 		{
-			std::cerr << "Error read\n";
-			// Exceptions will be better!
+			std::cout << "Error read\n";
+			_deleteMe = true;
+			setWantToRead(false);
+			setWantToWrite(false);
+		} else if (ret == 0)
+		{
+			setWantToRead(false);
+			setWantToWrite(true);
+			// generateResponse();
+			// setWantToWrite(true);
 		}
 		else
 		{
-			while (i < ret)
-			{
-				_requestStr += _buf[i];
-				i++;
-			}
+			_requestStr += std::string(bufffer);
 			checkNeedToRead();
 		}
 	}
-	if (!getWantToRead() && !getWantToWrite())
+	else if (action == WRITE)
 	{
-		// Generate Response
-		generateResponse();
-
-		// After finishing generate Response -> set wantToWrite!!!
-	}
-	else if (getWantToWrite())
-	{
-		if (!_responseStr.empty())
-		{
-			//	std::cerr << "write\n";
-			fcntl(_socket, F_SETFL, O_NONBLOCK);
-			ret = send(_socket, _responseStr.c_str(),
-					   _responseStr.length(), 0);
-
-			//std::cerr << "send ret = " << ret << " str =  "<<  _responseStr.length()<<" \n";
-
-			//std::min(BUFFER_SIZE, static_cast<int>(_responseStr.length())), 0);
-			_responseStr.erase(0, ret);
-		}
-		else
-		{
-			//setWantToRead(true);
+		ret = send(_socket, _responseStr.c_str(), _responseStr.size(),0);
+		if (ret == 0){
 			_deleteMe = true;
-			// We have sent all HTTP Response
-			// Now we have to close the Session
-			// HTTP is connectionless protocol !
+			setWantToRead(false);
+			setWantToWrite(false);
+			//std::cout << "Ewrite 0\n";
+		} else if (ret == -1){
+			_deleteMe = true;
+			setWantToRead(false);
+			setWantToWrite(false);
+			//std::cout << "Error write\n";
+		} else {
+			_responseStr.erase(0, ret);
+			if (_responseStr.empty()){
+				setWantToRead(true);
+				setWantToWrite(false);
+				this->clean();
+			}
 		}
 	}
-	// Logger::msg("Target - " + _request->getTarget()); // debug
 }
+
+// MONDREW handle
+// void Session::handle(void)
+// {
+
+// 	if (Util::printHandleCounter)
+// 	{
+// 		static int j = 0;
+// 		std::cout << "|" << j++ << "|" << std::endl;
+// 	}
+
+// 	int ret;
+// 	//int i = 0;
+
+// 	if (getWantToRead())
+// 	{
+// 		char bufffer[BUFFER_SIZE]= {0};
+// 		//fcntl(_socket, F_SETFL, O_NONBLOCK);
+// 		ret = recv(_socket, bufffer, BUFFER_SIZE-1, 0);
+// 		if (ret <= 0)
+// 		{
+// 			std::cerr << "Error read\n";
+// 			// Exceptions will be better!
+// 		}
+// 		else
+// 		{
+// 			_requestStr += std::string(bufffer);
+// 			// while (i < ret)
+// 			// {
+// 			// 	_requestStr += _buf[i];
+// 			// 	i++;
+// 			// }
+// 			checkNeedToRead();
+// 		}
+// 	}
+// 	if (!getWantToRead() && !getWantToWrite())
+// 	{
+// 		// Generate Response
+// 		generateResponse();
+// 		// After finishing generate Response -> set wantToWrite!!!
+// 	}
+// 	else if (getWantToWrite())
+// 	{
+// 		if (!_responseStr.empty())
+// 		{
+// 			//	std::cerr << "write\n";
+// 			//fcntl(_socket, F_SETFL, O_NONBLOCK);
+// 			ret = send(_socket, _responseStr.c_str(),
+// 					   _responseStr.length(), 0);
+// 			if (ret == 0)
+// 				_deleteMe = true;
+// 			//std::cerr << "send ret = " << ret << " str =  "<<  _responseStr.length()<<" \n";
+
+// 			//std::min(BUFFER_SIZE, static_cast<int>(_responseStr.length())), 0);
+// 			_responseStr.erase(0, ret);
+
+// 		}
+// 		else
+// 		{
+// 			//setWantToRead(true);
+// 			//usleep(100);
+// 			_deleteMe = true;
+// 			// We have sent all HTTP Response
+// 			// Now we have to close the Session
+// 			// HTTP is connectionless protocol !
+// 		}
+// 	}
+// 	// Logger::msg("Target - " + _request->getTarget()); // debug
+// }
 
 // GETTERS
 

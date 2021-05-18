@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/16 09:02:17 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/16 13:05:46 by gjessica         ###   ########.fr       */
+/*   Updated: 2021/05/18 10:30:11 by gjessica         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,12 +82,13 @@ int		Server::start(void) {
 	// Creating a server listening socket
 	if ((_socket = socket(AF_INET, SOCK_STREAM, 0)) == -1)
 	{
+		//rds
 		// Can be exception
 		std::cout << "Error: cant't create server socket." << std::endl;
 		return (-1);
 
 	}
-	fcntl(_socket, F_SETFL, O_NONBLOCK);
+
 	// Prevents port sticking
 	opt = 1;
 	if (setsockopt(_socket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) == -1)
@@ -136,15 +137,18 @@ int		Server::start(void) {
 
 	return (0);
 }
-
-void		Server::handle(void) {
-
+#include <arpa/inet.h>
+void		Server::handle(int action) {
+	action = 2;
 	int					sockfd;
 	struct sockaddr_in	addr;
 	socklen_t			len = sizeof(addr);
+	//uint16_t port;
 
+	//if ((sockfd = accept(_socket, NULL, NULL)) == -1)
 	if ((sockfd = accept(_socket, (struct sockaddr *)&addr, &len)) == -1)
 	{
+		//rds + wrs
 		// Can be exception
 		std::cout << "Error: can't accept new connection on " << _socket;
 		std::cout << " socket." << std::endl;
@@ -152,12 +156,11 @@ void		Server::handle(void) {
 		setSocket(-1);
 		return ;
 	}
-	// fcntl(sockfd, F_SETFL, O_NONBLOCK); // mondrew: not sure it is necessary here
-
-	if (Util::printServerAccepts)
-	{
-		std::cout << "SERVER ACCEPT: " << sockfd << std::endl; // debug
-	}
+	fcntl(sockfd, F_SETFL, O_NONBLOCK); // mondrew: not sure it is necessary here
+	// port = htons (addr.sin_port);
+	// // if (Util::printServerAccepts)
+	//  	std::cout << "SERVER ACCEPT: " << sockfd << " "  <<
+	// 	 Util::ltoips(addr.sin_addr.s_addr) << ":" << port << std::endl; // debug
 
 	// Add new client to the Session list and to the EventSelector objects
 	Session	*session = new Session(sockfd, addr.sin_addr.s_addr, this);
@@ -181,6 +184,7 @@ std::vector<std::string> const	&Server::getServerNames(void) const {
 
 	return (this->_serverNames);
 }
+
 
 std::string const				&Server::getHost(void) const {
 
