@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/17 23:10:08 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/18 12:54:34 by gjessica         ###   ########.fr       */
+/*   Updated: 2021/05/18 13:04:19 by gjessica         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,21 +56,28 @@ Session::Session(int a_sockfd, int remoteAddr, Server *master) : ASocketOwner(a_
 }
 
 void 	Session::clean(){
-	// if (_request)
-	// 	delete _request;
-	// if (_response)
-	// 	delete _response;
-	// if (_cgiRequest)
-	// 	delete _cgiRequest;
-	// if (_cgiResponse)
-	// 	delete _cgiResponse;
-	// if (_serverLocation)
+	if (_request){
+		delete _request;
+		_request = 0;
+	}
+	if (_response){
+		delete _response;
+		_response = 0;
+	}
+	if (_cgiRequest){
+		delete _cgiRequest;
+		_cgiRequest = 0;
+	}
+	if (_cgiResponse){
+		delete _cgiResponse;
+		_cgiResponse = 0;
+	}
+	// if (_serverLocation){
 	// 	delete _serverLocation;
-	_request = 0;
-	_response = 0;
-	_cgiRequest = 0;
-	_cgiResponse = 0;
-	_serverLocation = 0;
+		_serverLocation = 0;
+	// }
+
+
 	_validRequestFlag = false;
 	_requestStr = "";
 	_responseStr = "";
