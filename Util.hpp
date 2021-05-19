@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/30 10:55:24 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/19 12:12:06 by gjessica         ###   ########.fr       */
+/*   Updated: 2021/05/19 13:59:58 by gjessica         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,7 +93,7 @@ public:
 			strptime(s.c_str(), "%s", &tm);
 			strftime(buf, sizeof(buf), "[%M:%S]", &tm);
 
-			std::cout << buf << msg << "\n";
+			std::cout << buf << " " << msg << "\n";
 		}
 	}
 

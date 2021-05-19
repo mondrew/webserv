@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/20 15:53:09 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/19 12:09:54 by gjessica         ###   ########.fr       */
+/*   Updated: 2021/05/19 13:57:35 by gjessica         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -212,17 +212,7 @@ void			HTTPRequest::parseRequest(std::string &str)
 		else if (line.empty())
 		{
 			str.erase(0, lineSize);
-			// std::getline(f, line);
-			// lineSize = line.length();
-			Util::printWithTime("START BODY");
-			//f >> this->_body;
-			// (std::getline(f, line));
-			// 	this->_body += line ;
 			this->_body = str;
-			//this->_body = this->_body.substr(0, this->_body.size() - 1); // deletes last '\n'
-			Util::printWithTime("END BODY");
-			// if (!this->_body.empty() && this->_contentLength == 0)
-			// 	this->_body = Util::unchunkData(this->_body);
 			break;
 		}
 		else
@@ -233,11 +223,9 @@ void			HTTPRequest::parseRequest(std::string &str)
 		}
 		str.erase(0, lineSize);
     }
-	Util::printWithTime("START CHUNKED");
 	if (this->_transferEncoding == "chunked") {
 			this->_body = Util::unchunkData(this->_body);
 	}
-	Util::printWithTime("END CHUNKED");
 	// setCgiPathInfo();
 	// setCgiPathTranslated();
 }

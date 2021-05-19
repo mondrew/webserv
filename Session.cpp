@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/17 23:10:08 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/19 12:46:33 by gjessica         ###   ########.fr       */
+/*   Updated: 2021/05/19 15:41:41 by gjessica         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -454,7 +454,6 @@ void Session::makeCGIResponse(void)
 	lseek(fdIn, 0, SEEK_SET);
 	char **argv = createArgv();
 	char **envp = createEnvp(_cgiRequest);
-	Util::printWithTime("START FORK");
 	pid = fork();
 
 	if (pid == -1)
@@ -482,18 +481,20 @@ void Session::makeCGIResponse(void)
 			memset(buffer, 0, BUFFER_SIZE);
 			retVal = read(fdOut, buffer, BUFFER_SIZE);
 			buffer[retVal] = '\0';
-			_oss << buffer;
+			_readStr += buffer;
 		}
+		Util::printWithTime("PARENT FORK after read");
 		_response->setStatusCode(200);
 		_response->setStatusText("OK");
 		_response->setAllow(_serverLocation->getLimitExcept());
-		_cgiResponse->parseCGIResponse(_oss.str());
-
+		_cgiResponse->parseCGIResponse(_readStr);
+		Util::printWithTime("PARENT FORK TEST2");
 		if (!this->_cgiResponse->getStatus().empty())
 		{
 			this->_response->setStatusCode(this->_cgiResponse->getStatusCode());
 			this->_response->setStatusText(this->_cgiResponse->getStatusText());
 		}
+		Util::printWithTime("PARENT FORK TEST1");
 		if (!this->_cgiResponse->getContentType().empty())
 			this->_response->setContentType(this->_cgiResponse->getContentType());
 		else
@@ -507,6 +508,7 @@ void Session::makeCGIResponse(void)
 		else
 			this->_response->setContentLength(_cgiResponse->getBody().length());
 		this->_response->setContentLocation(this->_responseFilePath);
+
 
 		// Change it: get info from CGI
 		this->_response->setLastModified(
@@ -720,7 +722,6 @@ void Session::generateResponse(void)
 	if (!this->_request && !this->_response)
 	{
 		this->_request = new HTTPRequest(_requestStr, this);
-		Util::printWithTime("HTTPREquest GENERATED");
 		this->_response = new HTTPResponse();
 
 		// Set common fields (independent of response type)
@@ -747,39 +748,35 @@ void Session::generateResponse(void)
 
 void Session::responseToString(void)
 {
-	std::ostringstream oss;
 
 	// Status Line
-	oss << _response->getProtocolVersion() << " " << _response->getStatusCode();
-	oss << " " << _response->getStatusText() << "\r\n";
+	_responseStr += _response->getProtocolVersion() + " " + Util::toString(_response->getStatusCode());
+	_responseStr += " " + _response->getStatusText() + "\r\n";
 	// Headers
-	oss << "Server: " << _response->getServer() << "\r\n";
-	oss << "Date: " << _response->getDate() << "\r\n";
+	_responseStr += "Server: " + _response->getServer() + "\r\n";
+	_responseStr += "Date: " + _response->getDate() + "\r\n";
 	if (!_response->getContentType().empty())
-		oss << "Content-Type: " << _response->getContentType() << "\r\n";
-	oss << "Content-Length: " << _response->getContentLength() << "\r\n";
+		_responseStr += "Content-Type: " + _response->getContentType() + "\r\n";
+	_responseStr += "Content-Length: " + Util::toString(_response->getContentLength()) + "\r\n";
 	if (!_response->getContentLanguage().empty())
-		oss << "Content-Language: " << _response->getContentLanguage() << "\r\n";
+		_responseStr += "Content-Language: " + _response->getContentLanguage() + "\r\n";
 	if (!_response->getContentLocation().empty())
-		oss << "Content-Location: " << _response->getContentLocation() << "\r\n";
+		_responseStr += "Content-Location: " + _response->getContentLocation() + "\r\n";
 	if (!_response->getLastModified().empty())
-		oss << "Last-Modified: " << _response->getLastModified() << "\r\n";
-	oss << "Allow: " << Util::allowToString(_response->getAllow()) << "\r\n";
+		_responseStr += "Last-Modified: " + _response->getLastModified() + "\r\n";
+	_responseStr += "Allow: " + Util::allowToString(_response->getAllow()) + "\r\n";
 	if (!_response->getLocation().empty())
-		oss << "Location: " << _response->getLocation() << "\r\n";
+		_responseStr += "Location: " + _response->getLocation() + "\r\n";
 	if (!_response->getRetryAfter().empty())
-		oss << "Retry-After: " << _response->getRetryAfter() << "\r\n";
-	//oss << "Transfer-Encoding: " << _response->getTransferEncoding() << "\r\n";
+		_responseStr += "Retry-After: " + _response->getRetryAfter() + "\r\n";
+	//_responseStr += "Transfer-Encoding: " + _response->getTransferEncoding() + "\r\n";
 	if (!_response->getWWWAuthenticate().empty())
-		oss << "WWW-Authenticate: " << _response->getWWWAuthenticate() << "\r\n";
-	oss << "\r\n";
+		_responseStr += "WWW-Authenticate: " + _response->getWWWAuthenticate() + "\r\n";
+	_responseStr += "\r\n";
 
 	// Body
 	if (this->_request->getMethod() != HEAD && !this->_response->getBody().empty())
-		oss << _response->getBody(); // Is it nessecary to add "\n" after last line?
-
-	_responseStr = oss.str();
-	oss.clear();
+		_responseStr += _response->getBody(); // Is it nessecary to add "\n" after last line?
 
 	if (Util::printResponses)
 		Logger::log("Response", _responseStr, TEXT_RED);
@@ -846,8 +843,7 @@ void Session::clean()
 	_login = "";
 	_password = "";
 	_validRequestFlag = false;
-	_oss.str("");
-	_oss.clear();
+	_readStr = "";
 }
 
 // GETTERS

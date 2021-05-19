@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/09 15:19:55 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/16 16:10:12 by gjessica         ###   ########.fr       */
+/*   Updated: 2021/05/19 14:06:40 by gjessica         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,14 +34,16 @@ CGIResponse::~CGIResponse(void) {
 	return ;
 }
 
-void				CGIResponse::parseCGIResponse(std::string const &str) {
+void				CGIResponse::parseCGIResponse(std::string &str) {
 
 	std::size_t			pos;
 	std::string			line;
 	std::istringstream	iss(str);
+	int lineSize = 0;
 
 	while(std::getline(iss, line))
 	{
+		lineSize = line.length() + 1;
 		if ((pos = line.find("\r")) != std::string::npos)
 			line = line.substr(0, pos);
 		if (Util::isKey(line, "Content-type"))
@@ -61,13 +63,16 @@ void				CGIResponse::parseCGIResponse(std::string const &str) {
 		}
 		else if (line.empty())
 		{
-			while (std::getline(iss, line))
-				this->_body += line + "\n";
-			this->_body = this->_body.substr(0, this->_body.size() - 1); // deletes last '\n'
+			str.erase(0, lineSize);
+			this->_body = str;
+			// while (std::getline(iss, line))
+			// 	this->_body += line + "\n";
+			// this->_body = this->_body.substr(0, this->_body.size() - 1); // deletes last '\n'
 			// decode?
 			// I suppose that there will be no chunked CGI Responses
 			break ;
 		}
+		str.erase(0, lineSize);
 	}
 }
 

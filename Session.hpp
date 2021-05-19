@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/17 23:06:28 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/18 17:28:08 by gjessica         ###   ########.fr       */
+/*   Updated: 2021/05/19 14:08:37 by gjessica         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,7 +60,7 @@ class Session : public ASocketOwner {
 		std::string		_password; // If we need them but they are empty -> 401 Unauthorized
 
 		bool			_validRequestFlag;
-		std::ostringstream	_oss;
+		std::string		_readStr;
 		//pid_t			_pid;
 		//char			_buf[BUFFER_SIZE + 1];
 		//int				_bufLeft;
