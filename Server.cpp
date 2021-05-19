@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/16 09:02:17 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/18 10:30:11 by gjessica         ###   ########.fr       */
+/*   Updated: 2021/05/19 08:51:15 by gjessica         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #include <iostream>
 #include <fcntl.h>
 #include <sys/socket.h>
+#include <arpa/inet.h>
 
 #define MAX_USERS 1000
 
@@ -40,26 +41,17 @@ Server::Server(int a_socket) : ASocketOwner(a_socket),
 }
 
 Server::Server(Server const &src) : ASocketOwner(src) {
-
 	*this = src;
-	return ;
 }
 
 Server::~Server(void) {
-
-	// delete sessionSet ?
-	// delete locationSet ?
 	for (std::list<Session *>::iterator it = _sessionSet.begin();
 												it != _sessionSet.end(); it++)
-	{
 		_the_selector->remove(*it);
-	}
 	_the_selector->remove(this);
-	return ;
 }
 
 Server	&Server::operator=(Server const &rhs) {
-
 	this->_socket = rhs._socket;
 	this->_serverNames = rhs._serverNames;
 	this->_host = rhs._host;
@@ -68,7 +60,6 @@ Server	&Server::operator=(Server const &rhs) {
 	this->_defaultErrorPage404 = rhs._defaultErrorPage404;
 	this->_locationSet = rhs._locationSet;
 	this->_sessionSet = rhs._sessionSet;
-
 	return (*this);
 }
 
@@ -82,18 +73,15 @@ int		Server::start(void) {
 	// Creating a server listening socket
 	if ((_socket = socket(AF_INET, SOCK_STREAM, 0)) == -1)
 	{
-		//rds
-		// Can be exception
 		std::cout << "Error: cant't create server socket." << std::endl;
 		return (-1);
-
 	}
+	fcntl(_socket, F_SETFL, O_NONBLOCK);
 
 	// Prevents port sticking
 	opt = 1;
 	if (setsockopt(_socket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) == -1)
 	{
-		// Can be exception
 		std::cout << "Error: can't set socket option 'reusable'" << std::endl;
 		close(_socket);
 		setSocket(-1);
@@ -103,12 +91,10 @@ int		Server::start(void) {
 	addr.sin_family = AF_INET;
 	addr.sin_port = htons(_port);
 	addr.sin_addr.s_addr = inet_addr(_host.c_str());
-	//addr.sin_addr.s_addr = htonls(INADDR_ANY);
 
 	// Binding the socket '_listenSocket' to IP address
 	if ((ret = bind(_socket, (struct sockaddr *)&addr, sizeof(addr))) == -1)
 	{
-		// Can be exception
 		std::cout << "Error: can't bind IP address to server port." << std::endl;
 		close(_socket);
 		setSocket(-1);
@@ -137,13 +123,13 @@ int		Server::start(void) {
 
 	return (0);
 }
-#include <arpa/inet.h>
+
 void		Server::handle(int action) {
 	action = 2;
 	int					sockfd;
 	struct sockaddr_in	addr;
 	socklen_t			len = sizeof(addr);
-	//uint16_t port;
+	uint16_t port;
 
 	//if ((sockfd = accept(_socket, NULL, NULL)) == -1)
 	if ((sockfd = accept(_socket, (struct sockaddr *)&addr, &len)) == -1)
@@ -157,7 +143,9 @@ void		Server::handle(int action) {
 		return ;
 	}
 	fcntl(sockfd, F_SETFL, O_NONBLOCK); // mondrew: not sure it is necessary here
-	// port = htons (addr.sin_port);
+	port = htons (addr.sin_port);
+	std::cout << "Connected new client [" << sockfd << "] - " <<
+			Util::ltoips(addr.sin_addr.s_addr) << ":" << port << std::endl;
 	// // if (Util::printServerAccepts)
 	//  	std::cout << "SERVER ACCEPT: " << sockfd << " "  <<
 	// 	 Util::ltoips(addr.sin_addr.s_addr) << ":" << port << std::endl; // debug

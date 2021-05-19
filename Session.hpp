@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/17 23:06:28 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/18 11:12:49 by gjessica         ###   ########.fr       */
+/*   Updated: 2021/05/18 17:28:08 by gjessica         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,7 +87,7 @@ class Session : public ASocketOwner {
 		bool			isValidPermissions(void) const;
 		bool			isValidBodySize(void) const;
 		bool			isCGI(void) const;
-		virtual bool	getDeleteMe(void) const;
+		virtual bool	isDeleteMe(void) const;
 		virtual void	remove(void);
 		virtual void	handle(int action);
 
@@ -101,7 +101,9 @@ class Session : public ASocketOwner {
 		void			makeCGIResponse(void);
 		void			makeRedirectionResponse(std::string const &path, \
 								int statusCode, std::string const &statusText);
-		void			checkNeedToRead(void);
+		// void			checkNeedToRead(void);
+
+		bool 			isEndRequest(std::string &_requestStr);
 
 		 char		**createArgv(void);
 		 char		**createEnvp(CGIRequest *cgiRequest);

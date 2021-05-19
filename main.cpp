@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/18 09:20:58 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/18 11:49:10 by gjessica         ###   ########.fr       */
+/*   Updated: 2021/05/19 13:55:33 by gjessica         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,15 +20,15 @@ bool	Util::printResponses = false;
 bool	Util::printSockets = false;
 bool	Util::printLocations = false;
 bool	Util::printServerAccepts = false;
-bool	Util::printConnections = false;
+bool	Util::printConnections = true;
 bool	Util::printRequestTarget = false;
 bool	Util::printRequestType = false;
 bool	Util::printCGIResponseString = false;
 bool	Util::printCGIResponse = false;
 bool	Util::printCGIRequest = false;
 bool	Util::printCGIRequestENVP = false;
-bool	Util::printHandleCounter = false;
-bool	Util::printCountRemoveConnection = true;
+bool	Util::printCountRemoveConnection = false;
+bool	Util::printTimingLog = false;
 
 int		main(int argc, char **argv)
 {

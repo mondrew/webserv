@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/20 15:53:09 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/08 23:23:50 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/05/19 12:09:54 by gjessica         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 #include <algorithm>
 #include <utility>
 
-HTTPRequest::HTTPRequest(std::string const &str, Session *session) :
+HTTPRequest::HTTPRequest(std::string &str, Session *session) :
 													_session(session),
 													_valid(true),
 													_allow(0) {
@@ -159,18 +159,20 @@ bool 			HTTPRequest::setStartLineParam(std::string &line)
 	return (true);
 }
 
-void			HTTPRequest::parseRequest(std::string const &str)
+void			HTTPRequest::parseRequest(std::string &str)
 {
 	std::istringstream	f(str);
 	std::string			line;
-
+	int lineSize = 0;
 	//Check first line - METHOD PATH PROTOCOL
 	std::getline(f, line);
+	lineSize = line.length() + 1;
 	line.erase(std::remove(line.begin(), line.end(), '\r'), line.end());
 	if (!setStartLineParam(line))
 		return ;
-
+	str.erase(0, lineSize );
     while (std::getline(f, line)) {
+		lineSize = line.length() + 1;
 		line.erase(std::remove(line.begin(), line.end(), '\r'), line.end());
 		if (isKey(line, "Accept-Charsets"))
 			this->_acceptCharset = getValue(line, "Accept-Charsets");
@@ -209,21 +211,33 @@ void			HTTPRequest::parseRequest(std::string const &str)
 			this->_transferEncoding = getValue(line, "Transfer-Encoding");
 		else if (line.empty())
 		{
-			while (std::getline(f, line))
-				this->_body += line + "\n";
-			this->_body = this->_body.substr(0, this->_body.size() - 1); // deletes last '\n'
+			str.erase(0, lineSize);
+			// std::getline(f, line);
+			// lineSize = line.length();
+			Util::printWithTime("START BODY");
+			//f >> this->_body;
+			// (std::getline(f, line));
+			// 	this->_body += line ;
+			this->_body = str;
+			//this->_body = this->_body.substr(0, this->_body.size() - 1); // deletes last '\n'
+			Util::printWithTime("END BODY");
 			// if (!this->_body.empty() && this->_contentLength == 0)
 			// 	this->_body = Util::unchunkData(this->_body);
 			break;
 		}
 		else
 		{
-			// Special headers
+
+ 			// Special headers
 			this->_specialHeaders.insert(getSpecialHeader(line));
 		}
+		str.erase(0, lineSize);
     }
-	if (this->_transferEncoding == "chunked")
+	Util::printWithTime("START CHUNKED");
+	if (this->_transferEncoding == "chunked") {
 			this->_body = Util::unchunkData(this->_body);
+	}
+	Util::printWithTime("END CHUNKED");
 	// setCgiPathInfo();
 	// setCgiPathTranslated();
 }

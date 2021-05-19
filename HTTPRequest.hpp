@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/20 15:48:48 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/08 23:23:43 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/05/19 10:28:15 by gjessica         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -105,7 +105,7 @@ class HTTPRequest {
 
 	public:
 
-		HTTPRequest(std::string const &str, Session *session);
+		HTTPRequest(std::string &str, Session *session);
 		~HTTPRequest(void);
 
 		bool				isValid(void) const;
@@ -157,7 +157,7 @@ class HTTPRequest {
 
 		bool 				setStartLineParam(std::string &line);
 		void				splitTargetAndCgiPathInfo(void);
-		void				parseRequest(std::string const &str);
+		void				parseRequest(std::string &str);
 };
 
 #endif

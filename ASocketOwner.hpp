@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/18 00:05:41 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/17 17:34:25 by gjessica         ###   ########.fr       */
+/*   Updated: 2021/05/18 21:23:41 by gjessica         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,9 +48,8 @@ class ASocketOwner {
 
 		// Pure virtual method (implementations will be in derived classes)
 		virtual void	handle(int action) = 0;
-		//virtual bool	isReadyToResponse(void) const = 0;
 
-		virtual bool	getDeleteMe(void) const = 0;
+		virtual bool	isDeleteMe(void) const = 0;
 		virtual void	remove(void) = 0;
 };
 
