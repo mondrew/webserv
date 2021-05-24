@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/17 23:10:08 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/19 15:41:41 by gjessica         ###   ########.fr       */
+/*   Updated: 2021/05/24 16:55:31 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,11 @@ Session::Session(int a_sockfd, int remoteAddr, Server *master) : ASocketOwner(a_
 																 _serverLocation(0),
 																 _remoteAddr(remoteAddr),
 																 _deleteMe(false),
-																 _validRequestFlag(false)
+																 _validRequestFlag(false),
+																 _fileCGIRequest(0),
+																 _fileCGIResponse(0),
+																 _offset(0),
+																 _launchChild(false)
 {
 }
 
@@ -54,6 +58,7 @@ void Session::handle(int action)
 
 	if (action == READ)
 	{
+		// std::cout << "handle: READ" << std::endl; // debug
 		char bufffer[BUFFER_SIZE] = {0};
 		ret = recv(_socket, bufffer, BUFFER_SIZE - 1, MSG_DONTWAIT);
 		if (ret < 0)
@@ -85,6 +90,7 @@ void Session::handle(int action)
 	}
 	else if (action == WRITE)
 	{
+		// std::cout << "handle: WRITE" << std::endl; // debug
 		ret = send(_socket, _responseStr.c_str(), _responseStr.size(), 0);
 		if (ret == 0 || ret == -1)
 		{
@@ -103,6 +109,11 @@ void Session::handle(int action)
 				Util::printWithTime("END SEND RESPONSE");
 			}
 		}
+	}
+	else if (action == CGI)
+	{
+		// std::cout << "handle: CGI" << std::endl; // debug
+		generateResponse();
 	}
 }
 
@@ -414,75 +425,167 @@ char **Session::createEnvp(CGIRequest *cgiRequest)
 
 void Session::makeCGIResponse(void)
 {
+	// std::cerr << "Start makeCGIResponse" << std::endl;
 
-	int pid;
-	int defStdin;
-	int defStdout;
-	Util::printWithTime("start makeCGIResponse");
-	FILE *fIn = tmpfile();
-	FILE *fOut = tmpfile();
+	// Util::printWithTime("start makeCGIResponse");
+	if (!getWantToWriteCGIRequest() && !getWantToReadCGIResponse())
+	{
+		// std::cout << "Only first time" << std::endl; // debug
+		setWantToWrite(false); // solution
 
-	long fdIn = fileno(fIn);
-	long fdOut = fileno(fOut);
+		// Only first time
+		this->_fileCGIRequest = tmpfile();
+		this->_fileCGIResponse = tmpfile();
 
-	defStdin = dup(STDIN_FILENO);
-	defStdout = dup(STDOUT_FILENO);
+		this->_fdCGIRequest = fileno(this->_fileCGIRequest);
+		this->_fdCGIResponse = fileno(this->_fileCGIResponse);
 
-	if (this->_request->getTarget().find(".bla") != std::string::npos &&
-		this->_request->getMethod() == POST)
-	{
-		this->_responseFilePathOld = this->_responseFilePath;
-		this->_responseFilePath = this->_serverLocation->getCgiPath();
-		this->_request->setCgiPathInfo(this->_request->getTarget()); // IT SHOULD BE CORRECT!!!
-	}
-	if (this->_request->getContentType().find(
-			"application/x-www-form-urlencoded") != std::string::npos)
-	{
-		this->_request->setBody(Util::decodeUriEncoded(this->_request->getBody()));
-		this->_request->setContentLength(this->_request->getBody().length());
-	}
-	this->_cgiRequest = new CGIRequest(this, this->_request);
-	this->_cgiResponse = new CGIResponse();
+		// this->_defStdIn = dup(STDIN_FILENO);
+		// this->_defStdOut = dup(STDOUT_FILENO);
 
-	if (Util::printCGIRequest)
-	{
-		std::cout << "~~~~~~~~~~~~~~~~~~~~~~CGI_REQUEST~~~~~~~~~~~~~~~~~~~~~~~" << std::endl;
-		this->_cgiRequest->print();
-		std::cout << "~~~~~~~~~~~~~~~~~~~~~CGI_REQUEST END~~~~~~~~~~~~~~~~~~~~" << std::endl;
-	}
-	write(fdIn, this->_request->getBody().c_str(), this->_request->getBody().size());
-	lseek(fdIn, 0, SEEK_SET);
-	char **argv = createArgv();
-	char **envp = createEnvp(_cgiRequest);
-	pid = fork();
-
-	if (pid == -1)
-	{
-		std::cout << "Error pid\n";
-	}
-	else if (pid == 0)
-	{
-		dup2(fdIn, STDIN_FILENO);
-		dup2(fdOut, STDOUT_FILENO);
-		execve(_responseFilePath.c_str(),
-			   const_cast<char *const *>(argv), const_cast<char *const *>(envp));
-		std::cerr << "Error execve\n";
-		exit(0);
-	}
-	else
-	{
-		waitpid(-1, NULL, 0);
-		Util::printWithTime("PARENT FORK");
-		lseek(fdOut, 0, SEEK_SET);
-		int retVal = 1;
-		char buffer[BUFFER_SIZE + 1];
-		while (retVal > 0)
+		if (this->_request->getTarget().find(".bla") != std::string::npos && \
+											this->_request->getMethod() == POST)
 		{
-			memset(buffer, 0, BUFFER_SIZE);
-			retVal = read(fdOut, buffer, BUFFER_SIZE);
-			buffer[retVal] = '\0';
-			_readStr += buffer;
+			this->_responseFilePathOld = this->_responseFilePath;
+			this->_responseFilePath = this->_serverLocation->getCgiPath();
+			this->_request->setCgiPathInfo(this->_request->getTarget()); // IT SHOULD BE CORRECT!!!
 		}
+		if (this->_request->getContentType().find(
+						"application/x-www-form-urlencoded") != std::string::npos)
+		{
+			this->_request->setBody(Util::decodeUriEncoded(this->_request->getBody()));
+			this->_request->setContentLength(this->_request->getBody().length());
+		}
+		this->_cgiRequest = new CGIRequest(this, this->_request);
+		this->_cgiResponse = new CGIResponse();
+
+		// Вот эту часть надо делать в launch script
+		if (!this->_request->getBody().empty())
+		{
+			setWantToWriteCGIRequest(true);
+			this->_msgForCGI = this->_request->getBody();
+		}
+		else
+			setWantToReadCGIResponse(true);
+		//
+
+		if (Util::printCGIRequest)
+		{
+			std::cout << "~~~~~~~~~~~~~~~~~~~~~~CGI_REQUEST~~~~~~~~~~~~~~~~~~~~~~~" << std::endl;
+			this->_cgiRequest->print();
+			std::cout << "~~~~~~~~~~~~~~~~~~~~~CGI_REQUEST END~~~~~~~~~~~~~~~~~~~~" << std::endl;
+		}
+	}
+	if (getWantToWriteCGIRequest())
+	{
+		// std::cout << "getWantToWriteCGIRequest()" << std::endl; // debug
+		if (!this->_msgForCGI.empty())
+		{
+			lseek(this->_fdCGIRequest, this->_offset, SEEK_SET);
+			int ret = write(this->_fdCGIRequest, \
+							this->_msgForCGI.c_str(), this->_msgForCGI.size());
+
+			if (ret == -1 || ret == 0)
+			{
+				std::cerr << "Error: write to CGI failed" << std::endl;
+				// Error handling (exit and clean?)
+			}
+			else if (static_cast<std::size_t>(ret) < this->_msgForCGI.size())
+			{
+				this->_msgForCGI.erase(0, ret);
+				this->_offset += ret;
+			}
+			else
+			{
+				setWantToWriteCGIRequest(false);
+				setWantToReadCGIResponse(true);
+				lseek(this->_fdCGIRequest, 0, SEEK_SET);
+				// dup2(this->_fdCGIRequest, STDIN_FILENO); // Do it in child
+				this->_offset = 0;
+				// std::cout << "finished wantToWriteCGIRequest" << std::endl; // debug
+			}
+		}
+		else
+		{
+			// Senseless
+			setWantToWriteCGIRequest(false);
+			setWantToReadCGIResponse(true);
+			lseek(this->_fdCGIRequest, 0, SEEK_SET);
+			// dup2(this->_fdCGIRequest, STDIN_FILENO); // Do it in child
+			this->_offset = 0;
+			// std::cout << "finished wantToWriteCGIRequest" << std::endl; // debug
+		}
+	}
+	// Гениальная идея: прежде чем читать - мне нужно запустить CGI-скрипт
+	// Нужно вынести в отдельный модуль запуск CGI скрипта
+	// Все из-за else if здесь
+	//
+	// else if (getWantToReadCGIResponse())
+	if (getWantToReadCGIResponse())
+	{
+		// std::cout << "getWantToReadCGIResponse()" << std::endl; // debug
+		if (!this->_launchChild)
+		{
+			// dup2(this->_fdCGIRequest, STDIN_FILENO); // Do it in child
+			// dup2(this->_fdCGIResponse, STDOUT_FILENO); // Do it in child
+			this->_launchChild = true;
+			if ((this->_pid = fork()) == -1)
+			{
+				std::cerr << "Error pid\n";
+				// Error treatment: 500
+				setWantToReadCGIResponse(false);
+				setWantToRead(true);
+				setWantToWrite(false);
+				return ;
+			}
+			else if (this->_pid == 0)
+			{
+				// Child
+				char	**argv = createArgv();
+				char	**envp = createEnvp(_cgiRequest);
+
+				dup2(this->_fdCGIRequest, STDIN_FILENO); // Do it in child
+				dup2(this->_fdCGIResponse, STDOUT_FILENO); // Do it in child
+				execve(_responseFilePath.c_str(), \
+					   				const_cast<char *const *>(argv), \
+						   					const_cast<char *const *>(envp));
+				std::cerr << "Error execve\n";
+				exit(0);
+			}
+			// Parent
+			waitpid(-1, NULL, 0);
+		}
+		// Parent
+		int		retVal = 0;
+		char	buffer[BUFFER_SIZE + 1];
+
+		memset(buffer, 0, BUFFER_SIZE + 1);
+		lseek(this->_fdCGIResponse, this->_offset, SEEK_SET);
+
+		if ((retVal = read(this->_fdCGIResponse, buffer, BUFFER_SIZE)) == -1)
+		{
+			std::cerr << "Error: read in CGI fails" << std::endl;
+			setWantToReadCGIResponse(false);
+			setWantToRead(true);
+			setWantToWrite(false);
+			return ;
+		}
+		else if (retVal == 0)
+		{
+			// EOF reached
+			setWantToReadCGIResponse(false);
+			setWantToWrite(true);
+			// lseek(this->_fdCGIResponse, 0, SEEK_SET);
+		}
+		else
+		{
+			this->_readStr += std::string(buffer);
+			this->_offset += retVal;
+		}
+	}
+	if (getWantToWrite())
+	{
+		// std::cout << "getWantToWrite() final" << std::endl; // debug
 		Util::printWithTime("PARENT FORK after read");
 		_response->setStatusCode(200);
 		_response->setStatusText("OK");
@@ -491,50 +594,49 @@ void Session::makeCGIResponse(void)
 		Util::printWithTime("PARENT FORK TEST2");
 		if (!this->_cgiResponse->getStatus().empty())
 		{
-			this->_response->setStatusCode(this->_cgiResponse->getStatusCode());
-			this->_response->setStatusText(this->_cgiResponse->getStatusText());
+			this->_response->setStatusCode(\
+										this->_cgiResponse->getStatusCode());
+			this->_response->setStatusText(\
+										this->_cgiResponse->getStatusText());
 		}
 		Util::printWithTime("PARENT FORK TEST1");
 		if (!this->_cgiResponse->getContentType().empty())
-			this->_response->setContentType(this->_cgiResponse->getContentType());
+			this->_response->setContentType(\
+										this->_cgiResponse->getContentType());
 		else
 			this->_response->setContentType("text/html");
 
 		if (!this->_cgiResponse->getBody().empty())
 			this->_response->setBody(_cgiResponse->getBody());
 		if (this->_cgiResponse->getContentLength() != 0)
-			this->_response->setContentLength(this->_cgiResponse->getContentLength());
-
+			this->_response->setContentLength(\
+										this->_cgiResponse->getContentLength());
 		else
 			this->_response->setContentLength(_cgiResponse->getBody().length());
 		this->_response->setContentLocation(this->_responseFilePath);
 
-
 		// Change it: get info from CGI
-		this->_response->setLastModified(
-			Util::getFileLastModified(this->_responseFilePath));
+		this->_response->setLastModified(\
+							Util::getFileLastModified(this->_responseFilePath));
+
+		// dup2(this->_defStdIn, STDIN_FILENO);
+		// dup2(this->_defStdOut, STDOUT_FILENO);
+
+		fclose(this->_fileCGIRequest);
+		fclose(this->_fileCGIResponse);
+		close(this->_fdCGIRequest);
+		close(this->_fdCGIResponse);
+		setFdCGIRequest(-1);
+		setFdCGIResponse(-1);
+
+		// close(this->_defStdIn);
+		// close(this->_defStdOut);
 
 		responseToString();
 		setWantToWrite(true);
+
+		Util::printWithTime("END makeCGIResponse");
 	}
-
-	for (int i = 0; argv[i]; i++)
-		free(const_cast<void *>(static_cast<const void *>(argv[i])));
-	free(argv);
-
-	for (int i = 0; envp[i]; i++)
-		free(const_cast<void *>(static_cast<const void *>(envp[i])));
-	free(envp);
-	Util::printWithTime("END makeCGIResponse");
-
-	dup2(defStdin, STDIN_FILENO);
-	dup2(defStdout, STDOUT_FILENO);
-	fclose(fIn);
-	fclose(fOut);
-	close(fdIn);
-	close(fdOut);
-	close(defStdin);
-	close(defStdout);
 }
 
 void Session::makeRedirectionResponse(std::string const &path,
@@ -731,13 +833,19 @@ void Session::generateResponse(void)
 	{
 		setRequestCgiPathTranslated();
 		if (isCGI())
+		{
+			// setWantToWrite(false);
 			makeCGIResponse();
+		}
 		else if (_request->getMethod() == GET || _request->getMethod() == HEAD)
 			makeGETResponse();
 		else if (_request->getMethod() == POST)
 		{
 			if (this->_request->getTarget().find(".bla") != std::string::npos)
+			{
+				// setWantToWrite(false);
 				makeCGIResponse();
+			}
 			else
 				makePOSTResponse();
 		}
@@ -814,6 +922,19 @@ Session::~Session(void)
 
 void Session::clean()
 {
+	/*
+	static int k = 0;
+
+	k++;
+	std::cout << "RESPONSE SENT: " << k << std::endl;
+	if (k == 100097)
+	{
+		std::cout << "===================================================================" << std::endl;
+		Util::printRequests = true;
+		Util::printResponses = true;
+	}
+	*/
+
 	if (_request)
 	{
 		delete _request;
@@ -842,8 +963,23 @@ void Session::clean()
 	_responseFilePathOld = "";
 	_login = "";
 	_password = "";
-	_validRequestFlag = false;
 	_readStr = "";
+
+	// ASocketOwner
+	setWantToRead(true);
+	setWantToWrite(false);
+	setWantToWriteCGIRequest(false);
+	setWantToReadCGIResponse(false);
+	_fdCGIRequest = -1;
+	_fdCGIResponse = -1;
+
+	// New CGI data 24/05/2021
+	_pid = -1;
+	_fileCGIRequest = 0;
+	_fileCGIResponse = 0;
+	_offset = 0;
+	_launchChild = false;
+	_msgForCGI = "";
 }
 
 // GETTERS

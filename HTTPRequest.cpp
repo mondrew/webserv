@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/20 15:53:09 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/19 13:57:35 by gjessica         ###   ########.fr       */
+/*   Updated: 2021/05/24 16:55:57 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,7 +96,6 @@ std::pair<std::string, std::string>		getSpecialHeader(std::string const &line)
 
 bool 			HTTPRequest::setStartLineParam(std::string &line)
 {
-	// std::cout << "=======>>>>>>>line<<<<: " << line << std::endl; // debug // why here "/"?
 	std::string		tmpTarget;
 	std::size_t		pos;
 
@@ -161,6 +160,14 @@ bool 			HTTPRequest::setStartLineParam(std::string &line)
 
 void			HTTPRequest::parseRequest(std::string &str)
 {
+	/*
+	if (Util::printRequests)
+	{
+		std::cout << "=======>>>>>>> parseRequest start <<<<: " << std::endl;
+	   	std::cout << str << std::endl; // debug // why here "/"
+		std::cout << "=======>>>>>>> parseRequest end <<<<" << std::endl;
+	}
+	*/
 	std::istringstream	f(str);
 	std::string			line;
 	int lineSize = 0;

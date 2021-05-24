@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/16 09:02:17 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/19 08:51:15 by gjessica         ###   ########.fr       */
+/*   Updated: 2021/05/24 08:35:32 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -138,8 +138,8 @@ void		Server::handle(int action) {
 		// Can be exception
 		std::cout << "Error: can't accept new connection on " << _socket;
 		std::cout << " socket." << std::endl;
-		close(_socket);
-		setSocket(-1);
+		// close(_socket); //23.05 mondrew
+		// setSocket(-1); // 23.05 mondrew
 		return ;
 	}
 	fcntl(sockfd, F_SETFL, O_NONBLOCK); // mondrew: not sure it is necessary here

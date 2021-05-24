@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/17 23:06:28 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/19 14:08:37 by gjessica         ###   ########.fr       */
+/*   Updated: 2021/05/24 15:46:33 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,7 +61,17 @@ class Session : public ASocketOwner {
 
 		bool			_validRequestFlag;
 		std::string		_readStr;
-		//pid_t			_pid;
+
+		pid_t			_pid;
+		int				_defStdIn;
+		int				_defStdOut;
+		FILE			*_fileCGIRequest;
+		FILE			*_fileCGIResponse;
+		off_t			_offset;
+		bool			_launchChild;
+
+		std::string		_msgForCGI;
+
 		//char			_buf[BUFFER_SIZE + 1];
 		//int				_bufLeft;
 		//char			_write_buffer[BUFFER_SIZE];
