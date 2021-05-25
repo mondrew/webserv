@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/09 15:19:55 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/19 14:06:40 by gjessica         ###   ########.fr       */
+/*   Updated: 2021/05/25 08:40:17 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,7 +58,10 @@ void				CGIResponse::parseCGIResponse(std::string &str) {
 			if ((pos = this->_status.find(" ")) != std::string::npos)
 			{
 				this->_statusCode = atoi(this->_status.substr(0, pos).c_str());
-				this->_statusText = this->_status.substr(pos + 1);
+				if (this->_status.length() > pos + 1) // 25/05
+					this->_statusText = this->_status.substr(pos + 1);
+				else // 25/05
+					this->_statusText = ""; // 25/05
 			}
 		}
 		else if (line.empty())
