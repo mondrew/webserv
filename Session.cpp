@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/17 23:10:08 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/25 11:56:04 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/05/25 20:50:12 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -922,7 +922,6 @@ Session::~Session(void)
 
 void Session::clean()
 {
-	/*
 	static int k = 0;
 
 	k++;
@@ -933,7 +932,6 @@ void Session::clean()
 		Util::printRequests = true;
 		Util::printResponses = true;
 	}
-	*/
 
 	if (_request)
 	{

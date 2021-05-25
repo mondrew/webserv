@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/20 15:53:09 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/25 11:57:38 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/05/25 20:54:47 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,9 +71,10 @@ int 			isKey(std::string const &line, std::string const &key)
 }
 
 // Changed 25/05
-std::string		getValue(std::string const &line, std::string const &key)
+std::string		getValue(std::string const &line, std::string const &keyIn)
 {
-	std::string		str = line;
+	std::string		str = toLower(line);
+	std::string		key = toLower(keyIn);
 	std::size_t		pos = 0;
 
 	str.erase(std::remove(str.begin(), str.end(), '\r'), str.end());
