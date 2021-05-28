@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/16 09:02:17 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/24 08:35:32 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/05/28 09:14:22 by gjessica         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,8 +90,7 @@ int		Server::start(void) {
 
 	addr.sin_family = AF_INET;
 	addr.sin_port = htons(_port);
-	addr.sin_addr.s_addr = inet_addr(_host.c_str());
-
+	addr.sin_addr.s_addr = inet_addr("127.0.0.1");
 	// Binding the socket '_listenSocket' to IP address
 	if ((ret = bind(_socket, (struct sockaddr *)&addr, sizeof(addr))) == -1)
 	{

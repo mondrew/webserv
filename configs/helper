@@ -1,0 +1,6 @@
+curl --resolve example.com:8002:127.0.0.1 http://example.com:8002
+
+curl -X POST -H "Content-Type: plain/text" --data "body" http://127.0.0.1:8002/post_body
+curl -X POST -H "Content-Type: plain/text" --data "bodynsadjkcnjkadscnkjndsacjkndsajkcndsjkancjkdsncjkdnsajcndjsancjkdsnacjkndsjakcnjksdancjknasdjcndsjacnjdksancjksadnc" http://127.0.0.1:8002/post_body
+curl -X HEAD http://127.0.0.1:8002
+curl --head http://127.0.0.1:8002

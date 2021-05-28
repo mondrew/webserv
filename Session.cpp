@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/17 23:10:08 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/25 20:50:12 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/05/27 21:41:29 by gjessica         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -228,7 +228,12 @@ bool Session::isValidRequestAllow(void) const
 
 bool Session::isValidRequestHost(void) const
 {
-	return (!_request->getHost().empty());
+	size_t pos = 0;
+	if ((pos = _request->getHost().find(':')) == std::string::npos)
+		pos = _request->getHost().size();
+	return (_theMaster->getHost() == _request->getHost().substr(0, pos));
+
+	//return (!_request->getHost().empty());
 }
 
 bool Session::isValidPermissions(void) const
