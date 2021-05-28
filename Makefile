@@ -6,11 +6,11 @@
 #    By: gjessica <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/12/08 23:16:50 by mondrew           #+#    #+#              #
-#    Updated: 2021/05/27 21:36:23 by gjessica         ###   ########.fr        #
+#    Updated: 2021/05/28 12:28:50 by gjessica         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-NAME = a.out
+NAME = webserv
 SRCS = 	./main.cpp \
 		ASocketOwner.cpp \
 		Config.cpp \

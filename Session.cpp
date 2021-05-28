@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/17 23:10:08 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/27 21:41:29 by gjessica         ###   ########.fr       */
+/*   Updated: 2021/05/28 12:44:53 by gjessica         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -238,6 +238,8 @@ bool Session::isValidRequestHost(void) const
 
 bool Session::isValidPermissions(void) const
 {
+	if (this->_request->getTarget().find(".bla") != std::string::npos)
+		return true;
 	return (Util::isAllowedToRead(this->_responseFilePath));
 }
 
