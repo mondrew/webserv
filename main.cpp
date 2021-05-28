@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/18 09:20:58 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/14 08:42:18 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/05/27 21:05:38 by gjessica         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 #include "Util.hpp"
 
 bool	Util::printConfig = false;
-bool	Util::printRequests = false;
+bool	Util::printRequests = true;
 bool	Util::printResponses = false;
 bool	Util::printSockets = false;
 bool	Util::printLocations = false;
@@ -27,7 +27,8 @@ bool	Util::printCGIResponseString = false;
 bool	Util::printCGIResponse = false;
 bool	Util::printCGIRequest = false;
 bool	Util::printCGIRequestENVP = false;
-bool	Util::printHandleCounter = false;
+bool	Util::printCountRemoveConnection = false;
+bool	Util::printTimingLog = false;
 
 int		main(int argc, char **argv)
 {

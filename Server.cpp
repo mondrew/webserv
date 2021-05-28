@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/16 09:02:17 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/01 22:01:00 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/05/28 18:34:46 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,9 @@
 #include <iostream>
 #include <fcntl.h>
 #include <sys/socket.h>
+#include <arpa/inet.h>
 
-#define MAX_USERS 128
+#define MAX_USERS 1000
 
 Server::Server(int a_socket) : ASocketOwner(a_socket),
 									_the_selector(0),
@@ -24,7 +25,7 @@ Server::Server(int a_socket) : ASocketOwner(a_socket),
 									_port(80) {
 
 	_pagesMap[302] = "./www/pages/302_Found.html";
-	_pagesMap[307] = "./www/pages/302_TemporatyRedirect.html";
+	_pagesMap[307] = "./www/pages/307_TemporatyRedirect.html";
 	_pagesMap[400] = "./www/pages/400_BadRequest.html";
 	_pagesMap[401] = "./www/pages/401_Unauthorized.html";
 	_pagesMap[403] = "./www/pages/403_Forbidden.html";
@@ -40,35 +41,25 @@ Server::Server(int a_socket) : ASocketOwner(a_socket),
 }
 
 Server::Server(Server const &src) : ASocketOwner(src) {
-
 	*this = src;
-	return ;
 }
 
 Server::~Server(void) {
-
-	// delete sessionSet ?
-	// delete locationSet ?
 	for (std::list<Session *>::iterator it = _sessionSet.begin();
 												it != _sessionSet.end(); it++)
-	{
 		_the_selector->remove(*it);
-	}
 	_the_selector->remove(this);
-	return ;
 }
 
 Server	&Server::operator=(Server const &rhs) {
-
 	this->_socket = rhs._socket;
 	this->_serverNames = rhs._serverNames;
 	this->_host = rhs._host;
 	this->_port = rhs._port;
-	this->_defaultErrorPage402 = rhs._defaultErrorPage402;
-	this->_defaultErrorPage404 = rhs._defaultErrorPage404;
+	// this->_defaultErrorPage402 = rhs._defaultErrorPage402;
+	// this->_defaultErrorPage404 = rhs._defaultErrorPage404;
 	this->_locationSet = rhs._locationSet;
 	this->_sessionSet = rhs._sessionSet;
-
 	return (*this);
 }
 
@@ -82,17 +73,15 @@ int		Server::start(void) {
 	// Creating a server listening socket
 	if ((_socket = socket(AF_INET, SOCK_STREAM, 0)) == -1)
 	{
-		// Can be exception
 		std::cout << "Error: cant't create server socket." << std::endl;
 		return (-1);
-
 	}
+	fcntl(_socket, F_SETFL, O_NONBLOCK);
 
 	// Prevents port sticking
 	opt = 1;
 	if (setsockopt(_socket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) == -1)
 	{
-		// Can be exception
 		std::cout << "Error: can't set socket option 'reusable'" << std::endl;
 		close(_socket);
 		setSocket(-1);
@@ -101,18 +90,16 @@ int		Server::start(void) {
 
 	addr.sin_family = AF_INET;
 	addr.sin_port = htons(_port);
-	addr.sin_addr.s_addr = inet_addr(_host.c_str());
-	//addr.sin_addr.s_addr = htonls(INADDR_ANY);
-
+	addr.sin_addr.s_addr = inet_addr("127.0.0.1");
 	// Binding the socket '_listenSocket' to IP address
 	if ((ret = bind(_socket, (struct sockaddr *)&addr, sizeof(addr))) == -1)
 	{
-		// Can be exception
 		std::cout << "Error: can't bind IP address to server port." << std::endl;
 		close(_socket);
 		setSocket(-1);
 		return (-1);
 	}
+
 	// Turn socket to the listening mode
 	if (listen(_socket, MAX_USERS) == -1)
 	{
@@ -136,27 +123,31 @@ int		Server::start(void) {
 	return (0);
 }
 
-void		Server::handle(void) {
-
+void		Server::handle(int action) {
+	action = 2;
 	int					sockfd;
 	struct sockaddr_in	addr;
 	socklen_t			len = sizeof(addr);
+	uint16_t port;
 
+	//if ((sockfd = accept(_socket, NULL, NULL)) == -1)
 	if ((sockfd = accept(_socket, (struct sockaddr *)&addr, &len)) == -1)
 	{
+		//rds + wrs
 		// Can be exception
 		std::cout << "Error: can't accept new connection on " << _socket;
 		std::cout << " socket." << std::endl;
-		close(_socket);
-		setSocket(-1);
+		// close(_socket); //23.05 mondrew
+		// setSocket(-1); // 23.05 mondrew
 		return ;
 	}
-	// fcntl(sockfd, F_SETFL, O_NONBLOCK); // mondrew: not sure it is necessary here
-
-	if (Util::printServerAccepts)
-	{
-		std::cout << "SERVER ACCEPT: " << sockfd << std::endl; // debug
-	}
+	fcntl(sockfd, F_SETFL, O_NONBLOCK); // mondrew: not sure it is necessary here
+	port = htons (addr.sin_port);
+	std::cout << "Connected new client [" << sockfd << "] - " <<
+			Util::ltoips(addr.sin_addr.s_addr) << ":" << port << std::endl;
+	// // if (Util::printServerAccepts)
+	//  	std::cout << "SERVER ACCEPT: " << sockfd << " "  <<
+	// 	 Util::ltoips(addr.sin_addr.s_addr) << ":" << port << std::endl; // debug
 
 	// Add new client to the Session list and to the EventSelector objects
 	Session	*session = new Session(sockfd, addr.sin_addr.s_addr, this);
@@ -168,7 +159,7 @@ void		Server::handle(void) {
 void		Server::removeSession(Session *s) {
 
 	// Delete Client from the sessionSet linked-list in Server
-	//usleep(500);
+	//usleep(5000);
 	_sessionSet.remove(s);
 
 	// Remove fd from EventSelector object array
@@ -181,6 +172,7 @@ std::vector<std::string> const	&Server::getServerNames(void) const {
 	return (this->_serverNames);
 }
 
+
 std::string const				&Server::getHost(void) const {
 
 	return (this->_host);
@@ -191,6 +183,7 @@ int								Server::getPort(void) const {
 	return (this->_port);
 }
 
+/*
 std::string const				&Server::getDefaultErrorPage402(void) const {
 
 	return (this->_defaultErrorPage402);
@@ -200,6 +193,7 @@ std::string const				&Server::getDefaultErrorPage404(void) const {
 
 	return (this->_defaultErrorPage404);
 }
+*/
 
 std::vector<Location *> 		&Server::getLocationSet(void) {
 
@@ -215,6 +209,18 @@ std::map<int, std::string> 		&Server::getPagesMap(void) {
 
 	return (this->_pagesMap);
 }
+
+/*
+std::string const				&Server::getDefaultErrorPage(int code) const {
+
+	std::map<int, std::string>::iterator it = \
+										this->_defaultErrorPages.find(code);
+	if (it != this->_defaultErrorPages.end())
+		return (it->second);
+	else
+		return ("");
+}
+*/
 
 // Setters
 void	Server::addServerName(std::string const &serverName) {
@@ -232,6 +238,7 @@ void	Server::setPort(int port) {
 	this->_port = port;
 }
 
+/*
 void	Server::setDefaultErrorPage402(std::string const &path) {
 
 	this->_defaultErrorPage402 = path;
@@ -241,6 +248,7 @@ void	Server::setDefaultErrorPage404(std::string const &path) {
 
 	this->_defaultErrorPage404 = path;
 }
+*/
 
 void	Server::addLocation(Location *location) {
 
@@ -257,3 +265,7 @@ void	Server::setSelector(EventSelector *selector) {
 	this->_the_selector = selector;
 }
 
+void	Server::addDefaultErrorPage(int code, std::string const &path) {
+
+	this->_pagesMap[code] = path;
+}

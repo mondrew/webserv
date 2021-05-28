@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/20 15:53:09 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/08 23:23:50 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/05/25 20:54:47 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 #include <algorithm>
 #include <utility>
 
-HTTPRequest::HTTPRequest(std::string const &str, Session *session) :
+HTTPRequest::HTTPRequest(std::string &str, Session *session) :
 													_session(session),
 													_valid(true),
 													_allow(0) {
@@ -70,13 +70,26 @@ int 			isKey(std::string const &line, std::string const &key)
 	return ((toLower(line)).find(toLower(key)) == 0);
 }
 
-std::string		getValue(std::string const &line, std::string const &key)
+// Changed 25/05
+std::string		getValue(std::string const &line, std::string const &keyIn)
 {
-	std::string		str = line;
+	std::string		str = toLower(line);
+	std::string		key = toLower(keyIn);
+	std::size_t		pos = 0;
 
 	str.erase(std::remove(str.begin(), str.end(), '\r'), str.end());
 	// -> Change erase to your function
-	return (str.substr(key.length() + 2));
+	if ((pos = str.find(key)) != std::string::npos && \
+											str.length() > pos + key.length())
+		pos += key.length();
+	else
+		return ("");
+	while (str[pos] == ':' || str[pos] == ' ')
+		pos++;
+	if (str.length() > pos)
+		return (str.substr(pos));
+	else
+		return ("");
 }
 
 std::pair<std::string, std::string>		getSpecialHeader(std::string const &line)
@@ -88,7 +101,10 @@ std::pair<std::string, std::string>		getSpecialHeader(std::string const &line)
 	if ((pos = line.find(":")) != std::string::npos)
 	{
 		header = line.substr(0, pos);
-		value = line.substr(pos + 1);
+		if (line.length() > pos + 1)
+			value = line.substr(pos + 1);
+		else
+			value = "";
 		value = Util::removeLeadingWhitespaces(value);
 	}
 	return (std::pair<std::string, std::string>(header, value));
@@ -96,7 +112,6 @@ std::pair<std::string, std::string>		getSpecialHeader(std::string const &line)
 
 bool 			HTTPRequest::setStartLineParam(std::string &line)
 {
-	// std::cout << "=======>>>>>>>line<<<<: " << line << std::endl; // debug // why here "/"?
 	std::string		tmpTarget;
 	std::size_t		pos;
 
@@ -116,7 +131,10 @@ bool 			HTTPRequest::setStartLineParam(std::string &line)
 		// return setError("Unknown method"); // Here we return true. Why not false?
 	}
 
-	line = line.substr(line.find("/"));
+	if ((pos = line.find("/")) != std::string::npos)
+		line = line.substr(pos); // mb erase will be better
+	else
+		return (false);
 	if ((pos = line.find(" ")) != std::string::npos)
 		tmpTarget = line.substr(0, pos);
 	else
@@ -126,8 +144,7 @@ bool 			HTTPRequest::setStartLineParam(std::string &line)
 
 	// Find query string
 	// TEST in with localhost:8002/?login=mondrew => _target = "/" | _queryString = "login=mondrew"
-	pos = tmpTarget.find("?");
-   	if (pos != std::string::npos)
+	if ((pos = tmpTarget.find("?")) != std::string::npos)
 	{
 		// There is a query string in the GET or POST request
 		this->_target = tmpTarget.substr(0, pos);
@@ -146,31 +163,55 @@ bool 			HTTPRequest::setStartLineParam(std::string &line)
 	{
 		if ((pos = this->_target.find_last_of("/")) != std::string::npos)
 		{
-			this->_filename = this->_target.substr(pos + 1);
-			this->_target.erase(pos);
+			if (this->_target.length() > pos + 1)
+			{
+				this->_filename = this->_target.substr(pos + 1);
+				this->_target.erase(pos);
+			}
+			else
+				return (false);
 		}
+		else 
+			return (false);
 	}
 
-
-	this->_protocolVersion = line.substr(line.find(" ") + 1);
+	if ((pos = line.find(" ")) != std::string::npos)
+	{
+		if (line.length() > pos + 1)
+			this->_protocolVersion = line.substr(pos + 1);
+		else
+			return (false);
+	}
+	else
+		return (false);
 
 	if (this->_target.empty() || this->_protocolVersion.empty())
 		return (false);
 	return (true);
 }
 
-void			HTTPRequest::parseRequest(std::string const &str)
+void			HTTPRequest::parseRequest(std::string &str)
 {
+	/*
+	if (Util::printRequests)
+	{
+		std::cout << "=======>>>>>>> parseRequest start <<<<: " << std::endl;
+	   	std::cout << str << std::endl; // debug // why here "/"
+		std::cout << "=======>>>>>>> parseRequest end <<<<" << std::endl;
+	}
+	*/
 	std::istringstream	f(str);
 	std::string			line;
-
+	int lineSize = 0;
 	//Check first line - METHOD PATH PROTOCOL
 	std::getline(f, line);
+	lineSize = line.length() + 1;
 	line.erase(std::remove(line.begin(), line.end(), '\r'), line.end());
 	if (!setStartLineParam(line))
 		return ;
-
+	str.erase(0, lineSize );
     while (std::getline(f, line)) {
+		lineSize = line.length() + 1;
 		line.erase(std::remove(line.begin(), line.end(), '\r'), line.end());
 		if (isKey(line, "Accept-Charsets"))
 			this->_acceptCharset = getValue(line, "Accept-Charsets");
@@ -209,21 +250,21 @@ void			HTTPRequest::parseRequest(std::string const &str)
 			this->_transferEncoding = getValue(line, "Transfer-Encoding");
 		else if (line.empty())
 		{
-			while (std::getline(f, line))
-				this->_body += line + "\n";
-			this->_body = this->_body.substr(0, this->_body.size() - 1); // deletes last '\n'
-			// if (!this->_body.empty() && this->_contentLength == 0)
-			// 	this->_body = Util::unchunkData(this->_body);
+			str.erase(0, lineSize);
+			this->_body = str;
 			break;
 		}
 		else
 		{
-			// Special headers
+
+ 			// Special headers
 			this->_specialHeaders.insert(getSpecialHeader(line));
 		}
+		str.erase(0, lineSize);
     }
-	if (this->_transferEncoding == "chunked")
+	if (this->_transferEncoding == "chunked") {
 			this->_body = Util::unchunkData(this->_body);
+	}
 	// setCgiPathInfo();
 	// setCgiPathTranslated();
 }
@@ -323,28 +364,31 @@ std::string const	&HTTPRequest::getAuthorization(void) const {
 
 std::string 		HTTPRequest::getAuthorizationType(void) const {
 
-	size_t	found = this->_authorization.find(" ");
+	size_t	found = 0;
 
-	if (found == std::string::npos)
-		return ("");
+	if ((found = this->_authorization.find(" ")) != std::string::npos)
+		return (this->_authorization.substr(0, found));
 	else
-	{
-		std::string		authType = this->_authorization.substr(0, found);
-		return (authType);
-	}
+		return ("");
 }
 
 std::string			HTTPRequest::getAuthorizationData(void) const {
 
-	size_t	found = this->_authorization.find(" ");
+	size_t			found = 0;
+	std::string		authData;
 
-	if (found == std::string::npos)
-		return ("");
-	else
+	if ((found = this->_authorization.find(" ")) != std::string::npos)
 	{
-		std::string		authData = this->_authorization.substr(found + 1);
-		return (authData);
+		if (this->_authorization.length() > found + 1)
+		{
+			authData = this->_authorization.substr(found + 1);
+			return (Util::removeLeadingWhitespaces(authData));
+		}
+		else
+			return ("");
 	}
+	else
+		return ("");
 }
 
 std::string const	&HTTPRequest::getContentLanguage(void) const {
@@ -432,10 +476,13 @@ void				HTTPRequest::splitTargetAndCgiPathInfo(void) {
 
 	if ((pos = this->_target.find("cgi-bin/")) != std::string::npos)
 	{
-		if ((pos = this->_target.find("/", pos + 8)) != std::string::npos)
+		if (this->_target.length() > pos + 8)
 		{
-			this->_target = tmp.substr(0, pos);
-			this->_cgiPathInfo = tmp.substr(pos);
+			if ((pos = this->_target.find("/", pos + 8)) != std::string::npos)
+			{
+				this->_target = tmp.substr(0, pos);
+				this->_cgiPathInfo = tmp.substr(pos);
+			}
 		}
 	}
 }

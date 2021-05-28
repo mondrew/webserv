@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/17 23:06:28 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/12 09:59:01 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/05/24 15:46:33 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,10 +51,7 @@ class Session : public ASocketOwner {
 		std::string		_responseFilePath;
 		std::string		_responseFilePathOld;
 
-		char			_buf[BUFFER_SIZE + 1];
-		int				_bufLeft;
 		std::string		_requestStr; // It should be 'HTTPRequest' class that owns that string
-		char			_write_buffer[BUFFER_SIZE];
 		std::string		_responseStr; // It should be 'HTTPResponse' class that owns that string
 
 		bool			_deleteMe;
@@ -63,8 +60,21 @@ class Session : public ASocketOwner {
 		std::string		_password; // If we need them but they are empty -> 401 Unauthorized
 
 		bool			_validRequestFlag;
+		std::string		_readStr;
+
 		pid_t			_pid;
-		std::ostringstream	_oss;
+		int				_defStdIn;
+		int				_defStdOut;
+		FILE			*_fileCGIRequest;
+		FILE			*_fileCGIResponse;
+		off_t			_offset;
+		bool			_launchChild;
+
+		std::string		_msgForCGI;
+
+		//char			_buf[BUFFER_SIZE + 1];
+		//int				_bufLeft;
+		//char			_write_buffer[BUFFER_SIZE];
 
 		Session(void);
 		Session(Session const &src);
@@ -87,9 +97,9 @@ class Session : public ASocketOwner {
 		bool			isValidPermissions(void) const;
 		bool			isValidBodySize(void) const;
 		bool			isCGI(void) const;
-		virtual bool	getDeleteMe(void) const;
+		virtual bool	isDeleteMe(void) const;
 		virtual void	remove(void);
-		virtual void	handle(void);
+		virtual void	handle(int action);
 
 		void			fillDefaultResponseFields(void);
 		bool			makeErrorResponse(int code);
@@ -101,10 +111,13 @@ class Session : public ASocketOwner {
 		void			makeCGIResponse(void);
 		void			makeRedirectionResponse(std::string const &path, \
 								int statusCode, std::string const &statusText);
-		void			checkNeedToRead(void);
+		// void			checkNeedToRead(void);
 
-		const char		**createArgv(void);
-		const char		**createEnvp(CGIRequest *cgiRequest);
+		bool 			isEndRequest(std::string &_requestStr);
+
+		 char		**createArgv(void);
+		 char		**createEnvp(CGIRequest *cgiRequest);
+		 void 		clean(void);
 
 		// GETTERS
 		int					getRemoteAddr(void) const;

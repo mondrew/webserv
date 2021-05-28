@@ -6,7 +6,7 @@
 /*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/17 20:42:54 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/27 20:20:05 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/05/23 15:19:16 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ class EventSelector {
 
 		std::list<ASocketOwner *>	_socketOwnerSet;
 		bool						_quitFlag;
-		int							_max_fd;
+		int							_maxFd;
 
 	public:
 

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   CGIResponse.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
+/*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/09 15:19:55 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/07 22:20:24 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/05/25 08:40:17 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,14 +34,16 @@ CGIResponse::~CGIResponse(void) {
 	return ;
 }
 
-void				CGIResponse::parseCGIResponse(std::string const &str) {
+void				CGIResponse::parseCGIResponse(std::string &str) {
 
 	std::size_t			pos;
 	std::string			line;
 	std::istringstream	iss(str);
+	int lineSize = 0;
 
 	while(std::getline(iss, line))
 	{
+		lineSize = line.length() + 1;
 		if ((pos = line.find("\r")) != std::string::npos)
 			line = line.substr(0, pos);
 		if (Util::isKey(line, "Content-type"))
@@ -56,23 +58,29 @@ void				CGIResponse::parseCGIResponse(std::string const &str) {
 			if ((pos = this->_status.find(" ")) != std::string::npos)
 			{
 				this->_statusCode = atoi(this->_status.substr(0, pos).c_str());
-				this->_statusText = this->_status.substr(pos + 1);
+				if (this->_status.length() > pos + 1) // 25/05
+					this->_statusText = this->_status.substr(pos + 1);
+				else // 25/05
+					this->_statusText = ""; // 25/05
 			}
 		}
 		else if (line.empty())
 		{
-			while (std::getline(iss, line))
-				this->_body += line + "\n";
-			this->_body = this->_body.substr(0, this->_body.size() - 1); // deletes last '\n'
+			str.erase(0, lineSize);
+			this->_body = str;
+			// while (std::getline(iss, line))
+			// 	this->_body += line + "\n";
+			// this->_body = this->_body.substr(0, this->_body.size() - 1); // deletes last '\n'
 			// decode?
 			// I suppose that there will be no chunked CGI Responses
 			break ;
 		}
+		str.erase(0, lineSize);
 	}
 }
 
 void				CGIResponse::print(void) const {
-	
+
 	std::cerr << "_contentType: " << _contentType << std::endl;
 	std::cerr << "_location: " << _location << std::endl;
 	std::cerr << "_status: " << _status << std::endl;

@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/18 10:27:07 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/01 22:53:04 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/05/28 18:33:04 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -197,6 +197,13 @@ Server 			*Config::parseServer(std::ifstream &file, std::string &partStr)
 		{
 			isBreak = 0; // no need here
 			file >> partInt;
+			file >> partStr;
+			clearBreak(partStr);
+
+			server->addDefaultErrorPage(partInt, partStr);
+			// this->_defaultErrorPages[partInt] = partStr;
+
+			/*
 			if (partInt == 402 || partInt == 404)
 			{
 				file >> partStr;
@@ -206,6 +213,7 @@ Server 			*Config::parseServer(std::ifstream &file, std::string &partStr)
 				else
 					server->setDefaultErrorPage404(partStr);
 			}
+			*/
 		}
 		else if (partStr == "location")
 		{

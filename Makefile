@@ -6,11 +6,11 @@
 #    By: gjessica <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/12/08 23:16:50 by mondrew           #+#    #+#              #
-#    Updated: 2021/04/26 15:08:43 by gjessica         ###   ########.fr        #
+#    Updated: 2021/05/28 12:28:50 by gjessica         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-NAME = a.out
+NAME = webserv
 SRCS = 	./main.cpp \
 		ASocketOwner.cpp \
 		Config.cpp \
@@ -40,12 +40,8 @@ IS_NOT_LAUNCHED_PRINT = \e[0;31m *$<\e[1;33m webserv is not launched $<\e[0m
 %.o: %.cpp
 	@clang++ $(FLAGS) -I $(INCLUDES) -c $< -o $@
 	@echo -n .
-	@sleep 0.05
-	@echo -n .
-	@sleep 0.05
-	@echo -n .
 
-all: wait $(NAME)
+all:  $(NAME)
 
 $(NAME): $(OBJS)
 	@clang++ $(OBJS) -o $(NAME)
@@ -98,3 +94,5 @@ stop:
 restart: re run
 
 restart42: re run42
+
+

@@ -3,27 +3,32 @@
 /*                                                        :::      ::::::::   */
 /*   ASocketOwner.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
+/*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/18 00:05:41 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/10 22:17:25 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/05/23 15:02:21 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef ASOCKET_OWNER_HPP
 # define ASOCKET_OWNER_HPP
 
+# define READ	1
+# define WRITE	2
+# define CGI	3
+
 class ASocketOwner {
 
 	protected:
 
 		int		_socket;
-		int		_readFd;
-		int		_writeFd;
+		int		_fdCGIRequest;
+		int		_fdCGIResponse;
+
 		bool	_wantToRead;//
 		bool	_wantToWrite;//
-		bool	_wantToReadFromFd;//
-		bool	_wantToWriteToFd;//
+		bool	_wantToWriteCGIRequest;
+		bool	_wantToReadCGIResponse;
 
 	public:
 
@@ -34,28 +39,30 @@ class ASocketOwner {
 
 		ASocketOwner	&operator=(ASocketOwner const &rhs);
 
+		// GETTERS
 		int				getSocket(void) const;
-		int				getReadFd(void) const;
-		int				getWriteFd(void) const;
+		int				getFdCGIRequest(void) const;
+		int				getFdCGIResponse(void) const;
+
 		bool			getWantToRead(void) const;//
 		bool			getWantToWrite(void) const;//
-		bool			getWantToReadFromFd(void) const;//
-		bool			getWantToWriteToFd(void) const;//
+		bool			getWantToWriteCGIRequest(void) const;
+		bool			getWantToReadCGIResponse(void) const;
 
+		// SETTERS
 		void			setSocket(int socket);
-		void			setReadFd(int fd);
-		void			setWriteFd(int fd);
+		void			setFdCGIRequest(int fd);
+		void			setFdCGIResponse(int fd);
 
 		void			setWantToRead(bool val);//
 		void			setWantToWrite(bool val);//
-		void			setWantToReadFromFd(bool val);//
-		void			setWantToWriteToFd(bool val);//
+		void			setWantToWriteCGIRequest(bool val);//
+		void			setWantToReadCGIResponse(bool val);//
 
 		// Pure virtual method (implementations will be in derived classes)
-		virtual void	handle(void) = 0;
-		//virtual bool	isReadyToResponse(void) const = 0;
+		virtual void	handle(int action) = 0;
 
-		virtual bool	getDeleteMe(void) const = 0;
+		virtual bool	isDeleteMe(void) const = 0;
 		virtual void	remove(void) = 0;
 };
 

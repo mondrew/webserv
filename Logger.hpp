@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/18 11:14:42 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/01 01:05:46 by gjessica         ###   ########.fr       */
+/*   Updated: 2021/05/25 20:48:26 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,9 +63,16 @@ class Logger {
 			return (0);
 		}
 
-		void static log(std::string title, std::string body, std::string color){
+		void static log(std::string title, std::string body, std::string color)
+		{
 			std::cout << "\n\033" << color << "================== " << title << " START ================== \033[0m" << std::endl;
-			std::cout << body << std::endl;
+			if (body.size() > 400)
+				std::cout << body.substr(0, 400);
+			else
+				std::cout << body;
+			if (body.length() > 400)
+				std::cout << " + [" << (body.length() - 400) << " symbols]";
+			std::cout << std::endl;
 			std::cout << "\033" << color << "================== " << title << " END ==================== \033[0m" << std::endl;
 		}
 };

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   CGIRequest.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
+/*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/09 13:59:12 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/08 21:21:31 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/05/16 16:24:39 by gjessica         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,7 +77,7 @@ CGIRequest::CGIRequest(Session *session, HTTPRequest *request) :
 	// this->_pathInfo = "PATH_INFO=/home/mondrew/GITHUB/Webserv/www/YoupiBanane/youpi.bla";
 	// this->_pathInfo = "PATH_INFO=youpi.bla";
 	// this->_pathInfo = "PATH_INFO=../YoupiBanane/youpi.bla";
-	
+
 	this->_pathTranslated += this->_httpRequest->getCgiPathTranslated();
 	this->_queryString += this->_httpRequest->getQueryString();
 	this->_remoteAddr += \
@@ -102,7 +102,7 @@ CGIRequest::CGIRequest(Session *session, HTTPRequest *request) :
 		this->_remoteUser += "";
 	}
 
-	this->_requestMethod += this->_httpRequest->getMethodName(); 
+	this->_requestMethod += this->_httpRequest->getMethodName();
 	this->_requestURI += this->_httpRequest->getTarget();
 	// this->_scriptName += this->_httpRequest->getTarget();
 	this->_scriptName += this->_session->getResponseFilePath();
