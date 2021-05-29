@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/17 23:10:08 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/28 18:15:52 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/05/29 14:39:54 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,11 +48,13 @@ Session::Session(int a_sockfd, int remoteAddr, Server *master) : ASocketOwner(a_
 																 _fileCGIRequest(0),
 																 _fileCGIResponse(0),
 																 _offset(0),
-																 _launchChild(false)
+																 _launchChild(false),
+																 _contentLength(-1),
+																 _headersLength(-1)
 {
 }
 
-void Session::handle(int action)
+void	Session::handle(int action)
 {
 	int ret = 0;
 
@@ -75,8 +77,12 @@ void Session::handle(int action)
 		}
 		else
 		{
-			_requestStr += std::string(bufffer);
-			if (isEndRequest(_requestStr))
+			std::string		res(bufffer, ret);
+			_requestStr += res;
+
+			// _requestStr += std::string(bufffer);
+			if ((this->_contentLength != -1 || isHeadersEnd(_requestStr)) && \
+													isEndRequest(_requestStr))
 			{
 				setWantToRead(false);
 				setWantToWrite(true);
@@ -117,15 +123,48 @@ void Session::handle(int action)
 	}
 }
 
-bool Session::isEndRequest(std::string &_requestStr)
+bool	Session::isEndRequest(std::string const &_requestStr)
 {
 	if (_requestStr.find("Transfer-Encoding: chunked") != std::string::npos)
 		return (_requestStr.find("0\r\n\r\n") != std::string::npos);
 	else
-		return (_requestStr.find("\r\n\r\n") != std::string::npos);
+	{
+		if (this->_contentLength != 0)
+		{
+			if (_requestStr.size() < static_cast<std::size_t>(_headersLength + \
+															4 + _contentLength))
+				return (false);
+			else
+				return (true);
+		}
+		else
+			return (true);
+		// return (_requestStr.find("\r\n\r\n") != std::string::npos);
+	}
 }
 
-bool Session::isValidRequestTarget(void)
+bool	Session::isHeadersEnd(std::string const &_requestStr)
+{
+	std::size_t		pos = 0;
+
+	if ((pos = _requestStr.find("\r\n\r\n")) != std::string::npos)
+	{
+		_headersLength = pos;
+		if ((pos = (Util::toLower(_requestStr)).find("content-length:")) != \
+															std::string::npos)
+		{
+			if (_requestStr.size() > pos + 15)
+				this->_contentLength = atoi(_requestStr.substr(pos + 15).c_str());
+		}
+		else
+			this->_contentLength = 0;
+		return (true);
+	}
+	else
+		return (false);
+}
+
+bool	Session::isValidRequestTarget(void)
 {
 	bool isValidPath = false;
 	bool isValidFolder = false;
@@ -220,13 +259,13 @@ bool Session::isValidRequestTarget(void)
 	return (isValidPath);
 }
 
-bool Session::isValidRequestAllow(void) const
+bool	Session::isValidRequestAllow(void) const
 {
 	return ((this->_serverLocation->getLimitExcept() == 0) ||
 			(_request->getMethod() & this->_serverLocation->getLimitExcept()));
 }
 
-bool Session::isValidRequestHost(void) const
+bool	Session::isValidRequestHost(void) const
 {
 	size_t pos = 0;
 	if ((pos = _request->getHost().find(':')) == std::string::npos)
@@ -236,14 +275,14 @@ bool Session::isValidRequestHost(void) const
 	//return (!_request->getHost().empty());
 }
 
-bool Session::isValidPermissions(void) const
+bool	Session::isValidPermissions(void) const
 {
 	if (this->_request->getTarget().find(".bla") != std::string::npos)
 		return true;
 	return (Util::isAllowedToRead(this->_responseFilePath));
 }
 
-bool Session::isValidBodySize(void) const
+bool	Session::isValidBodySize(void) const
 {
 	if (this->_serverLocation->getMaxBody() != NOT_LIMIT)
 		return (static_cast<long>(this->_request->getBody().size()) <=
@@ -251,12 +290,12 @@ bool Session::isValidBodySize(void) const
 	return (true);
 }
 
-bool Session::isCGI(void) const
+bool	Session::isCGI(void) const
 {
 	return (Util::isCGI(this->_responseFilePath));
 }
 
-void Session::fillDefaultResponseFields(void)
+void	Session::fillDefaultResponseFields(void)
 {
 	_response->setProtocolVersion("HTTP/1.1");
 	_response->setDate(Util::getDate());
@@ -276,7 +315,7 @@ void Session::fillDefaultResponseFields(void)
 	_response->setBody("");
 }
 
-bool Session::makeErrorResponse(int code)
+bool	Session::makeErrorResponse(int code)
 {
 	_response->setStatusCode(code);
 	if (code == 400)
@@ -311,7 +350,7 @@ bool Session::makeErrorResponse(int code)
 	return (false);
 }
 
-bool Session::isValidRequest(void)
+bool	Session::isValidRequest(void)
 {
 	//if (!_request->isValid() && _request->getMethod() == UNKNOWN)
 	if (_request->getMethod() == UNKNOWN)
@@ -330,7 +369,7 @@ bool Session::isValidRequest(void)
 	return (true);
 }
 
-char **Session::createArgv(void)
+char	**Session::createArgv(void)
 {
 
 	std::list<std::string> vs;
@@ -371,7 +410,7 @@ char **Session::createArgv(void)
 	return (argv);
 }
 
-char **Session::createEnvp(CGIRequest *cgiRequest)
+char	**Session::createEnvp(CGIRequest *cgiRequest)
 {
 	std::list<std::string> envpList;
 	char **envp;
@@ -430,7 +469,7 @@ char **Session::createEnvp(CGIRequest *cgiRequest)
 	return (envp);
 }
 
-void Session::makeCGIResponse(void)
+void	Session::makeCGIResponse(void)
 {
 	// std::cerr << "Start makeCGIResponse" << std::endl;
 
@@ -646,7 +685,7 @@ void Session::makeCGIResponse(void)
 	}
 }
 
-void Session::makeRedirectionResponse(std::string const &path,
+void	Session::makeRedirectionResponse(std::string const &path,
 									  int statusCode, std::string const &statusText)
 {
 	std::size_t pos;
@@ -671,7 +710,7 @@ void Session::makeRedirectionResponse(std::string const &path,
 	this->_response->setContentLength(_response->getBody().length());
 }
 
-std::string Session::getDirListing(std::string const &path)
+std::string	Session::getDirListing(std::string const &path)
 {
 	DIR *dir;
 	struct dirent *diread;
@@ -745,7 +784,7 @@ std::string createFileUpload(std::string const &ext, std::string const &body)
 	return (filename + "." + ext);
 }
 
-void Session::makeGETResponse(void)
+void	Session::makeGETResponse(void)
 {
 
 	// Set status code & test
@@ -779,7 +818,7 @@ void Session::makeGETResponse(void)
 	setWantToWrite(true);
 }
 
-void Session::makePOSTResponse(void)
+void	Session::makePOSTResponse(void)
 {
 
 	_response->setStatusCode(200);
@@ -804,7 +843,7 @@ void Session::makePOSTResponse(void)
 	//std::cout << "MAKE POST RESPONSE!!! END<========!!!" << std::endl; // debug
 }
 
-void Session::makePUTResponse(void)
+void	Session::makePUTResponse(void)
 {
 
 	//std::cout << _request->getFilename() << " | "<< _serverLocation->getRoot() << std::endl;
@@ -824,7 +863,7 @@ void Session::makePUTResponse(void)
 	setWantToWrite(true);
 }
 
-void Session::generateResponse(void)
+void	Session::generateResponse(void)
 {
 	Util::printWithTime("START GENERATE RESPONSE");
 	// std::cerr << "Generate Response!" << std::endl; // endl;
@@ -861,7 +900,7 @@ void Session::generateResponse(void)
 	}
 }
 
-void Session::responseToString(void)
+void	Session::responseToString(void)
 {
 
 	// Status Line
@@ -897,19 +936,19 @@ void Session::responseToString(void)
 		Logger::log("Response", _responseStr, TEXT_RED);
 }
 
-void Session::setRequestCgiPathTranslated(void) const
+void	Session::setRequestCgiPathTranslated(void) const
 {
 	if (!this->_request->getCgiPathInfo().empty() &&
 		this->_request->getCgiPathTranslated().empty())
 		this->_request->setCgiPathTranslated();
 }
 
-void Session::remove(void)
+void	Session::remove(void)
 {
 	_theMaster->removeSession(this);
 }
 
-bool Session::isDeleteMe(void) const
+bool	Session::isDeleteMe(void) const
 {
 	return (this->_deleteMe);
 }
@@ -927,7 +966,7 @@ Session::~Session(void)
 	return;
 }
 
-void Session::clean()
+void	Session::clean()
 {
 	static int k = 0;
 
@@ -985,11 +1024,14 @@ void Session::clean()
 	_offset = 0;
 	_launchChild = false;
 	_msgForCGI = "";
+
+	_contentLength = -1;
+	_headersLength = -1;
 }
 
 // GETTERS
 
-int Session::getRemoteAddr(void) const
+int		Session::getRemoteAddr(void) const
 {
 	return (this->_remoteAddr);
 }

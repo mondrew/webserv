@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/17 23:06:28 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/24 15:46:33 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/05/29 14:15:43 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,6 +72,9 @@ class Session : public ASocketOwner {
 
 		std::string		_msgForCGI;
 
+		int				_contentLength;
+		int				_headersLength;
+
 		//char			_buf[BUFFER_SIZE + 1];
 		//int				_bufLeft;
 		//char			_write_buffer[BUFFER_SIZE];
@@ -113,7 +116,9 @@ class Session : public ASocketOwner {
 								int statusCode, std::string const &statusText);
 		// void			checkNeedToRead(void);
 
-		bool 			isEndRequest(std::string &_requestStr);
+		bool 			isEndRequest(std::string const &_requestStr);
+		bool			isHeadersEnd(std::string const &_requestStr);
+
 
 		 char		**createArgv(void);
 		 char		**createEnvp(CGIRequest *cgiRequest);
