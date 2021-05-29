@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/18 10:27:07 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/28 18:33:04 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/05/29 17:02:02 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,38 +21,27 @@ Config::Config(std::string const &a_path, EventSelector *a_selector) :
 	return ;
 }
 
-Config::Config(Config const &cp)
-{
+Config::Config(Config const &cp) {
+
 	*this = cp;
 }
 
-Config::~Config()
-{
+Config::~Config() {
+
 	delete this->_the_selector;
 	// _serverSet will be deleted in _the_selector destructor
 	// (as instance of ASocketOwner class)
 }
 
-Config			&Config::operator=(Config const &op)
-{
+Config			&Config::operator=(Config const &op) {
+
 	this->_serverSet = op._serverSet;
 	return (*this);
 }
 
-void			Config::setError(std::string const &error)
-{
-	this->_error = error;
-	this->_isValid = false;
-}
-
-void			Config::addServer(Server *server)
-{
-	this->_serverSet.push_back(server);
-}
-
 Location		*createLocation(std::string const &locationPath,
-							std::string const &root, std::string const &index)
-{
+							std::string const &root, std::string const &index) {
+
 	Location	*location = new Location();
 	location->setLocationPath(locationPath);
 	if (!root.empty())
@@ -62,8 +51,8 @@ Location		*createLocation(std::string const &locationPath,
 	return location;
 }
 
-int				clearBreak(std::string &str)
-{
+int				clearBreak(std::string &str) {
+
 	if (Util::getLastChar(str) == ';')
 	{
 		str = str.substr(0, str.size() - 1);
@@ -72,8 +61,8 @@ int				clearBreak(std::string &str)
 	return (0);
 }
 
-Location 		*Config::parseLocation(std::ifstream &file, std::string &partStr)
-{
+Location 		*Config::parseLocation(std::ifstream &file, std::string &partStr) {
+
 	long 		partLong = 0;
 	int 		isBreak = 0;
 	Location 	*location = new Location();
@@ -158,8 +147,8 @@ Location 		*Config::parseLocation(std::ifstream &file, std::string &partStr)
 	return (location);
 }
 
-Server 			*Config::parseServer(std::ifstream &file, std::string &partStr)
-{
+Server 			*Config::parseServer(std::ifstream &file, std::string &partStr) {
+
 	int 		partInt;
 	int 		isBreak = 0;
 	Server 		*server = new Server(-1);
@@ -183,7 +172,7 @@ Server 			*Config::parseServer(std::ifstream &file, std::string &partStr)
 		}
 		else if (partStr == "listen")
 		{
-			isBreak = 0; // ?
+			isBreak = 0;
 			file >> partInt;
 			if (partInt <= 0 || partInt > 65535)
 			{
@@ -195,25 +184,11 @@ Server 			*Config::parseServer(std::ifstream &file, std::string &partStr)
 		}
 		else if (partStr == "error_page")
 		{
-			isBreak = 0; // no need here
+			isBreak = 0;
 			file >> partInt;
 			file >> partStr;
 			clearBreak(partStr);
-
 			server->addDefaultErrorPage(partInt, partStr);
-			// this->_defaultErrorPages[partInt] = partStr;
-
-			/*
-			if (partInt == 402 || partInt == 404)
-			{
-				file >> partStr;
-				clearBreak(partStr);
-				if (partInt == 402)
-					server->setDefaultErrorPage402(partStr);
-				else
-					server->setDefaultErrorPage404(partStr);
-			}
-			*/
 		}
 		else if (partStr == "location")
 		{
@@ -239,8 +214,8 @@ Server 			*Config::parseServer(std::ifstream &file, std::string &partStr)
 	return (server);
 }
 
-int				Config::parseConfig()
-{
+int				Config::parseConfig() {
+
 	std::ifstream	file(this->_path.c_str());
 	std::string		partStr;
 
@@ -251,7 +226,7 @@ int				Config::parseConfig()
 		file >> partStr;
 		if (partStr == "server" || partStr == "server{")
 		{
-			if (partStr == "server") // What about 'server{' ???
+			if (partStr == "server")
 				file >> partStr;
 			Server	*server = parseServer(file, partStr);
 			if (!server)
@@ -270,19 +245,11 @@ int				Config::parseConfig()
 	return (0);
 }
 
-bool					Config::isValid(void) {
-	return (this->_isValid);
-}
-
-std::string	const		&Config::getError(void) const{
-	return (this->_error);
-}
-
 void					Config::runServers(void) {
 
 	// Start servers
 	for (std::list<Server *>::iterator it = _serverSet.begin();
-													it != _serverSet.end(); it++)
+												it != _serverSet.end(); it++)
 	{
 		(*it)->start();
 		_the_selector->add(*it);
@@ -291,15 +258,40 @@ void					Config::runServers(void) {
 	_the_selector->run();
 }
 
-// Getters
+// GETTERS
 std::list<Server *> const	&Config::getServerSet() const {
+
 	return (this->_serverSet);
 }
 
 std::string const			&Config::getPath(void) const {
+
 	return (_path);
 }
 
 EventSelector				*Config::getSelector(void) const {
+
 	return (_the_selector);
+}
+
+bool					Config::isValid(void) const {
+
+	return (this->_isValid);
+}
+
+std::string	const		&Config::getError(void) const {
+
+	return (this->_error);
+}
+
+// SETTERS
+void			Config::setError(std::string const &error) {
+
+	this->_error = error;
+	this->_isValid = false;
+}
+
+void			Config::addServer(Server *server) {
+
+	this->_serverSet.push_back(server);
 }

@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/20 15:53:09 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/25 20:54:47 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/05/29 17:19:53 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,17 +29,17 @@ HTTPRequest::~HTTPRequest(void) {
 	return ;
 }
 
-bool			HTTPRequest::isValid(void) const
-{
+bool			HTTPRequest::isValid(void) const {
+
 	return (this->_valid);
 }
 
 
-int				HTTPRequest::setError(std::string const &str)
-{
+int				HTTPRequest::setError(std::string const &str) {
+
 	this->_error = str;
 	this->_valid = false;
-	return (1); // Why 1 ? May be 0 ? We need to stop parsing in this case
+	return (1);
 }
 
 void			HTTPRequest::setBody(std::string const &str) {
@@ -65,20 +65,18 @@ std::string		toLower(std::string const &str) {
 	return (res);
 }
 
-int 			isKey(std::string const &line, std::string const &key)
-{
+int 			isKey(std::string const &line, std::string const &key) {
+
 	return ((toLower(line)).find(toLower(key)) == 0);
 }
 
-// Changed 25/05
-std::string		getValue(std::string const &line, std::string const &keyIn)
-{
+std::string		getValue(std::string const &line, std::string const &keyIn) {
+
 	std::string		str = toLower(line);
 	std::string		key = toLower(keyIn);
 	std::size_t		pos = 0;
 
 	str.erase(std::remove(str.begin(), str.end(), '\r'), str.end());
-	// -> Change erase to your function
 	if ((pos = str.find(key)) != std::string::npos && \
 											str.length() > pos + key.length())
 		pos += key.length();
@@ -92,8 +90,8 @@ std::string		getValue(std::string const &line, std::string const &keyIn)
 		return ("");
 }
 
-std::pair<std::string, std::string>		getSpecialHeader(std::string const &line)
-{
+std::pair<std::string, std::string>	getSpecialHeader(std::string const &line) {
+
 	std::string		header;
 	std::string		value;
 	std::size_t		pos;
@@ -110,8 +108,8 @@ std::pair<std::string, std::string>		getSpecialHeader(std::string const &line)
 	return (std::pair<std::string, std::string>(header, value));
 }
 
-bool 			HTTPRequest::setStartLineParam(std::string &line)
-{
+bool 			HTTPRequest::setStartLineParam(std::string &line) {
+
 	std::string		tmpTarget;
 	std::size_t		pos;
 
@@ -126,24 +124,17 @@ bool 			HTTPRequest::setStartLineParam(std::string &line)
 	else
 	{
 		this->_method = UNKNOWN;
-		// We should not set _valid to false here, 'cause we need to response '405' error
 		return (false);
-		// return setError("Unknown method"); // Here we return true. Why not false?
 	}
-
 	if ((pos = line.find("/")) != std::string::npos)
-		line = line.substr(pos); // mb erase will be better
+		line = line.substr(pos);
 	else
 		return (false);
 	if ((pos = line.find(" ")) != std::string::npos)
 		tmpTarget = line.substr(0, pos);
 	else
 		return (false);
-
-	// std::cout << "tmpTarget in setStartLineParam: " << tmpTarget << std::endl; // debug 0-0-0
-
 	// Find query string
-	// TEST in with localhost:8002/?login=mondrew => _target = "/" | _queryString = "login=mondrew"
 	if ((pos = tmpTarget.find("?")) != std::string::npos)
 	{
 		// There is a query string in the GET or POST request
@@ -154,11 +145,7 @@ bool 			HTTPRequest::setStartLineParam(std::string &line)
 		this->_target = tmpTarget;
 	// Find cgiPathInfo & cgiPathTranslated in _target
 	if (Util::isPathInfo(this->_target))
-	{
 		splitTargetAndCgiPathInfo();
-		// setCgiPathTranslated();
-	}
-
 	if (this->_method == PUT)
 	{
 		if ((pos = this->_target.find_last_of("/")) != std::string::npos)
@@ -190,27 +177,22 @@ bool 			HTTPRequest::setStartLineParam(std::string &line)
 	return (true);
 }
 
-void			HTTPRequest::parseRequest(std::string &str)
-{
-	/*
-	if (Util::printRequests)
-	{
-		std::cout << "=======>>>>>>> parseRequest start <<<<: " << std::endl;
-	   	std::cout << str << std::endl; // debug // why here "/"
-		std::cout << "=======>>>>>>> parseRequest end <<<<" << std::endl;
-	}
-	*/
+void			HTTPRequest::parseRequest(std::string &str) {
+
 	std::istringstream	f(str);
 	std::string			line;
 	int lineSize = 0;
-	//Check first line - METHOD PATH PROTOCOL
+
+	//Check first line: #METHOD #PATH #PROTOCOL
 	std::getline(f, line);
 	lineSize = line.length() + 1;
 	line.erase(std::remove(line.begin(), line.end(), '\r'), line.end());
 	if (!setStartLineParam(line))
 		return ;
 	str.erase(0, lineSize );
-    while (std::getline(f, line)) {
+
+    while (std::getline(f, line))
+	{
 		lineSize = line.length() + 1;
 		line.erase(std::remove(line.begin(), line.end(), '\r'), line.end());
 		if (isKey(line, "Accept-Charsets"))
@@ -255,22 +237,15 @@ void			HTTPRequest::parseRequest(std::string &str)
 			break;
 		}
 		else
-		{
-
- 			// Special headers
 			this->_specialHeaders.insert(getSpecialHeader(line));
-		}
 		str.erase(0, lineSize);
     }
-	if (this->_transferEncoding == "chunked") {
-			this->_body = Util::unchunkData(this->_body);
-	}
-	// setCgiPathInfo();
-	// setCgiPathTranslated();
+	if (this->_transferEncoding == "chunked")
+		this->_body = Util::unchunkData(this->_body);
 }
 
-void			HTTPRequest::print(void) const
-{
+void			HTTPRequest::print(void) const {
+
 	std::cout << "Methods = ";
 	if (this->_method == UNKNOWN)
 	{
@@ -299,12 +274,11 @@ void			HTTPRequest::print(void) const
 	std::cout << "TransferEncoding = " << this->_transferEncoding << std::endl;
 	std::cout << "Body = " << (this->_body).c_str() << std::endl;
 	std::cout << "User-Agent = " << this->_userAgent << std::endl;
-	// std::cout << "CgiPathInfo = " << this->_cgiPathInfo << std::endl;
-	// std::cout << "CgiPathTranslated = " << this->_cgiPathTranslated << std::endl;
 }
 
-std::string const	&HTTPRequest::getError(void) const
-{
+// GETTERS
+std::string const	&HTTPRequest::getError(void) const {
+
 	return (this->_error);
 }
 
@@ -416,9 +390,10 @@ std::string const	&HTTPRequest::getContentType(void) const {
 	return (this->_contentType);
 }
 
-std::string const	&HTTPRequest::getTransferEncoding(void) const{
+std::string const	&HTTPRequest::getTransferEncoding(void) const {
+
 	return (this->_transferEncoding);
-};
+}
 
 std::string const	&HTTPRequest::getDate(void) const {
 
@@ -461,6 +436,7 @@ Session				*HTTPRequest::getSession(void) const {
 }
 
 std::string const	&HTTPRequest::getFilename(void) const {
+
 	return (this->_filename);
 }
 
@@ -487,7 +463,7 @@ void				HTTPRequest::splitTargetAndCgiPathInfo(void) {
 	}
 }
 
-// write here getPathTranslated
+// SETTERS
 void				HTTPRequest::setCgiPathTranslated(void) {
 
 	this->_cgiPathTranslated = \
@@ -500,13 +476,16 @@ void				HTTPRequest::setCgiPathTranslated(std::string const &path) {
 }
 
 void				HTTPRequest::setCgiPathInfo(std::string const &str) {
+
 	this->_cgiPathInfo = str;
 }
 
 void				HTTPRequest::setContentLength(int contentLength) {
+
 	this->_contentLength = contentLength;
 }
 
 void				HTTPRequest::setTarget(std::string const &target) {
+
 	this->_target = target;
 }

@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/16 09:02:17 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/28 18:34:46 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/05/29 18:38:46 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,9 +16,7 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 
-#define MAX_USERS 1000
-
-Server::Server(int a_socket) : ASocketOwner(a_socket),
+Server::Server(int a_socket) :		ASocketOwner(a_socket),
 									_the_selector(0),
 									_serverNames(std::vector<std::string>()),
 									_host("localhost"),
@@ -37,14 +35,15 @@ Server::Server(int a_socket) : ASocketOwner(a_socket),
 	_pagesMap[501] = "./www/pages/501_NotImplemented.html";
 	_pagesMap[503] = "./www/pages/503_ServiceUnavailable.html";
 	_pagesMap[505] = "./www/pages/505_HTTPVersionNotSupported.html";
-	return ;
 }
 
 Server::Server(Server const &src) : ASocketOwner(src) {
+
 	*this = src;
 }
 
 Server::~Server(void) {
+
 	for (std::list<Session *>::iterator it = _sessionSet.begin();
 												it != _sessionSet.end(); it++)
 		_the_selector->remove(*it);
@@ -52,12 +51,11 @@ Server::~Server(void) {
 }
 
 Server	&Server::operator=(Server const &rhs) {
+
 	this->_socket = rhs._socket;
 	this->_serverNames = rhs._serverNames;
 	this->_host = rhs._host;
 	this->_port = rhs._port;
-	// this->_defaultErrorPage402 = rhs._defaultErrorPage402;
-	// this->_defaultErrorPage404 = rhs._defaultErrorPage404;
 	this->_locationSet = rhs._locationSet;
 	this->_sessionSet = rhs._sessionSet;
 	return (*this);
@@ -91,10 +89,12 @@ int		Server::start(void) {
 	addr.sin_family = AF_INET;
 	addr.sin_port = htons(_port);
 	addr.sin_addr.s_addr = inet_addr("127.0.0.1");
+
 	// Binding the socket '_listenSocket' to IP address
 	if ((ret = bind(_socket, (struct sockaddr *)&addr, sizeof(addr))) == -1)
 	{
-		std::cout << "Error: can't bind IP address to server port." << std::endl;
+		std::cout << "Error: can't bind IP address to server port.";
+	   	std::cout << std::endl;
 		close(_socket);
 		setSocket(-1);
 		return (-1);
@@ -103,8 +103,8 @@ int		Server::start(void) {
 	// Turn socket to the listening mode
 	if (listen(_socket, MAX_USERS) == -1)
 	{
-		// Can be exception
-		std::cout << "Error: can't turn socket to the listening mode" << std::endl;
+		std::cout << "Error: can't turn socket to the listening mode";
+	   	std::cout << std::endl;
 		close(_socket);
 		setSocket(-1);
 		return (-1);
@@ -116,38 +116,32 @@ int		Server::start(void) {
 		std::cout << "Bind successfully" << std::endl;
 		std::cout << "Server IP address: " << inet_ntoa(addr.sin_addr);
 		std::cout << std::endl;
-		std::cout << "Server '" << _serverNames[0] << "' has successfully started!";
-		std::cout << std::endl;
+		std::cout << "Server '" << _serverNames[0];
+	   	std::cout << "' has successfully started!" << std::endl;
 	}
-
 	return (0);
 }
 
 void		Server::handle(int action) {
-	action = 2;
+
 	int					sockfd;
 	struct sockaddr_in	addr;
 	socklen_t			len = sizeof(addr);
-	uint16_t port;
+	uint16_t			port;
 
-	//if ((sockfd = accept(_socket, NULL, NULL)) == -1)
+	action = READ;
+
 	if ((sockfd = accept(_socket, (struct sockaddr *)&addr, &len)) == -1)
 	{
 		//rds + wrs
-		// Can be exception
 		std::cout << "Error: can't accept new connection on " << _socket;
 		std::cout << " socket." << std::endl;
-		// close(_socket); //23.05 mondrew
-		// setSocket(-1); // 23.05 mondrew
 		return ;
 	}
-	fcntl(sockfd, F_SETFL, O_NONBLOCK); // mondrew: not sure it is necessary here
+	fcntl(sockfd, F_SETFL, O_NONBLOCK);
 	port = htons (addr.sin_port);
 	std::cout << "Connected new client [" << sockfd << "] - " <<
 			Util::ltoips(addr.sin_addr.s_addr) << ":" << port << std::endl;
-	// // if (Util::printServerAccepts)
-	//  	std::cout << "SERVER ACCEPT: " << sockfd << " "  <<
-	// 	 Util::ltoips(addr.sin_addr.s_addr) << ":" << port << std::endl; // debug
 
 	// Add new client to the Session list and to the EventSelector objects
 	Session	*session = new Session(sockfd, addr.sin_addr.s_addr, this);
@@ -159,19 +153,26 @@ void		Server::handle(int action) {
 void		Server::removeSession(Session *s) {
 
 	// Delete Client from the sessionSet linked-list in Server
-	//usleep(5000);
 	_sessionSet.remove(s);
-
 	// Remove fd from EventSelector object array
 	_the_selector->remove(s);
 }
 
-// Getters
+bool		Server::isDeleteMe(void) const {
+	
+	return (false);
+}
+
+void		Server::remove(void) {
+
+	return ;
+}
+
+// GETTERS
 std::vector<std::string> const	&Server::getServerNames(void) const {
 
 	return (this->_serverNames);
 }
-
 
 std::string const				&Server::getHost(void) const {
 
@@ -182,18 +183,6 @@ int								Server::getPort(void) const {
 
 	return (this->_port);
 }
-
-/*
-std::string const				&Server::getDefaultErrorPage402(void) const {
-
-	return (this->_defaultErrorPage402);
-}
-
-std::string const				&Server::getDefaultErrorPage404(void) const {
-
-	return (this->_defaultErrorPage404);
-}
-*/
 
 std::vector<Location *> 		&Server::getLocationSet(void) {
 
@@ -210,19 +199,7 @@ std::map<int, std::string> 		&Server::getPagesMap(void) {
 	return (this->_pagesMap);
 }
 
-/*
-std::string const				&Server::getDefaultErrorPage(int code) const {
-
-	std::map<int, std::string>::iterator it = \
-										this->_defaultErrorPages.find(code);
-	if (it != this->_defaultErrorPages.end())
-		return (it->second);
-	else
-		return ("");
-}
-*/
-
-// Setters
+// SETTERS
 void	Server::addServerName(std::string const &serverName) {
 
 	this->_serverNames.push_back(serverName);
@@ -237,18 +214,6 @@ void	Server::setPort(int port) {
 
 	this->_port = port;
 }
-
-/*
-void	Server::setDefaultErrorPage402(std::string const &path) {
-
-	this->_defaultErrorPage402 = path;
-}
-
-void	Server::setDefaultErrorPage404(std::string const &path) {
-
-	this->_defaultErrorPage404 = path;
-}
-*/
 
 void	Server::addLocation(Location *location) {
 

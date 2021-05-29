@@ -6,7 +6,7 @@
 /*   By: mondrew <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/17 20:42:54 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/23 15:19:16 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/05/29 17:02:34 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,11 +37,8 @@ class EventSelector {
 
 		void			add(ASocketOwner *owner);
 		void			remove(ASocketOwner *owner);
-
 		int				findMaxSocket(void);
-		// Main Loop
 		void			run(void);
-
 		void			breakLoop(void);
 };
 

@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/18 10:27:18 by mondrew           #+#    #+#             */
-/*   Updated: 2021/03/25 21:56:45 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/05/29 18:38:09 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,8 @@
 
 # define MAX_USERS 128
 
+class Server;
+
 class Config
 {
 	private:
@@ -37,27 +39,32 @@ class Config
 		std::list<Server *>		_serverSet;
 		bool					_isValid;
 		std::string				_error;
+
 		Config();
-		Server		*parseServer(std::ifstream &file, std::string &partStr); // maybe static in Server?
-		Location	*parseLocation(std::ifstream &file, std::string &partStr); // mb static in Location?
+		Server		*parseServer(std::ifstream &file, std::string &partStr);
+		Location	*parseLocation(std::ifstream &file, std::string &partStr);
 
 	public:
 
 		Config(std::string const &a_path, EventSelector *a_selector);
-		~Config();
 		Config(Config const &cp);
-		Config & operator=(Config const &op);
+		~Config();
 
+		Config						&operator=(Config const &op);
+
+		int							parseConfig();
+		void						runServers(void);
+
+		// GETTERS
 		std::list<Server *> const	&getServerSet() const;
 		std::string const			&getPath(void) const;
 		EventSelector				*getSelector(void) const;
 		std::string	const			&getError(void) const;
+		bool						isValid(void) const;
 
+		// SETTERS
 		void						setError(std::string const &error);
 		void						addServer(Server *server);
-		int							parseConfig();
-		bool						isValid(void);
-		void						runServers(void);
 };
 
 #endif

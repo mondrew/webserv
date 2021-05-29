@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/18 00:05:41 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/23 15:02:21 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/05/29 17:43:47 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,8 +25,8 @@ class ASocketOwner {
 		int		_fdCGIRequest;
 		int		_fdCGIResponse;
 
-		bool	_wantToRead;//
-		bool	_wantToWrite;//
+		bool	_wantToRead;
+		bool	_wantToWrite;
 		bool	_wantToWriteCGIRequest;
 		bool	_wantToReadCGIResponse;
 
@@ -44,8 +44,8 @@ class ASocketOwner {
 		int				getFdCGIRequest(void) const;
 		int				getFdCGIResponse(void) const;
 
-		bool			getWantToRead(void) const;//
-		bool			getWantToWrite(void) const;//
+		bool			getWantToRead(void) const;
+		bool			getWantToWrite(void) const;
 		bool			getWantToWriteCGIRequest(void) const;
 		bool			getWantToReadCGIResponse(void) const;
 
@@ -54,14 +54,13 @@ class ASocketOwner {
 		void			setFdCGIRequest(int fd);
 		void			setFdCGIResponse(int fd);
 
-		void			setWantToRead(bool val);//
-		void			setWantToWrite(bool val);//
-		void			setWantToWriteCGIRequest(bool val);//
-		void			setWantToReadCGIResponse(bool val);//
+		void			setWantToRead(bool val);
+		void			setWantToWrite(bool val);
+		void			setWantToWriteCGIRequest(bool val);
+		void			setWantToReadCGIResponse(bool val);
 
 		// Pure virtual method (implementations will be in derived classes)
 		virtual void	handle(int action) = 0;
-
 		virtual bool	isDeleteMe(void) const = 0;
 		virtual void	remove(void) = 0;
 };

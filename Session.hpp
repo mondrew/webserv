@@ -6,19 +6,12 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/17 23:06:28 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/29 14:15:43 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/05/29 17:53:29 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef SESSION_HPP
 # define SESSION_HPP
-
-#include "Server.hpp"
-#include "CGIRequest.hpp"
-#include "CGIResponse.hpp"
-#include "ASocketOwner.hpp"
-#include "HTTPRequest.hpp"
-#include "HTTPResponse.hpp"
 
 # define BUFFER_SIZE 102400
 
@@ -26,9 +19,33 @@
 # define DIR_PATH 1
 # define FILE_PATH 2
 
-//# define NONE 0
-//# define FOLDER_PATH 1
-//# define FILE_PATH 2
+# include "Server.hpp"
+# include "CGIRequest.hpp"
+# include "CGIResponse.hpp"
+# include "ASocketOwner.hpp"
+# include "HTTPRequest.hpp"
+# include "HTTPResponse.hpp"
+# include "Server.hpp"
+# include "Config.hpp"
+# include "Util.hpp"
+# include "CGIRequest.hpp"
+# include "CGIResponse.hpp"
+# include <vector>
+# include <list>
+# include <string>
+# include <iostream>
+# include <sstream>
+# include <fcntl.h>
+# include <cstring>
+# include <algorithm>
+# include <unistd.h>
+# include <sys/types.h>
+# include <sys/wait.h>
+# include <dirent.h>
+# include <stdlib.h>
+# include <fstream>
+# include <cstring>
+# include <errno.h>
 
 class Server;
 class HTTPRequest;
@@ -51,13 +68,13 @@ class Session : public ASocketOwner {
 		std::string		_responseFilePath;
 		std::string		_responseFilePathOld;
 
-		std::string		_requestStr; // It should be 'HTTPRequest' class that owns that string
-		std::string		_responseStr; // It should be 'HTTPResponse' class that owns that string
+		std::string		_requestStr;
+		std::string		_responseStr;
 
 		bool			_deleteMe;
 
-		std::string		_login; // In some case we may need it. WWWAuthenticate Response header
-		std::string		_password; // If we need them but they are empty -> 401 Unauthorized
+		std::string		_login;
+		std::string		_password;
 
 		bool			_validRequestFlag;
 		std::string		_readStr;
@@ -69,15 +86,9 @@ class Session : public ASocketOwner {
 		FILE			*_fileCGIResponse;
 		off_t			_offset;
 		bool			_launchChild;
-
 		std::string		_msgForCGI;
-
 		int				_contentLength;
 		int				_headersLength;
-
-		//char			_buf[BUFFER_SIZE + 1];
-		//int				_bufLeft;
-		//char			_write_buffer[BUFFER_SIZE];
 
 		Session(void);
 		Session(Session const &src);
@@ -91,45 +102,40 @@ class Session : public ASocketOwner {
 		Session(int sockfd, int remoteAddr, Server *master);
 		virtual ~Session(void);
 
-		void			generateResponse(void);
-		void			responseToString(void);
-		bool			isValidRequest(void);
-		bool			isValidRequestTarget(void);
-		bool			isValidRequestAllow(void) const;
-		bool			isValidRequestHost(void) const;
-		bool			isValidPermissions(void) const;
-		bool			isValidBodySize(void) const;
-		bool			isCGI(void) const;
-		virtual bool	isDeleteMe(void) const;
-		virtual void	remove(void);
-		virtual void	handle(int action);
+		void				generateResponse(void);
+		void				responseToString(void);
+		bool				isValidRequest(void);
+		bool				isValidRequestTarget(void);
+		bool				isValidRequestAllow(void) const;
+		bool				isValidRequestHost(void) const;
+		bool				isValidPermissions(void) const;
+		bool				isValidBodySize(void) const;
+		bool				isCGI(void) const;
+		virtual bool		isDeleteMe(void) const;
+		virtual void		remove(void);
+		virtual void		handle(int action);
 
-		void			fillDefaultResponseFields(void);
-		bool			makeErrorResponse(int code);
+		void				fillDefaultResponseFields(void);
+		bool				makeErrorResponse(int code);
 
-		void			makeGETResponse(void);
-		void			makeHEADResponse(void);
-		void			makePOSTResponse(void);
-		void			makePUTResponse(void);
-		void			makeCGIResponse(void);
-		void			makeRedirectionResponse(std::string const &path, \
+		void				makeGETResponse(void);
+		void				makeHEADResponse(void);
+		void				makePOSTResponse(void);
+		void				makePUTResponse(void);
+		void				makeCGIResponse(void);
+		void				makeRedirectionResponse(std::string const &path, \
 								int statusCode, std::string const &statusText);
-		// void			checkNeedToRead(void);
+		bool 				isEndRequest(std::string const &_requestStr);
+		bool				isHeadersEnd(std::string const &_requestStr);
 
-		bool 			isEndRequest(std::string const &_requestStr);
-		bool			isHeadersEnd(std::string const &_requestStr);
-
-
-		 char		**createArgv(void);
-		 char		**createEnvp(CGIRequest *cgiRequest);
-		 void 		clean(void);
+		 char				**createArgv(void);
+		 char				**createEnvp(CGIRequest *cgiRequest);
+		 void 				clean(void);
 
 		// GETTERS
 		int					getRemoteAddr(void) const;
 		Location			*getServerLocation(void) const;
 		std::string const	&getResponseFilePath(void) const;
-
-		// SETTERS
 };
 
 #endif
