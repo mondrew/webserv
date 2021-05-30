@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/18 10:27:18 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/29 18:38:09 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/05/30 19:09:38 by gjessica         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,6 +65,10 @@ class Config
 		// SETTERS
 		void						setError(std::string const &error);
 		void						addServer(Server *server);
+		int							parseConfig();
+		bool						isValid(void);
+		void						runServers(void);
+		bool 						isAlreadyExistPort(int port);
 };
 
 #endif

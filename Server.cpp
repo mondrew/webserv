@@ -140,8 +140,11 @@ void		Server::handle(int action) {
 	}
 	fcntl(sockfd, F_SETFL, O_NONBLOCK);
 	port = htons (addr.sin_port);
-	std::cout << "Connected new client [" << sockfd << "] - " <<
-			Util::ltoips(addr.sin_addr.s_addr) << ":" << port << std::endl;
+	// std::cout << "Connected new client [" << sockfd << "] - " <<
+	// 		Util::ltoips(addr.sin_addr.s_addr) << ":" << port << std::endl;
+	// // if (Util::printServerAccepts)
+	//  	std::cout << "SERVER ACCEPT: " << sockfd << " "  <<
+	// 	 Util::ltoips(addr.sin_addr.s_addr) << ":" << port << std::endl; // debug
 
 	// Add new client to the Session list and to the EventSelector objects
 	Session	*session = new Session(sockfd, addr.sin_addr.s_addr, this);

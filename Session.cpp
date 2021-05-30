@@ -39,8 +39,10 @@ void	Session::handle(int action) {
 
 	if (action == READ)
 	{
-		char buffer[BUFFER_SIZE] = {0};
-		ret = recv(_socket, buffer, BUFFER_SIZE - 1, MSG_DONTWAIT);
+		// std::cout << "handle: READ" << std::endl; // debug
+		char bufffer[BUFFER_SIZE + 1] = {0};
+		memset(bufffer, 0, BUFFER_SIZE + 1);
+		ret = recv(_socket, bufffer, BUFFER_SIZE, 0);
 		if (ret < 0)
 		{
 			std::cerr << "Error read\n";
@@ -519,7 +521,6 @@ void	Session::makeCGIResponse(void)
 				// Child
 				char	**argv = createArgv();
 				char	**envp = createEnvp(_cgiRequest);
-
 				dup2(this->_fdCGIRequest, STDIN_FILENO);
 				dup2(this->_fdCGIResponse, STDOUT_FILENO);
 				execve(_responseFilePath.c_str(), \
@@ -765,9 +766,10 @@ void	Session::makePUTResponse(void) {
 	setWantToWrite(true);
 }
 
-void	Session::generateResponse(void) {
-
-	Util::printWithTime("START GENERATE RESPONSE");
+void	Session::generateResponse(void)
+{
+	//Util::printWithTime("START GENERATE RESPONSE");
+	// std::cerr << "Generate Response!" << std::endl; // endl;
 	if (!this->_request && !this->_response)
 	{
 		this->_request = new HTTPRequest(_requestStr, this);
@@ -857,7 +859,18 @@ Session::~Session(void) {
 	return;
 }
 
-void	Session::clean() {
+void	Session::clean()
+{
+	// static int k = 0;
+
+	// k++;
+	// std::cout << "RESPONSE SENT: " << k << std::endl;
+	// if (k == 100097)
+	// {
+	// 	std::cout << "===================================================================" << std::endl;
+	// 	Util::printRequests = true;
+	// 	Util::printResponses = true;
+	// }
 
 	if (_request)
 	{
