@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/20 15:53:09 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/29 17:19:53 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/05/30 23:06:02 by gjessica         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -158,7 +158,7 @@ bool 			HTTPRequest::setStartLineParam(std::string &line) {
 			else
 				return (false);
 		}
-		else 
+		else
 			return (false);
 	}
 

@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/18 10:27:07 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/30 19:28:59 by gjessica         ###   ########.fr       */
+/*   Updated: 2021/05/30 21:45:18 by gjessica         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -265,10 +265,6 @@ bool 				Config::isAlreadyExistPort(int port){
 
 bool					Config::isValid(void) {
 	return (this->_isValid);
-}
-
-std::string	const		&Config::getError(void) const{
-	return (this->_error);
 }
 
 

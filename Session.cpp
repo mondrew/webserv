@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/17 23:10:08 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/29 18:11:11 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/05/30 23:47:24 by gjessica         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,9 +40,9 @@ void	Session::handle(int action) {
 	if (action == READ)
 	{
 		// std::cout << "handle: READ" << std::endl; // debug
-		char bufffer[BUFFER_SIZE + 1] = {0};
-		memset(bufffer, 0, BUFFER_SIZE + 1);
-		ret = recv(_socket, bufffer, BUFFER_SIZE, 0);
+		char buffer[BUFFER_SIZE + 1] = {0};
+		memset(buffer, 0, BUFFER_SIZE + 1);
+		ret = recv(_socket, buffer, BUFFER_SIZE, 0);
 		if (ret < 0)
 		{
 			std::cerr << "Error read\n";
@@ -52,8 +52,9 @@ void	Session::handle(int action) {
 		}
 		else if (ret == 0)
 		{
+			_deleteMe = true;
 			setWantToRead(false);
-			setWantToWrite(true);
+			setWantToWrite(false);
 		}
 		else
 		{

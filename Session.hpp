@@ -6,14 +6,14 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/17 23:06:28 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/29 17:53:29 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/05/30 23:48:03 by gjessica         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef SESSION_HPP
 # define SESSION_HPP
 
-# define BUFFER_SIZE 102400
+# define BUFFER_SIZE 1024000
 
 # define NONE 0
 # define DIR_PATH 1
