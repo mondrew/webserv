@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/17 23:10:08 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/29 14:39:54 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/05/30 17:42:33 by gjessica         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,8 +61,9 @@ void	Session::handle(int action)
 	if (action == READ)
 	{
 		// std::cout << "handle: READ" << std::endl; // debug
-		char bufffer[BUFFER_SIZE] = {0};
-		ret = recv(_socket, bufffer, BUFFER_SIZE - 1, MSG_DONTWAIT);
+		char bufffer[BUFFER_SIZE + 1] = {0};
+		memset(bufffer, 0, BUFFER_SIZE + 1);
+		ret = recv(_socket, bufffer, BUFFER_SIZE, 0);
 		if (ret < 0)
 		{
 			std::cerr << "Error read\n";
@@ -589,7 +590,6 @@ void	Session::makeCGIResponse(void)
 				// Child
 				char	**argv = createArgv();
 				char	**envp = createEnvp(_cgiRequest);
-
 				dup2(this->_fdCGIRequest, STDIN_FILENO); // Do it in child
 				dup2(this->_fdCGIResponse, STDOUT_FILENO); // Do it in child
 				execve(_responseFilePath.c_str(), \
@@ -865,7 +865,7 @@ void	Session::makePUTResponse(void)
 
 void	Session::generateResponse(void)
 {
-	Util::printWithTime("START GENERATE RESPONSE");
+	//Util::printWithTime("START GENERATE RESPONSE");
 	// std::cerr << "Generate Response!" << std::endl; // endl;
 	if (!this->_request && !this->_response)
 	{
@@ -968,16 +968,16 @@ Session::~Session(void)
 
 void	Session::clean()
 {
-	static int k = 0;
+	// static int k = 0;
 
-	k++;
-	std::cout << "RESPONSE SENT: " << k << std::endl;
-	if (k == 100097)
-	{
-		std::cout << "===================================================================" << std::endl;
-		Util::printRequests = true;
-		Util::printResponses = true;
-	}
+	// k++;
+	// std::cout << "RESPONSE SENT: " << k << std::endl;
+	// if (k == 100097)
+	// {
+	// 	std::cout << "===================================================================" << std::endl;
+	// 	Util::printRequests = true;
+	// 	Util::printResponses = true;
+	// }
 
 	if (_request)
 	{

@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/16 09:02:17 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/28 18:34:46 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/05/29 15:02:18 by gjessica         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -143,8 +143,8 @@ void		Server::handle(int action) {
 	}
 	fcntl(sockfd, F_SETFL, O_NONBLOCK); // mondrew: not sure it is necessary here
 	port = htons (addr.sin_port);
-	std::cout << "Connected new client [" << sockfd << "] - " <<
-			Util::ltoips(addr.sin_addr.s_addr) << ":" << port << std::endl;
+	// std::cout << "Connected new client [" << sockfd << "] - " <<
+	// 		Util::ltoips(addr.sin_addr.s_addr) << ":" << port << std::endl;
 	// // if (Util::printServerAccepts)
 	//  	std::cout << "SERVER ACCEPT: " << sockfd << " "  <<
 	// 	 Util::ltoips(addr.sin_addr.s_addr) << ":" << port << std::endl; // debug

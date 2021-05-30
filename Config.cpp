@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/18 10:27:07 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/28 18:33:04 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/05/30 19:28:59 by gjessica         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -191,6 +191,11 @@ Server 			*Config::parseServer(std::ifstream &file, std::string &partStr)
 				this->setError("Wrong port " + Util::toString(partInt));
 				return (0);
 			}
+			if (isAlreadyExistPort(partInt)){
+				file.close();
+				this->setError("Can't use two identical ports: " + Util::toString(partInt));
+				return (0);
+			}
 			server->setPort(partInt);
 		}
 		else if (partStr == "error_page")
@@ -244,8 +249,10 @@ int				Config::parseConfig()
 	std::ifstream	file(this->_path.c_str());
 	std::string		partStr;
 
-	if (!file.is_open())
-		return Logger::e(ERROR_CONFIG_PARSE);
+	if (!file.is_open()){
+		setError("Error config parse");
+		return 0;
+	}
 	while (!file.eof())
 	{
 		file >> partStr;
@@ -267,7 +274,18 @@ int				Config::parseConfig()
 		}
 	}
 	file.close();
+
 	return (0);
+}
+
+bool 				Config::isAlreadyExistPort(int port){
+	for (std::list<Server *>::iterator it = _serverSet.begin();
+													it != _serverSet.end(); it++)
+	{
+		if ((*it)->getPort() == port)
+			return true;
+	}
+	return false;
 }
 
 bool					Config::isValid(void) {
