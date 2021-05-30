@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/18 10:27:39 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/08 10:59:56 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/05/29 17:30:39 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,14 +22,14 @@ class Location
 {
 	private:
 
-		std::string 		_locationPath;
-		std::string 		_root;
-		std::string			_index;
-		char				_limitExcept;
-		bool 				_autoindex;
-		long 				_maxBody;
-		std::string 		_cgi;
-		std::string 		_cgiPath;
+		std::string 			_locationPath;
+		std::string 			_root;
+		std::string				_index;
+		char					_limitExcept;
+		bool 					_autoindex;
+		long 					_maxBody;
+		std::string 			_cgi;
+		std::string 			_cgiPath;
 
 	public:
 
@@ -53,14 +53,14 @@ class Location
 		std::string const		&getLocationPath() const;
 
 		// Setters
-		void	setRoot(std::string root);
-		void	setIndex(std::string index);
-		void	addLimitExcept(Options limitExcept);
-		void	setAutoindex(bool autoindex);
-		void	setMaxBody(long maxBody);
-		void	setCgi(std::string cgi);
-		void	setCgiPath(std::string cgiPath);
-		void	setLocationPath(std::string loctionPath);
+		void					setRoot(std::string const &root);
+		void					setIndex(std::string const &index);
+		void					addLimitExcept(Options limitExcept);
+		void					setAutoindex(bool autoindex);
+		void					setMaxBody(long maxBody);
+		void					setCgi(std::string const &cgi);
+		void					setCgiPath(std::string const &cgiPath);
+		void					setLocationPath(std::string const &locationPath);
 };
 
 #endif

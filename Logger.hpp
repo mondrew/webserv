@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/18 11:14:42 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/25 20:48:26 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/05/29 18:37:15 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,15 +28,15 @@ class Logger {
 
 	private:
 
-	public:
-
 		Logger();
 		~Logger();
 		Logger(Logger const &cp);
 		Logger & operator=(Logger const &op);
 
-		int static e(int id)
-		{
+	public:
+
+		int static		e(int id) {
+
 			if (id == ERROR_SOCKET)
 				e("Socket error");
 			else if (id == ERROR_SETSOCKOPT)
@@ -51,21 +51,23 @@ class Logger {
 			return (1);
 		}
 
-		int static e(std::string error)
-		{
+		int static		e(std::string const &error) {
+
 			std::cerr << error << std::endl;
 			return (1);
 		}
 
-		int static msg(std::string msg)
-		{
+		int static		msg(std::string const &msg) {
+
 			std::cout << msg << "\n";
 			return (0);
 		}
 
-		void static log(std::string title, std::string body, std::string color)
-		{
-			std::cout << "\n\033" << color << "================== " << title << " START ================== \033[0m" << std::endl;
+		void static		log(std::string const &title, \
+							std::string const &body, std::string const &color) {
+
+			std::cout << "\n\033" << color << "================== " << title;
+			std::cout << " START ================== \033[0m" << std::endl;
 			if (body.size() > 400)
 				std::cout << body.substr(0, 400);
 			else
@@ -73,7 +75,8 @@ class Logger {
 			if (body.length() > 400)
 				std::cout << " + [" << (body.length() - 400) << " symbols]";
 			std::cout << std::endl;
-			std::cout << "\033" << color << "================== " << title << " END ==================== \033[0m" << std::endl;
+			std::cout << "\033" << color << "================== " << title;
+			std::cout << " END ==================== \033[0m" << std::endl;
 		}
 };
 

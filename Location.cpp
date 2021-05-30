@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/18 10:28:50 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/04 14:17:53 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/05/29 17:33:03 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,6 @@
 Location::Location() {
 
 	this->_root = "./www";
-	//Change  this->index = "index.html";
 	this->_index = "";
 	this->_limitExcept = 0;
 	this->_autoindex = true;
@@ -24,7 +23,10 @@ Location::Location() {
 	this->_cgiPath = "";
 }
 
-Location::~Location() {}
+Location::~Location() {
+
+	return ;
+}
 
 Location::Location(Location const &cp) {
 
@@ -50,48 +52,96 @@ bool		Location::isContainedInPath(std::string const &path) const {
 	std::size_t		pos;
 	std::string		tmp = path;
 
-	// The special case => path = "/"
-	// if (!this->_locationPath.compare("/") && path.empty())
-	//	return (true);
 	if ((pos = path.find(this->_locationPath)) == 0)
 		return (true);
 	return (false);
 }
 
-// Getters
-long 					Location::getMaxBody() const { return this->_maxBody; }
-std::string const		&Location::getRoot() const { return this->_root; }
-std::string const		&Location::getIndex() const { return this->_index; }
-std::string const		&Location::getCgi() const { return this->_cgi; }
-std::string const 		&Location::getCgiPath() const { return this->_cgiPath; }
-std::string const		&Location::getLocationPath() const { return this->_locationPath; }
-char const				&Location::getLimitExcept() const { return this->_limitExcept; }
-bool					Location::isAutoindex() const { return this->_autoindex; }
+// GETTERS
+long 					Location::getMaxBody() const {
+	
+	return this->_maxBody;
+}
 
-// Setters
-void	Location::setRoot(std::string root) {this->_root = root;}
-void	Location::setIndex(std::string index) {this->_index = index;}
-void	Location::setMaxBody(long maxBody) { this->_maxBody = maxBody; }
-void	Location::setCgi(std::string cgi) { this->_cgi = cgi; }
+std::string const		&Location::getRoot() const {
+	
+	return this->_root;
+}
 
-void	Location::addLimitExcept(Options limitExcept) {
+std::string const		&Location::getIndex() const {
+	
+	return this->_index;
+}
+
+std::string const		&Location::getCgi() const {
+	
+	return this->_cgi;
+}
+
+std::string const 		&Location::getCgiPath() const {
+	
+	return this->_cgiPath;
+}
+
+std::string const		&Location::getLocationPath() const {
+	
+	return this->_locationPath;
+}
+
+char const				&Location::getLimitExcept() const {
+	
+	return this->_limitExcept;
+}
+
+bool					Location::isAutoindex() const {
+	
+	return this->_autoindex;
+}
+
+// SETTERS
+void					Location::setRoot(std::string const &root) {
+	
+	this->_root = root;
+}
+
+void					Location::setIndex(std::string const &index) {
+	
+	this->_index = index;
+}
+
+void					Location::setMaxBody(long maxBody) {
+	
+	this->_maxBody = maxBody;
+}
+
+void					Location::setCgi(std::string const &cgi) {
+	
+	this->_cgi = cgi;
+}
+
+void					Location::addLimitExcept(Options limitExcept) {
+
 	this->_limitExcept |= limitExcept;
 }
 
-void	Location::setAutoindex(bool autoindex) {
+void					Location::setAutoindex(bool autoindex) {
+
 	this->_autoindex = autoindex;
 }
 
-void	Location::setCgiPath(std::string cgiPath) {
+void					Location::setCgiPath(std::string const &cgiPath) {
+
 	this->_cgiPath = cgiPath;
 }
 
-void	Location::setLocationPath(std::string locationPath) {
+void					Location::setLocationPath(
+											std::string const &locationPath) {
+
 	this->_locationPath = locationPath;
 }
 
-void  Location::print() const
-{
+void  					Location::print() const {
+
 	std::cout << "Location " << this->_locationPath << " {\n";
 	std::cout << "root " << this->_root << std::endl;
 	std::cout << "client_max_body_size " << this->_maxBody << std::endl;

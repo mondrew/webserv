@@ -6,7 +6,7 @@
 /*   By: gjessica <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/09 15:19:55 by mondrew           #+#    #+#             */
-/*   Updated: 2021/05/25 08:40:17 by mondrew          ###   ########.fr       */
+/*   Updated: 2021/05/29 15:10:33 by mondrew          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,8 +25,6 @@ CGIResponse::CGIResponse(void) {
 	_statusText = "";
 	_contentLength = 0;
 	_body = "";
-
-	return ;
 }
 
 CGIResponse::~CGIResponse(void) {
@@ -39,7 +37,7 @@ void				CGIResponse::parseCGIResponse(std::string &str) {
 	std::size_t			pos;
 	std::string			line;
 	std::istringstream	iss(str);
-	int lineSize = 0;
+	int					lineSize = 0;
 
 	while(std::getline(iss, line))
 	{
@@ -58,21 +56,16 @@ void				CGIResponse::parseCGIResponse(std::string &str) {
 			if ((pos = this->_status.find(" ")) != std::string::npos)
 			{
 				this->_statusCode = atoi(this->_status.substr(0, pos).c_str());
-				if (this->_status.length() > pos + 1) // 25/05
+				if (this->_status.length() > pos + 1)
 					this->_statusText = this->_status.substr(pos + 1);
-				else // 25/05
-					this->_statusText = ""; // 25/05
+				else
+					this->_statusText = "";
 			}
 		}
 		else if (line.empty())
 		{
 			str.erase(0, lineSize);
 			this->_body = str;
-			// while (std::getline(iss, line))
-			// 	this->_body += line + "\n";
-			// this->_body = this->_body.substr(0, this->_body.size() - 1); // deletes last '\n'
-			// decode?
-			// I suppose that there will be no chunked CGI Responses
 			break ;
 		}
 		str.erase(0, lineSize);
@@ -81,13 +74,13 @@ void				CGIResponse::parseCGIResponse(std::string &str) {
 
 void				CGIResponse::print(void) const {
 
-	std::cerr << "_contentType: " << _contentType << std::endl;
-	std::cerr << "_location: " << _location << std::endl;
-	std::cerr << "_status: " << _status << std::endl;
-	std::cerr << "_contentLength: " << _contentLength << std::endl;
-	// std::cerr << "_body: " << _body << std::endl;
+	std::cout << "_contentType: " << _contentType << std::endl;
+	std::cout << "_location: " << _location << std::endl;
+	std::cout << "_status: " << _status << std::endl;
+	std::cout << "_contentLength: " << _contentLength << std::endl;
 }
 
+// GETTERS
 std::string const	&CGIResponse::getContentType(void) const {
 
 	return (this->_contentType);
@@ -123,6 +116,7 @@ std::string const	&CGIResponse::getBody(void) const {
 	return (this->_body);
 }
 
+// SETTERS
 void				CGIResponse::setContentType(std::string const &contentType) {
 
 	this->_contentType = contentType;
